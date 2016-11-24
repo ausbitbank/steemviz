@@ -1,8 +1,10 @@
 # steemviz
 
-Realtime steem blockchain viewer and curation tool
+**Realtime steem blockchain viewer and curation tool**
 
-Be kind, I know its a mess right now. 
+*Be kind, I know its a mess right now.*
+
+https://steemviz.com
 
 https://steemit.com/@ausbitbank
 
