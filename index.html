@@ -681,10 +681,10 @@ if (window.WebSocket){
                                   if (customjson[0] == "follow") {
 
                                     if (customjson[1].what == '') {
-                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="https://www.steemimg.com/images/2016/09/21/unfollowa5d1c.png" alt="Unfollowing" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
+                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="unfollow.png" alt="Unfollowing" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
                                       //checknotify(actionobj[1].follower,'unfollowed');
                                     } else if (customjson[1].what == 'blog') {
-                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="https://www.steemimg.com/images/2016/09/21/follow13310.png" alt="Following" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
+                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="follow.png" alt="Following" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
                                       //checknotify(actionobj[1].follower,'followed');
                                     } else if (customjson[1].what == 'ignore') {
                                       topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <i class="fa fa-low-vision" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
