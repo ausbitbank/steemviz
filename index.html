@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html> <head>
+  <title>steemviz.com : steem network realtime vizualisation</title>
+  <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
+  <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
+  <meta charset="UTF-8">
+  <script type="text/javascript">
+  var lastblocknum = 0;
+  var lastpermlink;
+  var defaultfollowthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "projectnewbie", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "kiddarko", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "fyrstikken", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better", "steemtrail"];
+  var defaultfollowthetags = [ "steemviz"];
+  var followthevoters = defaultfollowthevoters;
+  var followthevoteshistory = ['https://steemit.com/@ausbitbank'];
+  var imageproxy = '';
+  var imageproxystatus = false;
+  var followthetags = false;
+  var followthevotes = false;
+  var followthecommentvotes = false;
+  var showimages = true;
+  var shownsfwimages = true;
+  var AccountCount = 95000;
+  var myusername = '';
+  var sbd_print_rate_last = 50;
+  var sbd_print_rate_color = 'green';
+
+  var WebSocketWrapper;WebSocketWrapper = function () {
+    var ws = WebSocketWrapper.prototype;function WebSocketWrapper(server) {
+      this.server = server;this.connection = {};this.callbacks = [];
+    }ws.connect = function () {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        if ('WebSocket' in window) {
+          _this.connection = new WebSocket(_this.server);_this.connection.onopen = function () {
+            resolve(_this.connection);
+          };_this.connection.onerror = function (error) {
+            reject(Error('Error connecting to server, please reload the page!' + error));
+          };_this.connection.onmessage = function (data) {
+            var sdata = JSON.parse(data['data']);_this.callbacks[sdata['id']](sdata['result']);
+          };
+        } else {
+          reject(Error('Your browser does not support websocket - please upgrade!'));
+        }
+      });
+    };ws.send = function (data, callback) {
+      this.callbacks[data['id']] = callback;var json = JSON.stringify(data);this.connection.send(json);
+    };return WebSocketWrapper;
+  }();
+  var SteemWrapper;SteemWrapper = function () {
+    var steem = SteemWrapper.prototype;function SteemWrapper(ws) {
+      this.ws = ws;this.id = 0;
+    }steem.send = function (method, params, callback) {
+      ++this.id;var data = { "id": this.id, "method": method, "params": params };this.ws.send(data, callback);
+    };return SteemWrapper;
+  }(); </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html-gl/0.3.1/htmlgl.min.js"></script> -->
+  <script src="https://www.promisejs.org/polyfills/promise-6.1.0.js"></script>
+  <script src="js/steem.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Monoton|Iceland|Pacifico|Press+Start+2P|Audiowide|Vampiro+One' rel='stylesheet' type='text/css'>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+  <link href="css/steemviz.css" rel="stylesheet" type="text/css">
+  <script type="text/javascript">
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+};
+
+var objcontent = [];
+function addEvent(content) {
+
+  containerhead = '<div class="columnitem">';
+  containerfoot = '</div>';
+  if (content.subtitle == "") {
+    containerinner = '<div class="title">'+content.title+'</div>';
+  } else {
+    containerinner = '<div class="title">'+content.title+'</div><div class="undertitle">'+content.subtitle+'</div>';
+  }
+
+  container = containerhead+containerinner+containerfoot;
+  switch(content.posttype) {
+      case 'post':
+      $('#column1').prepend(container);
+      $("#column1").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'vote':
+      $('#column2').prepend(container);
+      $("#column2").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'account':
+      $('#column4').prepend(container);
+      $("#column4").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'accountupdate':
+      $('#column4').prepend(container);
+      $("#column4").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'market':
+      $('#column4').prepend(container);
+      $("#column4").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'edits':
+      $('#column3').prepend(container);
+      $("#column3").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'comment':
+      $('#column3').prepend(container);
+      $("#column3").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'promoted':
+      $('#column1').prepend(container);
+      $("#column1").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'transfer':
+      $('#column4').prepend(container);
+      $("#column4").find("div.columnitem:first").slideDown("fast","swing");
+          break;
+      case 'witnessvote':
+      $('#column3').prepend(container);
+      $("#column3").find("div.columnitem:first").slideDown("fast","swing");
+      break;
+      case 'canceltrade':
+
+      //$("#market-"+content.orderid).append(" cancelled")
+      //$('#column4').prepend(container);
+      //$("#column4").find("div.columnitem:first").slideDown("fast");
+      break;
+      case 'limitorder':
+      container = '<div class="columnitem" id="market-'+content.orderid+'" style="display:none;"><div class="title">'+content.title+'</div></div>';
+      $('#column4').prepend(container);
+      $("#column4").find("div.columnitem:first").slideDown("fast","swing");
+      break;
+      default:
+          //console.log('FAIL');
+          break;
+  }
+
+}
+
+function stripHTML(dirtyString) {
+  var container = document.createElement('div');
+  var text = document.createTextNode(dirtyString);
+  container.appendChild(text);
+  containertext = container.innerHTML; // innerHTML will be an xss safe string
+  return containertext;
+  //var textclean = container.innerText || container.textContent;
+  //return textclean; //test
+}
+
+function showimagestoggle() {
+  if (showimages == false) {
+    $("#showimagestoggle").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    showimages = true;
+  } else {
+    $("#showimagestoggle").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    showimages = false;
+  }
+}
+
+function imageproxytoggle() {
+  if (imageproxystatus == false) {
+    $("#imageproxytoggle").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    imageproxystatus = true
+    imageproxy = "https://img1.steemit.com/0x0/";
+  } else {
+    $("#imageproxytoggle").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    imageproxystatus = false
+    imageproxy = "";
+  }
+  return true
+}
+
+function followthevotestoggle() {
+  if (followthevotes == false) {
+    $("#followthevotestoggle").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    $("#followthevotestoggle2").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    followthevotes = true;
+  } else {
+    $("#followthevotestoggle").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    $("#followthevotestoggle2").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    followthevotes = false;
+  }
+  console.log("Follow the votes toggled. Status: "+followthevotes+" for users "+followthevoters);
+  return true;
+}
+
+function followthetagstoggle() {
+  if (followthetags == false) {
+    $("#followthetagstoggle2").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    followthetags = true;
+  } else {
+    $("#followthetagstoggle2").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    followthetags = false;
+  }
+  console.log("Follow the tags toggled. Status: "+followthetags+" for tags "+defaultfollowthetags);
+  return true;
+}
+
+function followthecommentvotestoggle() {
+  if (followthecommentvotes == false) {
+    $("#followthecommentvotestoggle").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    followthecommentvotes = true;
+    if (followthevotes == false) {
+      followthevotestoggle();
+    }
+  } else {
+    $("#followthecommentvotestoggle").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    followthecommentvotes = false;
+  }
+}
+
+function followthevotesconfigopen() {
+  followthevoteslistusers();
+  followthetagslisttags();
+//  followthevoteslisthistory();
+  $("#followthevotesconfigscreen").fadeIn("fast");
+}
+
+function followthevoteslistusers(){
+  var userlisthtml = ['<ul>'];
+  $.each(followthevoters, function(index, value) {
+    userlisthtml.push('<li id="followthevoter-'+value+'"><small><a href="#" onclick="followthevotesremoveuser('+index+');"><i class="fa fa-times hovergrow" title="Remove user" style="color:red;" aria-hidden="true"></i></a> <a href="#" onclick="getVotes('+index+');"> <i class="fa fa-history hovergrow" title="Show voting history" aria-hidden="true" style="color:orange;"> </i>  ' + value + '</a></small></li>');
+  });
+  userlisthtml.push('</ul>');
+  $("#followthevotesconfigscreenuserlist").fadeIn("fast").html(userlisthtml.join(""));
+}
+
+function followthetagslisttags(){
+  var taglisthtml = ['<ul>'];
+  $.each(defaultfollowthetags, function(index, value) {
+    taglisthtml.push('<li id="followthetags-'+value+'"><small><a href="#" onclick="followthetagsremovetag('+index+');"><i class="fa fa-times hovergrow" title="Remove tag" style="color:red;" aria-hidden="true"></i></a>  <a href="https://steemit.com/created/'+value+'"><i class="fa fa-external-link-square" aria-hidden="true"></i> '+value+'</a></small></li>');
+  });
+  taglisthtml.push('</ul>');
+  $("#followthevotesconfigscreentaglist").fadeIn("fast").html(taglisthtml.join(""));
+}
+
+function followthetagsaddtag() {
+  // Add new user to watchlist array
+  tmpuserinput2 = document.getElementsByTagName("input")[0].value.toLowerCase();
+  document.getElementsByTagName("input")[0].value = '';
+  defaultfollowthetags.push(tmpuserinput2);
+  //console.log("now following user "+tmpuserinput);
+  followthetagslisttags();
+  return true;
+}
+
+function followthetagsremovetag(index) {
+  defaultfollowthetags.splice(index,1);
+  followthetagslisttags();
+}
+
+function followthetagsclearlist() {
+  defaultfollowthetags = [];
+  followthetagslisttags();
+}
+
+function followthevoteslisthistory(){
+  followthevoteshistoryhtml = ['<a href="#" onclick=\'$("#followthevoteshistorycontainer").fadeOut("fast");\'><i class="fa fa-times" title="Close" style="color:red;"> </i></a><br />'];
+  $.each(followthevoteshistory, function(index, value) { followthevoteshistoryhtml.push(value+'<br />'); });
+  //followthevoteshistoryhtml.push('');
+  $("#followthevoteshistorycontainer").html(followthevoteshistoryhtml.join(""));
+  $("#followthevoteshistorycontainer").fadeIn("fast");
+}
+
+
+function followthevotesconfigclose() {
+  // Save to cookie and close..
+  $("#followthevotesconfigscreen").fadeOut("slow");
+}
+
+function followthevotesadduser() {
+  // Add new user to watchlist array
+  tmpuserinput = document.getElementsByTagName("input")[1].value.toLowerCase();
+  document.getElementsByTagName("input")[1].value = '';
+  followthevoters.push(tmpuserinput);
+  //console.log("now following user "+tmpuserinput);
+  followthevoteslistusers();
+  return true;
+}
+
+function setuser(){
+  myusername = document.getElementsByTagName("input")[0].value.toLowerCase();
+  console.log("username set to "+myusername);
+  //getFollowers(myusername);
+}
+
+function followthevotesremoveuser(index) {
+  followthevoters.splice(index,1);
+  followthevoteslistusers();
+}
+
+function followthevotesrestoredefaults() {
+  followthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "projectnewbie", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "kiddarko", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "fyrstikken", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better"];
+  followthevoteslistusers();
+}
+
+function followthevotesclearlist() {
+  followthevoters = [];
+  followthevoteslistusers();
+}
+
+function emergencypurge() {
+  // Wipe displayed images, toggle future display off
+  if (showimages == true) {
+  showimagestoggle();
+  }
+  $("img.postimage").remove();
+}
+
+function getAccountCount(){
+  steem.api.getAccountCount(function(err, result) { AccountCount = result; $("#statsAccountCount").html(AccountCount); });
+}
+
+function getFollowers(account) {
+  steem.api.getFollowers(account, 0, 'blog', 100, function(err, result) { console.log(err, result); });
+}
+function getVotes(voterindex){
+  $("#votehistorycontainer").fadeIn("slow");
+  $("#votehistoryholder").fadeIn("slow");
+  voter = followthevoters[voterindex];
+  //console.log("Looking up voting history for "+voter);
+  $('#votehistoryholder').html('<center><h3>Loading vote history for '+voter+'  <a href="#" class="hovergrow" id="votehistoryclose" onclick=\'$("#votehistorycontainer").fadeOut("fast");\'><i class="fa fa-times" title="Close" style="color:red;"> </i></a></h3><br /><i class="fa fa-spin fa-spinner"> </i></center>');
+  steem.api.getAccountVotes(voter, function(err, result) {
+    var votehistory = result.slice(-200);
+    //<i class="fa fa-spin fa-spinner"> </i> Loading vote history ..
+    var votelisthtml = ['<center><h3>Last '+votehistory.length+' votes by '+voter+'  <a href="#" class="hovergrow" id="votehistoryclose" onclick=\'$("#votehistorycontainer").fadeOut("fast");\'><i class="fa fa-times" title="Close" style="color:red;"> </i></h3></a></center><br /><ul id="votelist">'];
+  //  console.log(votehistory);
+  $.each(votehistory.reverse(), function(index, value) {
+    votelisthtml.push('<li><small>'+votehistory[index].time+' '+votehistory[index].percent/100+'%</small> <a href="https://steemit.com/steemviz/@'+votehistory[index].authorperm+'" target="_blank">@'+votehistory[index].authorperm.substring(0,40)+'</a></li>');
+  });
+  votelisthtml.push('</ul>');
+  $("#votehistoryholder").html(votelisthtml.join(""));
+
+
+  });
+}
+
+function setCookie(key, value) {
+    var expires = new Date();
+    expires.setTime(expires.getTime() + (1 * 24 * 60 * 60 * 1000));
+    document.cookie = key + '=' + value + ';expires=' + expires.toUTCString();
+}
+
+function getCookie(key) {
+    var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+    return keyValue ? keyValue[2] : null;
+}
+
+function followvotepoptab(url) {
+  var win = window.open(url, '_blank');
+  //win.focus();
+}
+
+jQuery.cachedScript = function( url, options ) {
+
+  // Allow user to set any option except for dataType, cache, and url
+  options = $.extend( options || {}, {
+    dataType: "script",
+    cache: true,
+    url: url
+  });
+
+  // Use $.ajax() since it is more flexible than $.getScript
+  // Return the jqXHR object so we can chain callbacks
+  return jQuery.ajax( options );
+};
+
+function handleObjects() {
+
+  if(objcontent.length > 0) {
+    addEvent(objcontent[0]);
+    objcontent.splice(0,1);
+  } else {
+      objcontent = [];
+  }
+  setTimeout(handleObjects, 200);
+}
+
+handleObjects();
+
+var last_block = 4652290;
+var limitorderlastprice = "0.5";
+	$( document ).ready(function() {
+      $('#column1').prepend('<div class="columnheader" style="display:none;"><div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <i class="fa fa-star" style="color:gold;" aria-hidden="true"></i></div></div>');
+      $("#column1").find("div.columnheader:first").fadeIn("slow");
+      $('#column2').prepend('<div class="columnheader" style="display:none;"><i class="fa fa-chevron-circle-up" style="color:#4ba2f2" aria-hidden="true"></i> </i> <i class="fa fa-chevron-circle-up" style="color:grey;" aria-hidden="true"></i> <i class="fa fa-flag" style="color:red" aria-hidden="true"> <i class="fa fa-low-vision" style="color:red;" aria-hidden="true"></i> <img src="https://www.steemimg.com/images/2016/09/21/follow13310.png" style="vertical-align:middle;"><img src="https://www.steemimg.com/images/2016/09/21/unfollowa5d1c.png" style="vertical-align:middle;"> </div></div>');
+      $("#column2").find("div.columnheader:first").fadeIn("slow");
+      $('#column3').prepend('<div class="columnitem" style="display:none;"><div class="title"><div class="title"><i class="fa fa-check" style="color:green;"> </i> <i class="fa fa-times" style="color:red;"> </i> <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> <i class="fa fa-pencil-square-o" style="color:orange;" aria-hidden="true"></i> <i class="fa fa-ban" style="color:red" aria-hidden="true"></i> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z" class="reblog"></path></svg></span></div></div>');
+      $("#column3").find("div.columnitem:first").fadeIn("slow");
+      $('#column4').prepend('<div class="columnitem" style="display:none;"><div class="title"><img src="https://www.steemimg.com/images/2016/09/03/mushroom185f8.png" alt="" style="margin-bottom:-2px; vertical-align="bottom"> <i class="fa fa-cube" aria-hidden="true" style="color:brown;"></i> <i class="fa fa-key" style="color:red" aria-hidden="true"></i> <i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <i class="fa fa-balance-scale" style="color:purple" aria-hidden="true" alt="Market Trades"></i> <i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" alt="Transaction/Transfer"></i> <i class="fa fa-line-chart" style="color:brown;" aria-hidden="true"></i> <i class="fa fa-recycle" style="color:orange;" aria-hidden="true"></i> <i class="fa fa-eject" style="color:red;"> <i class="fa fa-university" style="color:black;" aria-hidden="true"></i> </i></div></div>');
+      $("#column4").find("div.columnitem:first").fadeIn("slow");
+      getAccountCount();
+      //$("#outerContainer").htmlgl()
+
+if (window.WebSocket){
+ var server = 'wss://node.steem.ws';
+ var ws = new WebSocketWrapper(server);
+ ws.connect().then(function(response) {
+   var steem = new SteemWrapper(ws);
+   var wsocket = function() {
+   steem.send('get_dynamic_global_properties',[], function(response2) {
+     var block_number = response2["last_irreversible_block_num"];
+     //console.log(response2);
+     if(lastblocknum != block_number) {
+       lastblocknum = block_number;
+       //console.log(response2);
+       $("#blocknumber").html("<i class='fa fa-cube'> </i> "+lastblocknum);
+       $("#currentwitness").html("<i class='fa fa-user-secret'> </i> <a href='https://steemdb.com/@"+response2['current_witness']+"'>"+response2['current_witness']+"</a>");
+       $("#timestamp").html("<i class='fa fa-clock-o' aria-hidden='true'> </i>  "+response2['time']);
+       if (response2["sbd_print_rate"] <= sbd_print_rate_last) {
+         sbd_print_rate_color = "red";
+       } else {
+         sbd_print_rate_color = "green";
+       }
+       supplystatshtml = "<strong>Current SBD supply</strong> "+response2["current_sbd_supply"]+" <br /> <strong>Current Steem supply</strong> "+response2["current_supply"]+" <br /><strong>Average Block size</strong> "+response2["average_block_size"]+" <br /><strong>SBD Print Rate</strong> <span color=\""+sbd_print_rate_color+"\">"+response2["sbd_print_rate"]+"</span> <br /><strong>Votes regenerated per day</strong> "+response2["vote_regeneration_per_day"]+" <br /><strong>Total reward fund steem</strong> "+response2["total_reward_fund_steem"]+" <br /><strong>Total vesting fund</strong> "+response2["total_vesting_fund_steem"]+" <br /><strong>Total vesting shares</strong> "+response2["total_vesting_shares"]+" <br /><strong>Virtual supply</strong> "+response2["virtual_supply"]+" <br/><strong>Current reserve ratio</strong> "+response2["current_reserve_ratio"];
+       $("#supplystats").html(supplystatshtml);
+       steem.send("get_block", [block_number], function(block) {
+         for(var i = 0; i < block.transactions.length; i++) {
+           var actionobj = block.transactions[i].operations[0];
+           //console.log(actionobj);
+            switch (actionobj[0]) {
+
+              case 'vote':
+                votepercent = actionobj[1].weight / 100;
+                if (actionobj[1].weight >= '-1') {
+                  var voteDirection = '<i class="fa fa-chevron-circle-up" style="color:#4ba2f2" aria-hidden="true"></i> <small style="color:#11922c !important;">'+votepercent+'%</small>';
+                } else if (actionobj[1].weight == '0') {
+                  var voteDirection = '<i class="fa fa-chevron-circle-up" style="color:grey" aria-hidden="true"></i> <small style="color:grey !important;">'+votepercent+'%</small>'
+                } else {
+                  var voteDirection = '<i class="fa fa-flag" style="color:red" aria-hidden="true"></i> <small style="color:red !important;">'+votepercent+'%</small>';
+                }
+                  // Only show the permlink if its different to the last vote
+                  tmptitle = '<small><a href="http://steemit.com/tag/@'+actionobj[1].author+'/'+actionobj[1].permlink+'" target="_blank">'+actionobj[1].voter+' '+voteDirection+'  '+actionobj[1].author+'</small>';
+                  if (actionobj[1].permlink != lastpermlink) {
+                  topost = { title: tmptitle, subtitle: '<span style="color:grey !important;">'+actionobj[1].permlink.substring(0,50)+' ..</span></a>', posttype: 'vote' }
+                  } else {
+                    topost = { title: tmptitle, subtitle: '', posttype: 'vote' }
+                  }
+                  lastpermlink = actionobj[1].permlink;
+
+
+                  if (followthevotes == true) {
+                    if ($.inArray(actionobj[1].voter, followthevoters) != -1){
+                      // Voter is in the list of watchers
+                      //console.log("follow the votes enabled, user "+actionobj[1].voter+" is in follow list");
+                      if (votepercent >= 2) {
+                        //console.log("vote is greater then 2%");
+                        // Only trigger on positive votes over 2% - allowing "symbolic" votes without spamming everyone
+                        var refurl = 'https://steemit.com/steemviz-'+actionobj[1].voter+'/@'+actionobj[1].author+'/'+actionobj[1].permlink;
+                        var uniqueurl = 'https://steemit.com/tag/@'+actionobj[1].author+'/'+actionobj[1].permlink;
+                        if ($.inArray(uniqueurl, followthevoteshistory) == -1) {
+                          //console.log(uniqueurl+" not in follow history");
+                          // If a permlink has @user/re-  its a comment
+                          if (actionobj[1].permlink.substring(0,2) == 're' || actionobj[1].permlink.substring(0,2) == '-re') {
+                            if (followthecommentvotes == true) { followvotepoptab(refurl); followthevoteshistory.push(uniqueurl);} else { console.log("Ignoring comment vote from "+actionobj[1].voter+" on "+uniqueurl+" ");}
+                            } else {
+                              followvotepoptab(refurl);
+                              followthevoteshistory.push(uniqueurl);
+                            }
+                      }
+                    }
+                    }
+                  }
+                  //checknotify(actionobj[1].author,'vote');
+                  //checknotify(actionobj[1].voter,'vote');
+                  break;
+
+              case 'comment':
+                postcontentfull = stripHTML(actionobj[1].body);
+                postcontentshort = postcontentfull.substring(0,250);
+                if (actionobj[1].json_metadata != "") {
+                  postjson = JSON.parse(actionobj[1].json_metadata);
+                  if (postjson.hasOwnProperty("tags")) {
+                    tagstring = '<small><a href="https://steemit.com/created/'+stripHTML(postjson.tags[0])+'" target="_blank"><i class="fa fa-tags" aria-hidden="true" style="color:brown;"></i> '+stripHTML(postjson.tags[0])+'</a> ..</small>';
+                    postcontentshort = postcontentshort+'<br>'+tagstring;
+                    // Insert code to follow tags here
+                    if (followthetags == true) {
+                      $.each(postjson.tags, function( index, value ){
+                        if ($.inArray(value, defaultfollowthetags) !== -1) {
+                          if (actionobj[1].title != '') {
+                            popurl = "https://steemit.com/steemviz-tag-"+value+"/@"+actionobj[1].author+"/"+actionobj[1].permlink;
+                            console.log("followed tag "+value)
+                            followvotepoptab(popurl);
+                            return false;
+                          }
+                        }
+                      });
+                      }
+                    // End code for follow tags
+                  }
+                  if (postjson.hasOwnProperty("links")) {
+                    postlink = '<small><a href="'+postjson.links[0]+'" target="_blank"><i class="fa fa-link" aria-hidden="true" style="color:grey;"></i> '+stripHTML(postjson.links[0].substring(8,30))+'</a> ..</small>';
+                    //postimage = '<a href="https://steemit.com/'+actionobj[1].parent_permlink+'/@'+actionobj[1].author+'/'+actionobj[1].permlink+'" target="_blank"><img src="'+backgroundimage+'" class="postimage"></a>'
+                    postcontentshort = postcontentshort+' '+postlink;
+                  }
+                  if (postjson.hasOwnProperty("image") && showimages == true) {
+                    if (imageproxystatus == false) {
+                      backgroundimage = postjson.image[0];
+                    } else {
+                      backgroundimage = imageproxy+postjson.image[0];
+                    }
+                    postimage = '<a href="https://steemit.com/'+actionobj[1].parent_permlink+'/@'+actionobj[1].author+'/'+actionobj[1].permlink+'" target="_blank"><img src="'+backgroundimage+'" class="postimage"></a>'
+                    postimagelink = '  <small><a href="'+stripHTML(postjson.image[0])+'" target="_blank"><i class="fa fa-camera" style="color:black;"> </i> '+stripHTML(postjson.image[0].substring(8,30))+'</a> ..</small>';
+                    postcontentshort = postimage+postcontentshort+postimagelink;
+                  }
+                }
+
+                if(actionobj[1].title == '') {
+                  posttype = 'comment';
+                  title = '<a href="http://steemit.com/tag/@'+actionobj[1].author+'/'+actionobj[1].permlink+'" target="_blank" class="user">'+actionobj[1].author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+actionobj[1].parent_author+'</a>';
+                  subtitle = '<small>on <a href="https://steemit.com/tag/@'+actionobj[1].author+'/'+actionobj[1].permlink+'" target="_blank" class="user">'+actionobj[1].permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'';
+                  //checknotify(actionobj[1].parent_author,'comment');
+                }
+
+                if (actionobj[1].title != '') {
+                  posttype = 'post';
+                  title = '<i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <a href="http://steemit.com/@'+actionobj[1].author+'" target="_blank" class="user">'+actionobj[1].author+'</a>';
+                  subtitle = '<a href="http://steemit.com/'+actionobj[1].parent_permlink+'/@'+actionobj[1].author+'/'+actionobj[1].permlink+'" target="_blank">'+stripHTML(actionobj[1].title)+'</a><br /><blockquote>'+postcontentshort+'</blockquote>';
+                }
+
+                if (postcontentfull.substring(0,2) == "@@") {
+                  posttype = 'edits';
+                  title = '<i class="fa fa-pencil-square-o" style="color:orange;" aria-hidden="true"></i><strong><small style="color:orange;"> </small></strong> '+title;
+                }
+
+                topost = { title : title, subtitle : subtitle, posttype : posttype }
+                break;
+
+              case 'transfer':
+                            // Paid Promotion - Next check if its self promotion or gift promotion
+                            if (actionobj[1].to == 'null') {
+                              topost = {
+                                title : '<strong style="color:gold;"><i class="fa fa-star" aria-hidden="true"></i> Paid Promotion</strong> <small>'+actionobj[1].amount+' by</small> <a href="https://steemit.com/@'+actionobj[1].from+'" target="_blank">'+actionobj[1].from+'</a>',
+                                subtitle : '<a href="https://steemit.com/undefined/'+actionobj[1].memo+'" target="_blank">'+stripHTML(actionobj[1].memo)+'</a>',
+                                posttype : 'promoted'
+                                }
+                              } else if (actionobj[1].from == 'ausbitbank' && actionobj[1].to == 'ausbitbank' && actionobj[1].memo == 'steemviz refresh') {
+                                  // Remote refresh - will be used sparingly to force users to refresh for updates
+                                     location.reload();
+                              } else {
+                                // Add transfer parsing for: poloniex, bittrex, shapeshiftio, steembingo, steemlotto, radiosteem
+                                topost = {
+                                title : '<i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" alt="Market Trades"></i> <small>'+actionobj[1].amount+'</small> from <a href="http://steemit.com/@'+actionobj[1].from+'" target="_blank" class="user">'+actionobj[1].from+'</a> to <a href="http://steemit.com/@'+actionobj[1].to+'" target="_blank" class="user">'+actionobj[1].to+'</a>',
+                                subtitle : '<blockquote>'+stripHTML(actionobj[1].memo)+'</blockquote>',
+                                posttype : 'transfer'
+                                }
+                                if (actionobj[1].memo == "") {
+                                  //topost[subtitle] = '';
+                                }
+                              }
+                            //checknotify(actionobj[1].from,'transfer from');
+                            //checknotify(actionobj[1].to,'transfer to');
+                            //checknotify(actionobj[1].memo,'memo mentioning');
+                            break;
+
+              case 'account_create':
+                            topost = {
+                              title: '<i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <a href="http://steemit.com/@'+actionobj[1].new_account_name+'" target="_blank" class="user">'+actionobj[1].new_account_name+'</a>',
+                              subtitle: '',
+                              posttype: 'account'
+                            }
+                            AccountCount++;
+                            $("#statsAccountCount").html(AccountCount);
+                            break;
+
+              case 'limit_order_create':
+                            //console.log(actionobj[1]);
+                            limitorderowner = actionobj[1].owner;
+                            limitordersell = actionobj[1].amount_to_sell.split(" ");
+                            limitorderbuy = actionobj[1].min_to_receive.split(" ");
+                            //console.log(limitordersell);
+                            limitorderselltype = limitordersell[1];
+                            limitordersellamount = limitordersell[0];
+                            //console.log(limitorderbuy);
+                            limitorderbuytype = limitorderbuy[1];
+                            limitorderbuyamount = limitorderbuy[0]
+                            //limitorderwhalesbdtrigger = '1000'
+                            if (limitorderselltype == 'STEEM') {
+                              limitorderprice = limitorderbuyamount / limitordersellamount;
+                            } else {
+                              limitorderprice = limitordersellamount / limitorderbuyamount;
+                            }
+                            if (limitorderprice < limitorderlastprice){
+                              limitordercolor = "red";
+                            } else if (limitorderprice > limitorderlastprice) {
+                              limitordercolor = "green";
+                            } else {
+                              limitordercolor = "grey";
+                            }
+
+                            //console.log('last price '+limitorderlastprice+' now price '+limitorderprice+' ');
+                            limitorderstring = '<a href="https://steemit.com/@'+limitorderowner+'">'+limitorderowner+'</a> offers '+limitordersellamount+' '+limitorderselltype+' at $<span style="color:'+limitordercolor+';">'+limitorderprice.toFixed(8)+'</span>';
+                            //console.log(actionobj);
+
+                            topost = {
+                              title: '<i class="fa fa-balance-scale" style="color:purple" aria-hidden="true" alt="Market Trades"></i> <small>'+limitorderstring+'',
+                              subtitle: '',
+                              posttype: 'limitorder',
+                              orderid: actionobj[1].orderid
+                            }
+                            limitorderlastprice = limitorderprice;
+                            //checknotify(actionobj[1].owner,'order create');
+                            break;
+
+              case 'account_update':
+
+                            topost = {
+                              title: '<i class="fa fa-key" style="color:red;" aria-hidden="true"></i>  <a href="http://steemd.com/@'+actionobj[1].account+'" target="_blank" class="user">'+actionobj[1].account+'</a>',
+                              subtitle: '',
+                              posttype: 'accountupdate'
+                            }
+                            //checknotify(actionobj[1].account,'account update');
+                            break;
+
+              case 'limit_order_cancel':
+
+                            topost = {
+                              title: '<i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="http://steemit.com/@'+actionobj[1].owner+'" target="_blank" class="user">'+actionobj[1].owner+'</a> <small>cancelled '+actionobj[1].orderid+'</small> ',
+                              subtitle: '',
+                              posttype: 'canceltrade',
+                              cancelorderid: actionobj[1].orderid
+                            }
+                            //checknotify(actionobj[1].owner,'order cancel');
+                            break;
+
+              case 'pow':
+                            topost = {
+                              title: '<i class="fa fa-cube" aria-hidden="true"></i> <a href="http://steemit.com/@'+actionobj[1].worker_account+'" target="_blank" class="user">'+actionobj[1].worker_account+'</a>',
+                              subtitle: '',
+                              posttype: 'market'
+                            }
+                            //checknotify(actionobj[1].worker_account,'block mined');
+                            break;
+              case 'pow2':
+                            // work 1 input worker_account
+                            //console.log("pow2");
+                            //console.log(actionobj[1]);
+                            //console.log(actionobj[1].work);
+                            //console.log(actionobj[1].work[1].input['worker_account']);
+                            sbdinterest = actionobj[1].props['sbd_interest_rate'] / 100;
+                            topost = {
+                              title: '<i class="fa fa-cube" aria-hidden="true" style="color:brown;"> </i> <a href="http://steemit.com/@'+actionobj[1].work[1].input['worker_account']+'" target="_blank" class="user">'+actionobj[1].work[1].input['worker_account']+'</a>',
+                              subtitle: ''+actionobj[1].props['account_creation_fee']+' acct fee , max blocksize '+actionobj[1].props['maximum_block_size']+' & '+sbdinterest+' % SBD interest',
+                              posttype: 'market'
+                            }
+                            break;
+
+            case 'account_witness_vote':
+                            //console.log("witness vote");
+                            //console.log(actionobj[1]);
+                            if (actionobj[1].approve == true) {
+                              voteDirection = '<i class="fa fa-check" style="color:green;"> </i>';
+                            } else {
+                              voteDirection = '<i class="fa fa-times" style="color:red;"> </i>';
+                            }
+                            topost = {
+                              title: '<a href="https://steemit.com/@'+actionobj[1].account+'" target="_blank">'+actionobj[1].account+'</a> '+voteDirection+' <a href="https://steemit.com/@'+actionobj[1].witness+'" target="_blank">'+actionobj[1].witness+'</a>',
+                              subtitle: '',
+                              posttype: 'witnessvote'
+                            }
+
+                            break;
+
+              case 'custom_json':
+                              //console.log(actionobj);
+
+                              if (actionobj[1].id == "follow") {
+                                customjson = JSON.parse(actionobj[1].json);
+                                  //console.log(customjson);
+                                  //console.log(customjson[0]);
+                                  if (customjson[0] == "follow") {
+
+                                    if (customjson[1].what == '') {
+                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="https://www.steemimg.com/images/2016/09/21/unfollowa5d1c.png" alt="Unfollowing" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
+                                      //checknotify(actionobj[1].follower,'unfollowed');
+                                    } else if (customjson[1].what == 'blog') {
+                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="https://www.steemimg.com/images/2016/09/21/follow13310.png" alt="Following" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
+                                      //checknotify(actionobj[1].follower,'followed');
+                                    } else if (customjson[1].what == 'ignore') {
+                                      topost = { title: '<a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <i class="fa fa-low-vision" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a>', subtitle: '', posttype: 'vote'}
+                                      //checknotify(actionobj[1].follower,'ignored');
+                                    }
+                                  }
+                                  if (customjson[0] == "reblog") {
+                                    topost = { title: '<a href="https://steemit.com/@'+customjson[1].account+'/" target="_blank">'+customjson[1].account+'</a> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z"></path></svg></span> <a href="https://steemit.com/@'+customjson[1].author+'" target="_blank">'+customjson[1].author+'</a>', subtitle: '<a href="https://steemit.com/steemvizrebloggedby'+customjson[1].account+'/@'+customjson[1].author+'/'+customjson[1].permlink+'" target="_blank">'+customjson[1].permlink+'</a>', posttype: 'comment'}
+                                  }
+
+                              } else {
+                                console.log('custom json operation');
+                                console.log(actionobj);
+                              }
+                            break;
+
+                            case 'withdraw_vesting':
+                              //console.log('Power down');
+                              //console.log(actionobj[1]);
+                              if (actionobj[1].vesting_shares == "0.000000 VESTS") {
+                                withdrawvestmessage = "Cancelled Powerdown";
+                              } else {
+                                withdrawvestmessage = 'Powerdown '+actionobj[1].vesting_shares+'';
+                              }
+                              topost = {title: '<i class="fa fa-eject" style="color:red;"> </i> <a href="https://steemit.com/@'+actionobj[1].account+'" target="_blank">'+actionobj[1].account+'</a> <small>'+withdrawvestmessage+'</small>', subtitle: '', posttype: 'account'}
+                            break;
+
+                            case 'convert':
+                              //console.log('convert from SBD to steem');
+                              //console.log(actionobj[1]);
+                              topost = {title: '<i class="fa fa-recycle" style="color:orange;" aria-hidden="true"></i> <a href="https://steemit.com/@'+actionobj[1].owner+'" target="_blank">'+actionobj[1].owner+'</a> <small>converted '+actionobj[1].amount+' to Steem</small>', subtitle: '', posttype: 'account'}
+                            break;
+
+                            case 'transfer_to_vesting':
+                              //console.log('transfer to vesting');
+                              if (actionobj[1].from == actionobj[1].to) {
+                                topost = { title: '<img src="https://www.steemimg.com/images/2016/09/03/mushroom185f8.png" style="padding:none; margin:none; position:relative;" vertical-align="middle"> Powerup <small>'+actionobj[1].amount+' by</small> <a href="https://steemit.com/@'+actionobj[1].to+'" target="_blank">'+actionobj[1].to+'</a>', subtitle: '', posttype: 'account' }
+                              } else {
+                                topost = { title: '<img src="https://www.steemimg.com/images/2016/09/03/mushroom185f8.png" style="padding:none; margin:none; position:relative;" vertical-align="middle"> Powerup <small>'+actionobj[1].amount+' for</small> <a href="https://steemit.com/@'+actionobj[1].to+'" target="_blank">'+actionobj[1].to+'</a> by <a href="https://steemit.com/@'+actionobj[1].from+'" target="_blank">'+actionobj[1].from+'</a>', subtitle: '', posttype: 'account' }
+                              }
+
+                              break;
+
+                            case 'delete_comment':
+                              //console.log('comment deleted');
+                              topost = { title: '<i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@"'+actionobj[1].author+'" target="_blank">'+actionobj[1].author+'</a> deleted ', subtitle: ' '+actionobj[1].permlink+'', posttype: 'edits' }
+                              // author permlink
+                              //console.log(actionobj[1]);
+                            break;
+
+                            case 'feed_publish':
+                            // Price feed: publisher [exchange_rate][base,quote]
+                              //console.log('price feed published');
+                              //console.log(actionobj[1]);
+                              topost = {
+                                title: '<i class="fa fa-line-chart" style="color:brown;" aria-hidden="true"></i> <small>"'+actionobj[1].exchange_rate.base+' per Steem" reports </small><a href="https://steemit.com/@'+actionobj[1].publisher+'" target="_blank">'+actionobj[1].publisher+'</a>',
+                                subtitle: '',
+                                posttype: 'account'
+                              }
+                            break;
+
+                            case 'transfer_to_savings':
+                              topost = {
+                                title: '<i class="fa fa-university" style="color:black;" aria-hidden="true"></i> <small><a href="https://steemit.com/@'+actionobj[1].to+'">'+actionobj[1].to+' deposited '+actionobj[1].amount+' in savings </small>',
+                                subtitle: '',
+                                posttype: 'account'
+                              }
+                            break;
+                            case 'transfer_from_savings':
+                              topost = {
+                                title: '<i class="fa fa-university" style="color:black;" aria-hidden="true"></i> <small><a href="https://steemit.com/@'+actionobj[1].to+'">'+actionobj[1].to+' withdrew '+actionobj[1].amount+' from savings </small>',
+                                subtitle: '',
+                                posttype: 'account'
+                              }
+                            break;
+
+
+                            default:
+
+                            topost = false;
+                            console.log(actionobj);
+                          }
+
+                          if(topost) {
+
+                            //console.log(topost);
+                            topost['class'] = actionobj[0];
+                            //console.log(topost['class']);
+                            objcontent.push(topost);
+                            //console.log(objcontent);
+                          }
+
+                       } // foreach
+
+			              }); // ws block
+
+        }
+        setTimeout(wsocket,1000);
+        });
+        };
+        wsocket();
+        });
+        } else { alert('Unfortunately - your browser does not support websockets. Update! ');  }
+        });
+</script>
+ </head><body>
+  <div id="outerContainer">
+    <div id="column1"> </div> <div id="column2"> </div> <div id="column3"> </div> <div id="column4"> </div>
+ </div>
+<div id="followthevotesconfigscreen">
+  <div id="followthevotesconfigclose" style="display:block;position:absolute;right:5px;top:5px;"> <a href="#" onclick="followthevotesconfigclose();" style="color:green;">  <i class="fa fa-floppy-o hovergrow" aria-hidden="true"> </i></a> </div>
+  <center><img src="https://www.steemimg.com/images/2016/09/25/steemvizlogo1b6ac.png" width="250" title="SteemViz - thanks to @minion for the logo!"></center>
+  <center><strong>Realtime steem blockchain viewer and curation tool</strong></center>
+  <i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true" title="New Post"> </i> <i class="fa fa-star" style="color:gold;" title="New Promotion" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Upvote" style="color:#4ba2f2" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Unvote" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-flag" style="color:red" title="Downvote" aria-hidden="true"> </i> <i class="fa fa-low-vision" title="Mute" style="color:red;" aria-hidden="true"> </i> <img src="https://www.steemimg.com/images/2016/09/21/follow13310.png" title="Follow" style="vertical-align:middle;"> <img src="https://www.steemimg.com/images/2016/09/21/unfollowa5d1c.png" title="Unfollow" style="vertical-align:middle;"> <i class="fa fa-check" title="Approve witness" style="color:green;"> </i> <i class="fa fa-times" title="Dissaprove witness" style="color:red;"> </i> <i class="fa fa-commenting-o" title="New comment" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-pencil-square-o" title="Edit" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-ban" title="Deletion" style="color:red" aria-hidden="true"> </i> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog" title="Resteem" ><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z" class="reblog"></path></svg></span> <img src="https://www.steemimg.com/images/2016/09/03/mushroom185f8.png" title="Powerup" style="margin-bottom:-2px; vertical-align="bottom"> <i class="fa fa-cube" aria-hidden="true" style="color:brown;" title="New block"></i> <i class="fa fa-key" title="Account update" style="color:red" aria-hidden="true"></i> <i class="fa fa-user-plus" title="New user"  style="color:blue" aria-hidden="true"></i> <i class="fa fa-balance-scale" title="Market Trade" style="color:purple" aria-hidden="true" title="Market Trades"></i> <i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" title="Transaction/Transfer"></i> <i class="fa fa-line-chart" title="Witness price feed" style="color:brown;" aria-hidden="true"> </i> <i class="fa fa-recycle" title="SBD Conversion request" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-eject" style="color:red;" title="Powerdown"> </i> <i class="fa fa-university" style="color:black;" title="Savings" aria-hidden="true"></i><br />
+  <div style="float:left;text-align:left;padding:10px;">
+  <center><h3>Settings</h3></center>
+  <p><span onclick="showimagestoggle()"><i class="fa fa-toggle-on hovergrow" id="showimagestoggle" aria-hidden="true"> </i> Show Images <i class="fa fa-camera hovergrow" style="color:black;" aria-hidden="true"> </i></span> <a href="#" onclick="emergencypurge();" style="color:red !important;"><i class="fa fa-exclamation-triangle hovergrow" aria-hidden="true" title="Disable image display and purge current images"> </i></a></span></p>
+  <p><span onclick="imageproxytoggle();"> <i class="fa fa-toggle-off hovergrow" id="imageproxytoggle" aria-hidden="true"></i></span> Image Proxy <small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i> <a href="https://steemit.com/steemviz/@ausbitbank/steemviz-update-more-curators-less-bugs-and-a-new-image-proxy-toggle-feature" title="Like this feature ? Upvote this announcement post"><i class="fa fa-chevron-circle-up hovergrow" title="Like this feature ? Upvote this post!" style="color:grey;" aria-hidden="true"> </i></small></a></p>
+  <p><span onclick="followthevotestoggle()"> <i class="fa fa-toggle-off hovergrow" id="followthevotestoggle2" aria-hidden="true"></i></span> Follow the Votes <small style="color:green;" ><a href="https://steemit.com/steemviz/@ausbitbank/follow-the-votes-with-steemviz-no-login-required" title="Like this feature ? Upvote this announcement post"><i class="fa fa-chevron-circle-up hovergrow" title="Like this feature ? Upvote this post!" style="color:grey;" aria-hidden="true"> </i></small></a></p>
+  <p><span onclick="followthecommentvotestoggle()"><i class="fa fa-toggle-off hovergrow" id="followthecommentvotestoggle" aria-hidden="true"> </i> Follow comment votes</span></p>
+  <div id="followtagscontainer">
+    <span onclick="followthetagstoggle()"><i class="fa fa-toggle-off hovergrow" id="followthetagstoggle2" aria-hidden="true"> </i></span> Follow the Tags <small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i></small>  <form onsubmit="event.preventDefault();followthetagsaddtag();"><input type="text" value="add tag" id="followthetagsaddtaginput"> <a href="#" onclick="followthetagsclearlist();" style="color:red;" title="Clear list"><i class="fa fa-trash hovergrow" aria-hidden="true"> </i></a></form>
+    <div id="followthevotesconfigscreentaglist"> </div>
+  </div>
+  <!-- <p><a href="#" onclick="followthevoteslisthistory()">Show history of followed votes</a></p>
+  <center><form onsubmit="event.preventDefault();setuser();"><input type="text" value="your username" id="setuserinput" style="display:none;"></form></center> -->
+  <center><h3>Statistics</h3></center>
+  <div id="stats">
+    <i class="fa fa-users" aria-hidden="true"></i> <strong>Registered accounts </strong><span id="statsAccountCount"></span><br />
+    <span id="blocknumber"> </span> <span id="currentwitness"> </span> <br />
+    <span id="timestamp"> </span><br />
+    <div id="supplystats"></div>
+      <script language="JavaScript">
+      var fhs = document.createElement('script');var fhs_id = "5378485";
+      var ref = (''+document.referrer+'');var pn =  window.location;var w_h = window.screen.width + " x " + window.screen.height;
+      fhs.src = "https://s1.freehostedscripts.net/ocounter.php?site="+fhs_id+"&e1=Online User&e2=Online Users&r="+ref+"&m=0&wh="+w_h+"&a=1&pn="+pn+"";
+      document.head.appendChild(fhs);document.write("<i class='fa fa-users' aria-hidden='true' style='color:blue;'>&nbsp;&nbsp;  </i><span id='o_"+fhs_id+"'></span>");
+      </script>
+    </div>
+
+</div>
+  <div id="userlistcontainer">
+    <center><h3>Vote Following:</h3> <form onsubmit="event.preventDefault();followthevotesadduser();"><input type="text" value="add user" id="followthevotesadduserinput">  <a href="#" onclick="followthevotesclearlist();" style="color:red;" title="Clear list"><i class="fa fa-trash hovergrow" aria-hidden="true"> </i></a>  <a href="#" onclick="followthevotesrestoredefaults();" style="color:blue;" title="Return follower list to default"> <i class="fa fa-eraser hovergrow" aria-hidden="true"> </i></a> </form></center>
+    <div id="followthevotesconfigscreenuserlist"> </div>
+  </div>
+</div>
+<div id="followthevoteshistorycontainer">
+
+</div>
+<div id="votehistorycontainer">
+  <div id="votehistoryholder"></div>
+</div>
+<div id="focuscontent"></div>
+ <div id="steemvizlogo"><div id="followthevotes" style="color:#228DFF;">FollowTheVotes <span onclick="followthevotesconfigopen();"><small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i></small>  <i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span> <span onclick="followthevotestoggle()"><i class="fa fa-toggle-off hovergrow " id="followthevotestoggle" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank"  class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz v2</a></div>
+
+</body></html>
