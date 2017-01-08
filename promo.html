@@ -10,15 +10,15 @@
   var promotedcontent;
   var tablecontents = '';
   steem.api.getState('/promoted', function(err, result) {
-  //console.log(err, result);
+  console.log(err, result);
   promotedcontent = result.content;
-  tablecontents += '<center><table class="sortable" id="promotable"><thead><tr><th>Promoted</th><th>Title</th></tr></thead><tbody>';
+  tablecontents += '<center><table class="sortable" id="promotable"><thead><tr><th>Paid</th><th>Title</th><th>Earned</th></tr></thead><tbody>';
   for (var key in promotedcontent) {
     var obj = promotedcontent[key];
     var promotedamountint = 1;
     var promotedamountstring = obj["promoted"].split(" ");
     promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
-    tablecontents += '<tr><td>'+promotedamountint+'</td><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">'+obj["title"]+'</a></td></tr>';
+    tablecontents += '<tr><td>'+promotedamountint+'</td><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">'+obj["title"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td></tr>';
 }
 tablecontents += '</tbody></table></center>';
 $('#posts').html(tablecontents).fadeIn();
@@ -72,6 +72,5 @@ a { color: black; font-weight:bold;text-decoration:none;}
 <img src="https://i.sli.mg/tZYeyq.gif"><br />
 Loading todays promoted posts from api ..
 </div>
-  <hr>
-  <sub>Created by <a href="https://steemit.com/@ausbitbank">ausbitbank</a> for steemit</sub>
+  <div id="footer"><sub>Created by <a href="https://steemit.com/@ausbitbank">ausbitbank</a> for <a href="https://steemit.com">steemit</a><br /><a href="https://steemit.com/promotion/@ausbitbank/new-tool-how-much-should-i-promote-my-post-for-steemviz-com-promo">Like this tool</a> ?</sub>
 </body></html>
