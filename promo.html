@@ -17,7 +17,7 @@
     var obj = promotedcontent[key];
     var promotedamountint = 1;
     var promotedamountstring = obj["promoted"].split(" ");
-    promotedamountint = parseInt(promotedamountstring[0]);
+    promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
     tablecontents += '<tr><td>'+promotedamountint+'</td><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">'+obj["title"]+'</a></td></tr>';
 }
 tablecontents += '</tbody></table></center>';
@@ -27,13 +27,13 @@ sorttable.makeSortable(newTableObject);
 var myTH = document.getElementsByTagName("th")[0];
 sorttable.innerSortFunction.apply(myTH, []);
 sorttable.innerSortFunction.apply(myTH, []);
-var spot1 = parseInt(newTableObject.rows[1].cells[0].innerHTML);
+var spot1 = parseFloat(newTableObject.rows[1].cells[0].innerHTML);
 spot1 = spot1+0.001;
 $('#topprice').html(spot1);
-var spot7 = parseInt(newTableObject.rows[8].cells[0].innerHTML);
+var spot7 = parseFloat(newTableObject.rows[8].cells[0].innerHTML);
   spot7 = spot7+0.001;
 $('#7thprice').html(spot7);
-var spot20 = parseInt(newTableObject.rows[20].cells[0].innerHTML);
+var spot20 = parseFloat(newTableObject.rows[20].cells[0].innerHTML);
     spot20 = spot20+0.001;
 $('#20thprice').html(spot20);
 $('#howmuch').fadeIn();
