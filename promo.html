@@ -24,13 +24,8 @@ tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><t
   tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
   postcontents = obj["body"];
 
-
-
   }
-// Replace last table cell with below code for voting via steemconnect api . Currently returning heroku application errors, but was working fine
-// <td style="width:90px;height:20px;"><span class="sc-vote" data-author="'+obj["author"]+'" data-permlink="'+obj["permlink"]+'"></span></td>
-// Alternatively, to simply show total votes without upvote buttons replace table cell with this
-// <td>'+obj["net_votes"]+'</td>
+
 tablecontents += '</tbody></table></center>';
 $('#posts').html(tablecontents).fadeIn();
 newTableObject = document.getElementById('promotable');
@@ -50,16 +45,6 @@ var spot20 = parseFloat(newTableObject.rows[20].cells[0].innerHTML);
 spot20 = spot20+0.001;
 $('#20thprice').html(spot20.toFixed(3));
 $('#howmuch').fadeIn();
-
-
-// Disabled steemconnect code due to non responsive api
-//(function(d, s, id) {
-//    var js, fjs = d.getElementsByTagName(s)[0];
-//    if (d.getElementById(id)) return;
-//    js = d.createElement(s); js.id = id;
-//    js.src = "plugins.js";
-//    fjs.parentNode.insertBefore(js, fjs);
-//  }(document, 'script', 'sc-sdk'));
 
 });
 
@@ -94,7 +79,8 @@ h3 {color:#4BA2F2;}
 ul {list-style-type: none;}
 </style>
  </head><body style="text-align:center;">
-<h2>Todays top promoted posts on Steemit:</h2>
+<center><img src="https://steemviz.com/steemvizlogosmall.png"></center>
+  <h2>Todays top promoted posts on Steemit:</h2>
  <div id="howmuch" style="display:none;">
   <h3>How much should I promote my post ?</h3>
   <p>
