@@ -27,10 +27,6 @@ tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><t
 
 
   }
-// Replace last table cell with below code for voting via steemconnect api . Currently returning heroku application errors, but was working fine
-// <td style="width:90px;height:20px;"><span class="sc-vote" data-author="'+obj["author"]+'" data-permlink="'+obj["permlink"]+'"></span></td>
-// Alternatively, to simply show total votes without upvote buttons replace table cell with this
-// <td>'+obj["net_votes"]+'</td>
 tablecontents += '</tbody></table></center>';
 $('#posts').html(tablecontents).fadeIn();
 newTableObject = document.getElementById('promotable');
@@ -51,8 +47,6 @@ spot20 = spot20+0.001;
 $('#20thprice').html(spot20.toFixed(3));
 $('#howmuch').fadeIn();
 
-
-// Disabled steemconnect code due to non responsive api
 (function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
     if (d.getElementById(id)) return;
@@ -94,6 +88,7 @@ h3 {color:#4BA2F2;}
 ul {list-style-type: none;}
 </style>
  </head><body style="text-align:center;">
+  <center><img src="https://steemviz.com/steemvizlogosmall.png"></center>
 <h2>Todays top promoted posts on Steemit:</h2>
  <div id="howmuch" style="display:none;">
   <h3>How much should I promote my post ?</h3>
