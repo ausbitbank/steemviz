@@ -21,7 +21,7 @@ tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><t
   var promotedamountint = 1;
   var promotedamountstring = obj["promoted"].split(" ");
   promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
-  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td style="width:90px;height:20px;"><span class="sc-vote" data-author="'+obj["author"]+'" data-permlink="'+obj["permlink"]+'"></span></td></tr>';
+  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td><td style="width:90px;height:20px;"><span class="sc-vote" data-author="'+obj["author"]+'" data-permlink="'+obj["permlink"]+'"></span></td></tr>';
   postcontents = obj["body"];
 
 
