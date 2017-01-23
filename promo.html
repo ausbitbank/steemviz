@@ -5,56 +5,93 @@
   <script src="./steem.min.js"></script>
   <script src="./sorttable.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-
 <script type="text/javascript">
-  var promotedcontent;
-  var tablecontents = '';
-  steem.api.getState('/promoted', function(err, result) {
-  console.log(err, result);
-  promotedcontent = result.content;
-  tablecontents += '<center><table class="sortable" id="promotable"><thead><tr><th>Paid</th><th>Title</th><th>Earned</th></tr></thead><tbody>';
+var promotedcontent;
+var tablecontents = '';
+var posts = '';
+var postcontents='';
+steem.api.getState('/promoted', function(err, result) {
+// For debugging api response uncomment below line
+//console.log(err, result);
+promotedcontent = result.content;
+tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><th scope="col">Paid</th><th scope="col">Post</th><th scope="col">Earned</th><th scope="col">Votes</th></tr></thead><tbody>';
+// Loop through each post in top 20 promoted
   for (var key in promotedcontent) {
-    var obj = promotedcontent[key];
-    var promotedamountint = 1;
-    var promotedamountstring = obj["promoted"].split(" ");
-    promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
-    tablecontents += '<tr><td>'+promotedamountint+'</td><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">'+obj["title"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td></tr>';
-}
+  var obj = promotedcontent[key];
+  var promotedamountint = 1;
+  var promotedamountstring = obj["promoted"].split(" ");
+  promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
+  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
+  postcontents = obj["body"];
+
+
+
+  }
+// Replace last table cell with below code for voting via steemconnect api . Currently returning heroku application errors, but was working fine
+// <td style="width:90px;height:20px;"><span class="sc-vote" data-author="'+obj["author"]+'" data-permlink="'+obj["permlink"]+'"></span></td>
+// Alternatively, to simply show total votes without upvote buttons replace table cell with this
+// <td>'+obj["net_votes"]+'</td>
 tablecontents += '</tbody></table></center>';
 $('#posts').html(tablecontents).fadeIn();
 newTableObject = document.getElementById('promotable');
 sorttable.makeSortable(newTableObject);
 var myTH = document.getElementsByTagName("th")[0];
+// Sort by paid column, descending
 sorttable.innerSortFunction.apply(myTH, []);
 sorttable.innerSortFunction.apply(myTH, []);
+// Discover and display promo price points
 var spot1 = parseFloat(newTableObject.rows[1].cells[0].innerHTML);
 spot1 = spot1+0.001;
 $('#topprice').html(spot1.toFixed(3));
 var spot7 = parseFloat(newTableObject.rows[7].cells[0].innerHTML);
-  spot7 = spot7+0.001;
+spot7 = spot7+0.001;
 $('#7thprice').html(spot7.toFixed(3));
 var spot20 = parseFloat(newTableObject.rows[20].cells[0].innerHTML);
-    spot20 = spot20+0.001;
+spot20 = spot20+0.001;
 $('#20thprice').html(spot20.toFixed(3));
 $('#howmuch').fadeIn();
+
+
+// Disabled steemconnect code due to non responsive api
+//(function(d, s, id) {
+//    var js, fjs = d.getElementsByTagName(s)[0];
+//    if (d.getElementById(id)) return;
+//    js = d.createElement(s); js.id = id;
+//    js.src = "plugins.js";
+//    fjs.parentNode.insertBefore(js, fjs);
+//  }(document, 'script', 'sc-sdk'));
+
 });
 
 </script>
-<style type="text/css">
+<script></script>
 
-/* Sortable tables */
+<style type="text/css">
 table.sortable thead {
-    background-color:#4BA2F2;
     color:black;
     font-weight: bold;
     cursor: default;
 }
-  table {text-align:center;}
+table.sortable td {
+ padding:5px;
+ font-weight:bold;
+}
+table.sortable th[scope=col]
+{
+  border-bottom: 2px solid #1A5099;
+  color: #000; background-color: #fff;
+}
+table.sortable th+th[scope=col] {
+  border-right: 1px dotted #1A5099;
+  color: #000; background-color: #fff;
+}
+table.sortable th[scope=row] { border-right: 2px solid #fff; background-color: #fff;}
+table {text-align:center;border-collapse: collapse; border: 1px solid #1A5099;}
 a { color: black; font-weight:bold;text-decoration:none;}
-  a:hover {text-decoration:underline;}
-  h2 {color:#1A5099;}
-  h3 {color:#4BA2F2;}
-  ul {list-style-type: none;}
+a:hover {text-decoration:underline;}
+h2 {color:#1A5099;}
+h3 {color:#4BA2F2;}
+ul {list-style-type: none;}
 </style>
  </head><body style="text-align:center;">
 <h2>Todays top promoted posts on Steemit:</h2>
@@ -70,7 +107,7 @@ a { color: black; font-weight:bold;text-decoration:none;}
   </div>
 <div id="posts">
 <img src="loader.gif"><br />
-Loading todays promoted posts from api ..
+<strong>Loading todays promoted posts from api ..</strong>
 </div>
   <div id="footer"><sub>Created by <a href="https://steemit.com/@ausbitbank">ausbitbank</a> for <a href="https://steemit.com">steemit</a><br /><a href="https://steemit.com/promotion/@ausbitbank/new-tool-how-much-should-i-promote-my-post-for-steemviz-com-promo">Like this tool</a> ?</sub>
 </body></html>
