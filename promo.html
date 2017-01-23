@@ -38,9 +38,21 @@ sorttable.innerSortFunction.apply(myTH, []);
 var spot1 = parseFloat(newTableObject.rows[1].cells[0].innerHTML);
 spot1 = spot1+0.001;
 $('#topprice').html(spot1.toFixed(3));
+var spot2 = parseFloat(newTableObject.rows[2].cells[0].innerHTML);
+spot2 = spot2+0.001;
+$('#2ndprice').html(spot2.toFixed(3));
+var spot3 = parseFloat(newTableObject.rows[3].cells[0].innerHTML);
+spot3 = spot3+0.001;
+$('#3rdprice').html(spot3.toFixed(3));
+var spot5 = parseFloat(newTableObject.rows[5].cells[0].innerHTML);
+spot5 = spot5+0.001;
+$('#5thprice').html(spot5.toFixed(3));
 var spot7 = parseFloat(newTableObject.rows[7].cells[0].innerHTML);
 spot7 = spot7+0.001;
 $('#7thprice').html(spot7.toFixed(3));
+var spot9 = parseFloat(newTableObject.rows[9].cells[0].innerHTML);
+spot9 = spot9+0.001;
+$('#9thprice').html(spot9.toFixed(3));
 var spot20 = parseFloat(newTableObject.rows[20].cells[0].innerHTML);
 spot20 = spot20+0.001;
 $('#20thprice').html(spot20.toFixed(3));
@@ -49,7 +61,6 @@ $('#howmuch').fadeIn();
 });
 
 </script>
-<script></script>
 
 <style type="text/css">
 table.sortable thead {
@@ -71,29 +82,37 @@ table.sortable th+th[scope=col] {
   color: #000; background-color: #fff;
 }
 table.sortable th[scope=row] { border-right: 2px solid #fff; background-color: #fff;}
-table {text-align:center;border-collapse: collapse; border: 1px solid #1A5099;}
+table {text-align:center;border-collapse: collapse; border: 1px solid #1A5099; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
 a { color: black; font-weight:bold;text-decoration:none;}
 a:hover {text-decoration:underline;}
 h2 {color:#1A5099;}
 h3 {color:#4BA2F2;}
 ul {list-style-type: none;}
+.shadow {box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
+.promovisibility { transition: all .2s ease-in-out; }
+.promovisibility:hover { transform: scale(1.05); }
 </style>
  </head><body style="text-align:center;">
-<center><img src="https://steemviz.com/steemvizlogosmall.png"></center>
-  <h2>Todays top promoted posts on Steemit:</h2>
+<center><a href="https://steemviz.com"><img src="https://steemviz.com/steemvizlogosmall.png"></a></center>
  <div id="howmuch" style="display:none;">
-  <h3>How much should I promote my post ?</h3>
-  <p>
-  For your post to display above the page fold on an average desktop resolution (1920x1080) you need to be in the top 7 posts.<br />Each ajax pageload will show 20 posts at a time.</p>
+  <h3>How much should I promote my post today ?</h3>
   <ul>
-    <li>Top position costs <strong>$<span id="topprice"></span> SBD</strong></li>
-    <li>7th position costs <strong>$<span id="7thprice"></span> SBD </strong></li>
-    <li>20th position costs <strong>$<span id="20thprice"></span> SBD</strong></li>
+    <li><strong>1st place</strong> costs <strong>$<span id="topprice"></span></strong> SBD</li>
+    <li><strong>2nd place</strong> costs <strong>$<span id="2ndprice"></span></strong> SBD</li>
+    <li><strong>3rd place</strong> costs <strong>$<span id="3rdprice"></span></strong> SBD</li>
+    <li><strong>5th place</strong> costs <strong>$<span id="5thprice"></span></strong> SBD</li>
+    <li><strong>7th place</strong> costs <strong>$<span id="7thprice"></span></strong> SBD</li>
+    <li><strong>9th place</strong> costs <strong>$<span id="9thprice"></span></strong> SBD</li>
+    <li><strong>20th place</strong> costs <strong>$<span id="20thprice"></span></strong> SBD</li>
   </ul>
+  <h3>Visibility guide for different devices</h3>
+   <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"><br />Click for full size</a></center>
   </div>
+<h2>Todays top promoted posts on Steemit:</h2>
 <div id="posts">
 <img src="loader.gif"><br />
 <strong>Loading todays promoted posts from api ..</strong>
+  <h3>Visibility guide for different devices</h3>
+  <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-medium.png" class="promovisibility"></a></center>
 </div>
-  <div id="footer"><sub>Created by <a href="https://steemit.com/@ausbitbank">ausbitbank</a> for <a href="https://steemit.com">steemit</a><br /><a href="https://steemit.com/promotion/@ausbitbank/new-tool-how-much-should-i-promote-my-post-for-steemviz-com-promo">Like this tool</a> ?</sub>
 </body></html>
