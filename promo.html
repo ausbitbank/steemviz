@@ -6,13 +6,21 @@
   <script src="./sorttable.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js" integrity="sha256-t09EvkzafCfcTR2pp0CAdrjzd2X8KFCtfI/JDq6RNVU=" crossorigin="anonymous"></script>
 <script type="text/javascript">
+var md = new Remarkable();
+md.set({
+  html: true,
+  breaks: true,
+  linkify: true
+});
+
 var promotedcontent; var tablecontents = ''; var posts = ''; var postcontents=''; var result;
 
 function displayPost(key) {
   postcontents = '<center><h3><a href="https://steemit.com'+promotedcontent[key]["url"]+'" target="_blank">'+promotedcontent[key]["title"]+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;<a href="#" onClick="closePost();"><i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a></h3></center>\n';
   postcontents += '<center>Posted by <a href="https://steemit.com/@'+promotedcontent[key]["author"]+'"><i class="fa fa-user-o" aria-hidden="true"></i> '+promotedcontent[key]["author"]+'</a> in <a href="https://steemit.com/created/'+promotedcontent[key]["category"]+'">'+promotedcontent[key]["category"]+'</a> and promoted for <strong>'+promotedcontent[key]["promoted"]+'</strong></center><br />';
-  postcontents += promotedcontent[key]["body"];
+  postcontents += md.render(promotedcontent[key]["body"]);
   postcontents += '<br /><hr><center><a href="#" onClick="closePost();">Close <i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a>';
   $('#postcontent').html(postcontents).fadeIn();
 
@@ -132,6 +140,4 @@ li{ margin: 10px 0; }
 <div id="promovisibility" style="display:none;">
   <h3>Visibility Guide</h3>
 <a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"></a>
-</div>
-
-  </body></html>
+</div> </body></html>
