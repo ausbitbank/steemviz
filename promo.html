@@ -1,18 +1,33 @@
 <!DOCTYPE html>
-<html> <head>
+<html lang="en"><head>
   <title>steemviz.com/promo : how much should I promote my steemit post for today ?</title>
   <meta charset="UTF-8">
   <script src="./steem.min.js"></script>
   <script src="./sorttable.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 <script type="text/javascript">
-var promotedcontent;
-var tablecontents = '';
-var posts = '';
-var postcontents='';
+var promotedcontent; var tablecontents = ''; var posts = ''; var postcontents=''; var result;
+
+function displayPost(key) {
+  console.log(promotedcontent[key]);
+  postcontents = '<h3><a href="https://steemit.com'+promotedcontent[key]["url"]+'" target="_blank">'+promotedcontent[key]["title"]+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;<a href="#" onClick="closePost();"><i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a></h3>\n';
+  postcontents += 'Posted by <a href="https://steemit.com/@'+promotedcontent[key]["author"]+'">'+promotedcontent[key]["author"]+'</a> in <a href="https://steemit.com/created/'+promotedcontent[key]["category"]+'">'+promotedcontent[key]["category"]+'</a><br />';
+  postcontents += promotedcontent[key]["body"];
+  postcontents += '<br /><hr><center><a href="#" onClick="closePost();">Close <i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a>';
+  console.log(postcontents);
+  $('#postcontent').html(postcontents).fadeIn();
+
+}
+
+function closePost() {
+  postcontents = '';
+  $('#postcontent').fadeOut();
+  $('#postcontent').html(postcontents);
+}
+
+
 steem.api.getState('/promoted', function(err, result) {
-// For debugging api response uncomment below line
-//console.log(err, result);
 promotedcontent = result.content;
 tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><th scope="col">Paid</th><th scope="col">Post</th><th scope="col">Earned</th><th scope="col">Votes</th></tr></thead><tbody>';
 // Loop through each post in top 20 promoted
@@ -21,9 +36,7 @@ tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><t
   var promotedamountint = 1;
   var promotedamountstring = obj["promoted"].split(" ");
   promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
-  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="https://steemit.com/x/@'+obj["author"]+'/'+obj["permlink"]+'">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
-  postcontents = obj["body"];
-
+  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="#" onClick="displayPost(\''+key+'\');">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
   }
 
 tablecontents += '</tbody></table></center>';
@@ -63,6 +76,7 @@ $('#howmuch').fadeIn();
 </script>
 
 <style type="text/css">
+/* Personal styles */
 table.sortable thead {
     color:black;
     font-weight: bold;
@@ -88,14 +102,17 @@ a:hover {text-decoration:underline;}
 h2 {color:#1A5099;}
 h3 {color:#4BA2F2;}
 ul {list-style-type: none;}
+li{ margin: 10px 0; }
 .shadow {box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
 .promovisibility { transition: all .2s ease-in-out; }
 .promovisibility:hover { transform: scale(1.05); }
+#postcontent {display:none;position:absolute;top:5px;width:95%;margin:5px;padding:5px;background-color:white; outline:2px solid #1a5099;}
 </style>
  </head><body style="text-align:center;">
 <center><a href="https://steemviz.com"><img src="https://steemviz.com/steemvizlogosmall.png"></a></center>
- <div id="howmuch" style="display:none;">
-  <h3>How much should I promote my post today ?</h3>
+<div id="postcontent"> </div>
+  <div id="howmuch" style="display:none;text-align:center;">
+  <h3>How much for promotion ?</h3>
   <ul>
     <li><strong>1st place</strong> costs <strong>$<span id="topprice"></span></strong> SBD</li>
     <li><strong>2nd place</strong> costs <strong>$<span id="2ndprice"></span></strong> SBD</li>
@@ -105,8 +122,6 @@ ul {list-style-type: none;}
     <li><strong>9th place</strong> costs <strong>$<span id="9thprice"></span></strong> SBD</li>
     <li><strong>20th place</strong> costs <strong>$<span id="20thprice"></span></strong> SBD</li>
   </ul>
-  <h3>Visibility guide for different devices</h3>
-   <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"><br />Click for full size</a></center>
   </div>
 <h2>Todays top promoted posts on Steemit:</h2>
 <div id="posts">
@@ -115,4 +130,6 @@ ul {list-style-type: none;}
   <h3>Visibility guide for different devices</h3>
   <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-medium.png" class="promovisibility"></a></center>
 </div>
-</body></html>
+<h3>Visibility Guide</h3>
+   <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"><br />Click for full size</a></center>
+  </body></html>
