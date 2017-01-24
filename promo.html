@@ -10,12 +10,10 @@
 var promotedcontent; var tablecontents = ''; var posts = ''; var postcontents=''; var result;
 
 function displayPost(key) {
-  console.log(promotedcontent[key]);
-  postcontents = '<h3><a href="https://steemit.com'+promotedcontent[key]["url"]+'" target="_blank">'+promotedcontent[key]["title"]+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;<a href="#" onClick="closePost();"><i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a></h3>\n';
-  postcontents += 'Posted by <a href="https://steemit.com/@'+promotedcontent[key]["author"]+'">'+promotedcontent[key]["author"]+'</a> in <a href="https://steemit.com/created/'+promotedcontent[key]["category"]+'">'+promotedcontent[key]["category"]+'</a><br />';
+  postcontents = '<center><h3><a href="https://steemit.com'+promotedcontent[key]["url"]+'" target="_blank">'+promotedcontent[key]["title"]+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;<a href="#" onClick="closePost();"><i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a></h3></center>\n';
+  postcontents += '<center>Posted by <a href="https://steemit.com/@'+promotedcontent[key]["author"]+'"><i class="fa fa-user-o" aria-hidden="true"></i> '+promotedcontent[key]["author"]+'</a> in <a href="https://steemit.com/created/'+promotedcontent[key]["category"]+'">'+promotedcontent[key]["category"]+'</a> and promoted for <strong>'+promotedcontent[key]["promoted"]+'</strong></center><br />';
   postcontents += promotedcontent[key]["body"];
   postcontents += '<br /><hr><center><a href="#" onClick="closePost();">Close <i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a>';
-  console.log(postcontents);
   $('#postcontent').html(postcontents).fadeIn();
 
 }
@@ -69,8 +67,8 @@ $('#9thprice').html(spot9.toFixed(3));
 var spot20 = parseFloat(newTableObject.rows[20].cells[0].innerHTML);
 spot20 = spot20+0.001;
 $('#20thprice').html(spot20.toFixed(3));
-$('#howmuch').fadeIn();
-
+$("#howmuch").fadeIn();
+$("#promovisibility").fadeIn();
 });
 
 </script>
@@ -98,7 +96,7 @@ table.sortable th+th[scope=col] {
 table.sortable th[scope=row] { border-right: 2px solid #fff; background-color: #fff;}
 table {text-align:center;border-collapse: collapse; border: 1px solid #1A5099; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
 a { color: black; font-weight:bold;text-decoration:none;}
-a:hover {text-decoration:underline;}
+a:hover {text-decoration:underline;color:#1a5099;}
 h2 {color:#1A5099;}
 h3 {color:#4BA2F2;}
 ul {list-style-type: none;}
@@ -106,13 +104,13 @@ li{ margin: 10px 0; }
 .shadow {box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
 .promovisibility { transition: all .2s ease-in-out; }
 .promovisibility:hover { transform: scale(1.05); }
-#postcontent {display:none;position:absolute;top:5px;width:95%;margin:5px;padding:5px;background-color:white; outline:2px solid #1a5099;}
+#postcontent {display:none;position:absolute;margin: 0 auto;background-color:white; outline:2px solid #1a5099;text-align:left;padding:10px;}
 </style>
  </head><body style="text-align:center;">
 <center><a href="https://steemviz.com"><img src="https://steemviz.com/steemvizlogosmall.png"></a></center>
 <div id="postcontent"> </div>
-  <div id="howmuch" style="display:none;text-align:center;">
-  <h3>How much for promotion ?</h3>
+  <div id="howmuch" style="text-align:center;display:none;">
+    <h3>Todays promo pricing</h3>
   <ul>
     <li><strong>1st place</strong> costs <strong>$<span id="topprice"></span></strong> SBD</li>
     <li><strong>2nd place</strong> costs <strong>$<span id="2ndprice"></span></strong> SBD</li>
@@ -123,6 +121,7 @@ li{ margin: 10px 0; }
     <li><strong>20th place</strong> costs <strong>$<span id="20thprice"></span></strong> SBD</li>
   </ul>
   </div>
+  </div>
 <h2>Todays top promoted posts on Steemit:</h2>
 <div id="posts">
 <img src="loader.gif"><br />
@@ -130,6 +129,9 @@ li{ margin: 10px 0; }
   <h3>Visibility guide for different devices</h3>
   <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-medium.png" class="promovisibility"></a></center>
 </div>
-<h3>Visibility Guide</h3>
-   <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"><br />Click for full size</a></center>
+<div id="promovisibility" style="display:none;">
+  <h3>Visibility Guide</h3>
+<a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"></a>
+</div>
+
   </body></html>
