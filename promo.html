@@ -106,7 +106,7 @@ table.sortable th+th[scope=col] {
   color: #000; background-color: #fff;
 }
 table.sortable th[scope=row] { border-right: 2px solid #fff; background-color: #fff;}
-table {text-align:center;border-collapse: collapse; border: 1px solid #1A5099; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
+table {padding:5px; text-align:center;border-collapse: collapse; border: 1px solid #1A5099; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
 a { color: black; font-weight:bold;text-decoration:none;}
 a:hover {text-decoration:underline;color:#1a5099;}
 h2 {color:#1A5099;}
@@ -114,20 +114,18 @@ h3 {color:#4BA2F2;}
 ul {list-style-type: none;}
 li{ margin: 10px 0; }
 .shadow {box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);}
-/*
 .promovisibility { transition: all .2s ease-in-out; }
 .promovisibility:hover { transform: scale(1.05); }
-*/
-#postcontent {display:none;position:absolute;margin: 0 auto;background-color:white; outline:2px solid #1a5099;text-align:left;padding:10px;}
+#postcontent {display:none;position:absolute;margin: 0 auto;background-color:white; outline:2px solid #1a5099;text-align:left;padding:10px;z-index:999;width:100%;height:100%;}
 </style>
  </head>
   <body>
+<div id="postcontent" style="display:none;"></div>
 <div class="container">
   <div class="page-header"><center><a href="https://steemviz.com"><img src="https://steemviz.com/steemvizlogosmall.png"></a></center></div>
-  <div id="postcontent"> </div>
 <div class="row">
-  <div class="col-md-3" id="howmuch" style="display:none;">
-    <ul>
+  <div class="col-md-4">
+    <ul style="display:none;" id="howmuch">
       <li><strong>1st place</strong> costs <strong>$<span id="topprice"></span></strong> SBD</li>
       <li><strong>2nd place</strong> costs <strong>$<span id="2ndprice"></span></strong> SBD</li>
       <li><strong>3rd place</strong> costs <strong>$<span id="3rdprice"></span></strong> SBD</li>
@@ -136,14 +134,11 @@ li{ margin: 10px 0; }
       <li><strong>9th place</strong> costs <strong>$<span id="9thprice"></span></strong> SBD</li>
       <li><strong>20th place</strong> costs <strong>$<span id="20thprice"></span></strong> SBD</li>
     </ul>
+    <br /><br />
+    <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"></a></center>
   </div>
-  <div class="col-md-6" id="posts">
+  <div class="col-md-8" id="posts">
     <img src="loader.gif"><br /><strong>Loading todays promoted posts from api ..</strong>
-    <h3>Visibility guide for different devices</h3>
-    <center><a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-medium.png" class="promovisibility"></a></center>
-  </div>
-  <div class="col-md-3" id="promosmall" style="display:none;">
-    <a href="https://steemviz.com/promovisibility-large.png" target="_blank"><img src="https://steemviz.com/promovisibility-small.png" class="shadow promovisibility"></a>
   </div>
 </div>
 
