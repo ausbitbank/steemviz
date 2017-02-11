@@ -4,11 +4,12 @@
   <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
   <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
   <meta charset="UTF-8">
+  <script src="jquery.min.js"></script>
   <script src="steem.min.js"></script>
   <script src="https://www.promisejs.org/polyfills/promise-6.1.0.js"></script>
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <link href='https://fonts.googleapis.com/css?family=Monoton|Iceland|Pacifico|Press+Start+2P|Audiowide|Vampiro+One' rel='stylesheet' type='text/css'>
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/jquery-ui.css"/>
   <script src="remarkable.js"></script>
   <link href="steemviz.css" rel="stylesheet" type="text/css">
   <script type="text/javascript">
@@ -16,10 +17,10 @@
     var imageproxy = 'https://steemitimages.com/';
     var lastblocknum = 0;
     var lastpermlink;
-    var defaultfollowthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "fyrstikken", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better", "steemtrail"];
+    var defaultfollowthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better", "steemtrail"];
     var defaultfollowthetags = [ "steemviz"];
     var followthevoters = defaultfollowthevoters;
-    var followthevoteshistory = ['https://steemit.com/@ausbitbank'];
+    var followthevoteshistory = [];
     var followthetags = false;
     var followthevotes = false;
     var followthecommentvotes = false;
@@ -165,8 +166,8 @@ function followthetagsclearlist() {
 }
 
 function followthevoteslisthistory(){
-  followthevoteshistoryhtml = ['<a href="#" onclick=\'$("#followthevoteshistorycontainer").fadeOut("fast");\'><i class="fa fa-times" title="Close" style="color:red;"> </i></a><br />'];
-  $.each(followthevoteshistory, function(index, value) { followthevoteshistoryhtml.push(value+'<br />'); });
+  followthevoteshistoryhtml = ['<center><i class="fa fa-history" aria-hidden="true"></i> Vote History &nbsp <a href="#" onclick=\'followthevoteslsithistory();\'><i class="fa fa-refresh hovergrow" aria-hidden="true" style="color:green"></i></a> <a href="#" onclick=\'$("#followthevoteshistorycontainer").fadeOut("fast");\'><i class="fa fa-times hovergrow" title="Close" style="color:red;"> </i></a><br />'];
+  $.each(followthevoteshistory, function(index, value) { followthevoteshistoryhtml.push('<a href="'+value+'">'+value+'</a><br />'); });
   //followthevoteshistoryhtml.push('');
   $("#followthevoteshistorycontainer").html(followthevoteshistoryhtml.join(""));
   $("#followthevoteshistorycontainer").fadeIn("fast");
@@ -298,32 +299,22 @@ function streamtx(txType,txData) {
           if (followthevotes == true) {
             if ($.inArray(txData.voter, followthevoters) != -1){
             // Voter is in the list of watchers
-            //console.log("follow the votes enabled, user "+actionobj[1].voter+" is in follow list");
               if (votepercent >= 2) {
               //console.log("vote is greater then 2%");
               // Only trigger on positive votes over 2% - allowing "symbolic" votes without spamming everyone
               var refurl = 'https://steemit.com/steemviz-'+txData.voter+'/@'+txData.author+'/'+txData.permlink;
               var uniqueurl = 'https://steemit.com/tag/@'+txData.author+'/'+txData.permlink;
                 if ($.inArray(uniqueurl, followthevoteshistory) == -1) {
-                //console.log(uniqueurl+" not in follow history");
                 // If a permlink has @user/re-  its a comment
                   if (txData.permlink.substring(0,2) == 're' || txData.permlink.substring(0,2) == '-re') {
-                    if (followthecommentvotes == true) { followvotepoptab(refurl); followthevoteshistory.push(uniqueurl);} else { console.log("Ignoring comment vote from "+txData.voter+" on "+uniqueurl+" ");}
+                    if (followthecommentvotes == true) { followvotepoptab(refurl); followthevoteshistory.push(uniqueurl);}
                     } else {
-                      followvotepoptab(refurl);
-                      followthevoteshistory.push(uniqueurl);
+                      followvotepoptab(refurl); followthevoteshistory.push(uniqueurl);
                     }
                 }
               }
             }
           }
-
-
-
-
-
-
-
 
           break;
         case 'comment':
@@ -368,10 +359,11 @@ function streamtx(txType,txData) {
                   break;
                 }
 
-                if(txData.title == '') {
+                if(txData.title == '' || txData.title.substring(0,4) == "Re: ") {
                   title = '<div class="title"><a href="http://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div>';
                   subtitle = '<div class="undertitle"><small>on <a href="https://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>';
                   rendertx(title+' '+subtitle,3);
+                  break;
                 }
 
                 if (txData.title != '') {
@@ -571,7 +563,7 @@ function streamtx(txType,txData) {
     <div id="column1"> </div> <div id="column2"> </div> <div id="column3"> </div> <div id="column4"> </div>
 </div>
 <div id="followthevotesconfigscreen">
-  <div id="followthevotesconfigclose" style="display:block;position:absolute;right:5px;top:5px;"> <a href="#" onclick="followthevotesconfigclose();" style="color:green;">  <i class="fa fa-floppy-o hovergrow" aria-hidden="true"> </i></a> </div>
+  <div id="followthevotesconfigclose" style="display:block;position:absolute;right:5px;top:5px;"> <a href="#" onclick="followthevotesconfigclose();" style="color:red;">  <i class="fa fa-times hovergrow" aria-hidden="true"> </i></a> </div>
   <center><img src="steemvizlogo1b6ac.png" width="250" title="SteemViz - thanks to @minion for the logo!"></center>
   <center><strong>Realtime steem blockchain viewer and curation tool</strong></center>
   <i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true" title="New Post"> </i> <i class="fa fa-star" style="color:gold;" title="New Promotion" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Upvote" style="color:#4ba2f2" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Unvote" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-flag" style="color:red" title="Downvote" aria-hidden="true"> </i> <i class="fa fa-low-vision" title="Mute" style="color:red;" aria-hidden="true"> </i> <img src="follow.png" title="Follow" style="vertical-align:middle;"> <img src="unfollow.png" title="Unfollow" style="vertical-align:middle;"> <i class="fa fa-check" title="Approve witness" style="color:green;"> </i> <i class="fa fa-times" title="Dissaprove witness" style="color:red;"> </i> <i class="fa fa-commenting-o" title="New comment" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-pencil-square-o" title="Edit" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-ban" title="Deletion" style="color:red" aria-hidden="true"> </i> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog" title="Resteem" ><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z" class="reblog"></path></svg></span> <img src="mushroom.png" title="Powerup" style="margin-bottom:-2px; vertical-align="bottom"> <i class="fa fa-cube" aria-hidden="true" style="color:brown;" title="New block"></i> <i class="fa fa-key" title="Account update" style="color:red" aria-hidden="true"></i> <i class="fa fa-user-plus" title="New user"  style="color:blue" aria-hidden="true"></i> <i class="fa fa-balance-scale" title="Market Trade" style="color:purple" aria-hidden="true" title="Market Trades"></i> <i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" title="Transaction/Transfer"></i> <i class="fa fa-line-chart" title="Witness price feed" style="color:brown;" aria-hidden="true"> </i> <i class="fa fa-recycle" title="SBD Conversion request" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-eject" style="color:red;" title="Powerdown"> </i> <i class="fa fa-university" style="color:black;" title="Savings" aria-hidden="true"></i><br />
@@ -583,12 +575,12 @@ function streamtx(txType,txData) {
   <p><span onclick="followthecommentvotestoggle()"><i class="fa fa-toggle-off hovergrow" id="followthecommentvotestoggle" aria-hidden="true"> </i> Follow comment votes</span></p>
   <p><span onclick="postpreviewtoggle()"><i class="fa fa-toggle-off hovergrow" id="postpreviewtoggle" area-hidden="true"> </i> Automatically view new posts <small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i></small></span></p>
   <div id="followtagscontainer">
-    <span onclick="followthetagstoggle()"><i class="fa fa-toggle-off hovergrow" id="followthetagstoggle2" aria-hidden="true"> </i></span> Follow the Tags <small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i></small>  <form onsubmit="event.preventDefault();followthetagsaddtag();"><input type="text" value="add tag" id="followthetagsaddtaginput"> <a href="#" onclick="followthetagsclearlist();" style="color:red;" title="Clear list"><i class="fa fa-trash hovergrow" aria-hidden="true"> </i></a></form>
+    <span onclick="followthetagstoggle()"><i class="fa fa-toggle-off hovergrow" id="followthetagstoggle2" aria-hidden="true"> </i></span> Follow the Tags <form onsubmit="event.preventDefault();followthetagsaddtag();"><input type="text" value="add tag" id="followthetagsaddtaginput"> <a href="#" onclick="followthetagsclearlist();" style="color:red;" title="Clear list"><i class="fa fa-trash hovergrow" aria-hidden="true"> </i></a></form>
     <div id="followthevotesconfigscreentaglist"> </div>
   </div>
-  <!-- <p><a href="#" onclick="followthevoteslisthistory()">Show history of followed votes</a></p>
-  <center><form onsubmit="event.preventDefault();setuser();"><input type="text" value="your username" id="setuserinput" style="display:none;"></form></center> -->
-  <center><h3>Statistics <a href="#" onClick="getstats();$('#refreshstats').fadeOut;"><i class="fa fa-refresh" aria-hidden="true" id="refreshstats"></i></a></h3></center>
+  <center><p><a href="#" onclick="followthevoteslisthistory()"><i class="fa fa-history" aria-hidden="true"></i> Show history of followed votes</a></p></center>
+  <!-- <center><form onsubmit="event.preventDefault();setuser();"><input type="text" value="your username" id="setuserinput" style="display:none;"></form></center> -->
+  <center><h3>Statistics <a href="#" onClick="getstats();$('#refreshstats').fadeOut;"><i class="fa fa-refresh hovergrow" aria-hidden="true" id="refreshstats"></i></a></h3></center>
   <div id="stats">
     <i class="fa fa-users" aria-hidden="true"></i> <strong>Registered accounts </strong><span id="statsAccountCount"></span><br />
     <span id="blocknumber"> </span> <span id="currentwitness"> </span> <br />
@@ -615,5 +607,5 @@ function streamtx(txType,txData) {
   <div id="votehistoryholder"></div>
 </div>
 <div id="focuscontent"></div>
-<div id="steemvizlogo"><div id="followthevotes" style="color:#228DFF;">FollowTheVotes <span onclick="followthevotesconfigopen();"><small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i></small>  <i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span> <span onclick="followthevotestoggle()"><i class="fa fa-toggle-off hovergrow " id="followthevotestoggle" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank"  class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a></div>
+<div id="steemvizlogo"><div id="followthevotes" style="color:#228DFF;"><span onclick="followthevotesconfigopen();"><i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a></div>
 </body></html>
