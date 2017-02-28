@@ -292,7 +292,7 @@ function streamtx(txType,txData) {
           votepercent = txData.weight / 100;
           if (txData.weight >= '-1'){ votestring = '<i class="fa fa-chevron-circle-up" style="color:#4ba2f2" aria-hidden="true"></i>';
           } else if (txData.weight == '0') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:grey" aria-hidden="true"></i>';
-          } else if (txData.weight == '0') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:orange" aria-hidden="true"></i>';
+          } else if (txData.weight == '1') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:orange" aria-hidden="true"></i>';
           } else { votestring = '<i class="fa fa-flag" style="color:red" aria-hidden="true"></i>'; }
           rendertx('<div class="title"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="https://steemit.com/@'+txData.author+'/'+txData.permlink+'" style="color:grey !important;">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
 
