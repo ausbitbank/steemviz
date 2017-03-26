@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html> <head>
+  <title>steemviz.com : deleted content check</title>
+  <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
+  <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
+  <meta charset="UTF-8">
+  <script src="jquery.min.js"></script>
+  <script src="steem.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $.getJSON( "http://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22}", function( data ) {
+      var items = [];
+      $.each( data, function( key, val ) {
+        items.push( "<li id='" + key + "'>" + val + "</li>" );
+      });
+     $( "<ul/>", {
+     "class": "deleted-items",
+     html: items.join( "" )
+     }).appendTo( "#results" );
+    });
+  });
+</script>
+</head><body>
+
+  <h1>
+    Deleted Content
+  </h1>
+
+  <div id="results">
+    <img src="loader.gif" id="loader">
+  </div>
+
+
+</body></html>
