@@ -9,7 +9,7 @@
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
   <script type="text/javascript">
     $(document).ready(function() {
-      $.getJSON( "http://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22}", function( data ) {
+      $.getJSON( "https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22}", function( data ) {
       var items = [];
       $.each( data, function( key, val ) {
         items.push( "<li id='" + key + "'>" + val + "</li>" );
