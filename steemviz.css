@@ -30,6 +30,7 @@ position: absolute;
 margin: auto;
 top: 0; left: 0; bottom: 0; right: 0;
 }
+#focuscontent img { max-width: 50%; height: auto; text-align:center; }
 #followthevotesconfigscreen h2 {color:#228DFF;}
 #followthevotesconfigscreen {
 display:none;
