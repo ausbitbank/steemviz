@@ -50,7 +50,7 @@ tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><t
   var promotedamountint = 1;
   var promotedamountstring = obj["promoted"].split(" ");
   promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
-  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="#" onClick="displayPost(\''+key+'\');">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_pending_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
+  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="#" onClick="displayPost(\''+key+'\');">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
   }
 tablecontents += '</tbody></table></center>';
 $('#posts').html(tablecontents).fadeIn();
