@@ -34,12 +34,7 @@
     var postpreviewpinned = false;
 
     var md = new Remarkable();
-      md.set({
-        html: true,
-        breaks: true,
-        linkify: true,
-        typographer: true
-      });
+    md.set({html: true,breaks: true,linkify: true,typographer: true});
 
     function stripHTML(dirtyString) {
       var container = document.createElement('div');
@@ -146,7 +141,6 @@ function followthetagslisttags(){
 }
 
 function followthetagsaddtag() {
-  // Add new user to watchlist array
   tmpuserinput2 = document.getElementsByTagName("input")[0].value.toLowerCase();
   document.getElementsByTagName("input")[0].value = '';
   defaultfollowthetags.push(tmpuserinput2);
@@ -167,16 +161,12 @@ function followthetagsclearlist() {
 function followthevoteslisthistory(){
   followthevoteshistoryhtml = ['<center><i class="fa fa-history" aria-hidden="true"></i> Vote History &nbsp <a href="#" onclick=\'followthevoteslsithistory();\'><i class="fa fa-refresh hovergrow" aria-hidden="true" style="color:green"></i></a> <a href="#" onclick=\'$("#followthevoteshistorycontainer").fadeOut("fast");\'><i class="fa fa-times hovergrow" title="Close" style="color:red;"> </i></a><br />'];
   $.each(followthevoteshistory, function(index, value) { followthevoteshistoryhtml.push('<a href="'+value+'">'+value+'</a><br />'); });
-  //followthevoteshistoryhtml.push('');
   $("#followthevoteshistorycontainer").html(followthevoteshistoryhtml.join(""));
   $("#followthevoteshistorycontainer").fadeIn("fast");
 }
 
 
-function followthevotesconfigclose() {
-  // Save to cookie and close..
-  $("#followthevotesconfigscreen").fadeOut("slow");
-}
+function followthevotesconfigclose() {$("#followthevotesconfigscreen").fadeOut("slow");}
 
 function followthevotesadduser() {
   // Add new user to watchlist array
@@ -186,6 +176,8 @@ function followthevotesadduser() {
   followthevoteslistusers();
   return true;
 }
+
+function readtime(a){var b=270,c=b/60,d=a.trim().split(/\s+/g).length,e=d/c,f=Math.round(e/60);Math.round(e-60*f);return f<1?"Less than a minute read":f+" min read"}
 
 function setuser(){
   myusername = document.getElementsByTagName("input")[0].value.toLowerCase();
@@ -208,7 +200,6 @@ function followthevotesclearlist() {
 }
 
 function emergencypurge() {
-  // Wipe displayed images, toggle future display off
   if (showimages == true) {
   showimagestoggle();
   }
@@ -273,16 +264,14 @@ function followvotepoptab(url) {
 }
 
 function postview(content) {
-  $('#focuscontent').html(content);
-  $('#focuscontent').fadeIn();
+  $('#postviewer-content').html(md.render(content));
+  document.getElementById('postviewer').style.display="block";
+  $('#postviewer').fadeIn();
 }
 
-function postviewurl(url) {
-
-}
 
 function closePost() {
- $('#focuscontent').fadeOut();
+ $('#postviewer').fadeOut();
 }
 
 function streamtx(txType,txData) {
@@ -294,13 +283,12 @@ function streamtx(txType,txData) {
           } else if (txData.weight == '0') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:grey" aria-hidden="true"></i>';
           } else if (txData.weight == '1') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:orange" aria-hidden="true"></i>';
           } else { votestring = '<i class="fa fa-flag" style="color:red" aria-hidden="true"></i>'; }
-          rendertx('<div class="title"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="https://steemit.com/@'+txData.author+'/'+txData.permlink+'" style="color:grey !important;">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
+          rendertx('<div class="title"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="#" style="color:grey !important;" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
 
           if (followthevotes == true) {
             if ($.inArray(txData.voter, followthevoters) != -1){
             // Voter is in the list of watchers
               if (votepercent >= 2) {
-              //console.log("vote is greater then 2%");
               // Only trigger on positive votes over 2% - allowing "symbolic" votes without spamming everyone
               var refurl = 'https://steemit.com/steemviz-'+txData.voter+'/@'+txData.author+'/'+txData.permlink;
               var uniqueurl = 'https://steemit.com/tag/@'+txData.author+'/'+txData.permlink;
@@ -343,41 +331,32 @@ function streamtx(txType,txData) {
                     postcontentshort = postcontentshort+' '+postlink;
                   }
                   if (postjson.hasOwnProperty("image") && showimages == true) {
-                    if (imageproxystatus == false) {
-                      backgroundimage = postjson.image[0];
-                    } else {
-                      backgroundimage = imageproxy+'100x100/'+postjson.image[0];
-                    }
+                    if (imageproxystatus == false) {backgroundimage = postjson.image[0];} else {backgroundimage = imageproxy+'100x100/'+postjson.image[0];}
                     postimage = '<a href="https://steemit.com/'+txData.parent_permlink+'/@'+txData.author+'/'+txData.permlink+'" target="_blank"><img src="'+backgroundimage+'" class="postimage"></a>'
                     postimagelink = '  <small><a href="'+stripHTML(postjson.image[0])+'" target="_blank"><i class="fa fa-camera" style="color:black;"> </i> '+stripHTML(postjson.image[0].substring(8,30))+'</a> ..</small>';
                     postcontentshort = postimage+postcontentshort+postimagelink;
                   }
                 }
 
-                if (postcontentfull.substring(0,2) == "@@") {
-                  rendertx('<div class="title"><i class="fa fa-pencil-square-o" style="color:orange;" aria-hidden="true"></i><strong><small style="color:orange;"> </small></strong> <a href="http://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div><div class="undertitle"><small>on <a href="https://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>',3);
-                  break;
-                }
+                if (postcontentfull.substring(0,2) == "@@") {rendertx('<div class="title"><i class="fa fa-pencil-square-o" style="color:orange;" aria-hidden="true"></i><strong><small style="color:orange;"> </small></strong> <a href="https://steemit.com/@'+txData.author+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div><div class="undertitle"><small>on <a href="https://phist.steemdata.com/history?identifier=@'+txData.author+'/'+txData.permlink+' target="_blank" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>',3);break;}
 
                 if(txData.title == '' || txData.title.substring(0,4) == "Re: ") {
                   title = '<div class="title"><a href="http://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div>';
-                  subtitle = '<div class="undertitle"><small>on <a href="https://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>';
+                  subtitle = '<div class="undertitle"><small>on <a href="#" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>';
                   rendertx(title+' '+subtitle,3);
                   break;
                 }
 
                 if (txData.title != '') {
                   title = '<div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.author+'" target="_blank" class="user">'+txData.author+'</a></div>';
-                  subtitle = '<div class="undertitle"><a href="http://steemit.com/'+txData.parent_permlink+'/@'+txData.author+'/'+txData.permlink+'" target="_blank">'+stripHTML(txData.title)+'</a><br /><blockquote>'+postcontentshort+'</blockquote></div>';
+                  subtitle = '<div class="undertitle"><a href="#" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\');">'+stripHTML(txData.title)+'</a><br /><blockquote>'+postcontentshort+'</blockquote></div>';
                   rendertx(title+' '+subtitle,1);
 
                    // Optional preview of all new posts
                   if (postpreview == true) {
-                    postcontentformatted = '<center><a href="#" onClick="closePost();">Close <i class="fa fa-times" style="color:red;" aria-hidden="true"> </i></a></center><hr>';
-                    postcontentformatted += '<center><h3><a href="https://steemit.com/'+txData.parent_permlink+'/@'+txData.author+'/'+txData.permlink+'" target="_blank">'+txData.title+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;</h3></center>\n';
-                    postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+txData.author+'"><i class="fa fa-user-o" aria-hidden="true"></i> '+txData.author+'</a> in <a href="https://steemit.com/created/'+txData.parent_permlink+'">'+txData.parent_permlink+'</a><br /><iframe src="https://steemconnect.com/embed/vote?author='+txData.author+'&amp;permlink='+txData.permlink+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe></center><br />';
-                    postcontentformatted += md.render(txData.body);
-                    postcontentformatted += '<br /><hr><center><a href="#" onClick="closePost();">Close <i class="fa fa-times" style="color:red;" aria-hidden="true"></i></a>';
+                    postcontentformatted = '<center><h3><a href="https://steemit.com/'+txData.parent_permlink+'/@'+txData.author+'/'+txData.permlink+'" target="_blank">'+txData.title+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;</h3></center>\n';
+                    postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+txData.author+'"><img src="https://img.steemconnect.com/@'+txData['author']+'?size=50" class="avatar"> '+txData.author+'</a> in <a href="https://steemit.com/created/'+txData.parent_permlink+'">'+txData.parent_permlink+'</a><br /><iframe src="https://steemconnect.com/embed/vote?author='+txData.author+'&amp;permlink='+txData.permlink+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe></center><br />';
+                    postcontentformatted += sanitize(txData.body);
                     postview(postcontentformatted);
                   }
                 }
@@ -468,7 +447,7 @@ function streamtx(txType,txData) {
                 }
               }
               if (customjson[0] == "reblog") {
-                rendertx('<div class="title"><a href="https://steemit.com/@'+customjson[1].account+'/" target="_blank">'+customjson[1].account+'</a> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z"></path></svg></span> <a href="https://steemit.com/@'+customjson[1].author+'" target="_blank">'+customjson[1].author+'</a></div><div class="undertitle"><a href="https://steemit.com/steemvizrebloggedby'+customjson[1].account+'/@'+customjson[1].author+'/'+customjson[1].permlink+'" target="_blank">'+customjson[1].permlink+'</a></div>',3);
+                rendertx('<div class="title"><a href="https://steemit.com/@'+customjson[1].account+'/" target="_blank">'+customjson[1].account+'</a> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z"></path></svg></span> <a href="https://steemit.com/@'+customjson[1].author+'" target="_blank">'+customjson[1].author+'</a></div><div class="undertitle"><a href="#" onClick="loadpost(\''+customjson[1].author+'\',\''+customjson[1].permlink+'\');">'+customjson[1].permlink+'</a></div>',3);
               }
             } else {
               console.log('custom json operation');
@@ -498,7 +477,7 @@ function streamtx(txType,txData) {
           break;
 
           case 'delete_comment':
-          rendertx('<div class="title"><i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@"'+txData.author+'" target="_blank">'+txData.author+'</a> deleted '+txData.permlink+'</div>',3);
+          rendertx('<div class="title"><i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@"'+txData.author+'" target="_blank">'+txData.author+'</a> deleted <a href="https://phist.steemdata.com/history?identifier=@'+txData.author+'/'+txData.permlink+'">'+txData.permlink+'</a></div>',3);
           break;
 
           case 'feed_publish':
@@ -536,7 +515,27 @@ function streamtx(txType,txData) {
       $('#column'+column).fadeIn("slow");
     }
 
+    function loadpost(author,permlink){
+      steem.api.getContent(author, permlink, function(err, result) {
+        if (result['title']==''){result['title']='Comment on '+result['parent_permlink'];}
+        postcontentformatted = '<center><h3><a href="https://steemit.com/'+result['parent_permlink']+'/@'+result['author']+'/'+result['permlink']+'" target="_blank">'+result['title']+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;</h3></center>\n';
+        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+'<br /><iframe src="https://steemconnect.com/embed/vote?author='+result['author']+'&amp;permlink='+result['permlink']+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe></center><br />';
+        postcontentformatted += sanitize(result['body']);
+        postview(postcontentformatted);
+      });
+    }
 
+    function sanitize(str){
+      var yturl= /(?:<a href\=\":?)?(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?([\w\-]{10,12})(?:&feature=related)?(?:[\w\-]{0}:?)?(?:">:?)?(?:\<\/a\>:?)?/g;
+      var ytplayer= '\n<iframe width="640" height="360" src="http://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>\n';
+      var imgregex=/([a-z\-_0-9\/\:\.]*\.(jpg|jpeg|png|gif)(?!["\)]))/i
+      var imgregexreplace = '\!\[\]($1)';
+      str=str.replace(yturl, ytplayer);
+      str=str.replace(imgregex,imgregexreplace);
+      str=md.render(str);
+      return str;
+    }
+    function postpreview(post) {var txt=post.replace(/ +/g,' ');var max_words=15;var words = 0;var preview='';for (let i = 0;i<txt.length; i++) {var char = txt.charAt(i);if (char === '.') break;if (char === ' ' || char === '\n') {words++;if(words>max_words)break;if (i>30) break;};preview += char;}return preview;}
 
     $(document).ready(function() {
       $('#column1').prepend('<div class="columnheader" style="display:none;"><div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <i class="fa fa-star" style="color:gold;" aria-hidden="true"></i></div></div>');
@@ -547,6 +546,10 @@ function streamtx(txType,txData) {
       $("#column3").find("div.columnitem:first").fadeIn("slow");
       $('#column4').prepend('<div class="columnitem" style="display:none;"><div class="title"><img src="mushroom.png" alt="" style="margin-bottom:-2px; vertical-align="bottom"> <i class="fa fa-cube" aria-hidden="true" style="color:brown;"></i> <i class="fa fa-key" style="color:red" aria-hidden="true"></i> <i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <i class="fa fa-balance-scale" style="color:purple" aria-hidden="true" alt="Market Trades"></i> <i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" alt="Transaction/Transfer"></i> <i class="fa fa-line-chart" style="color:brown;" aria-hidden="true"></i> <i class="fa fa-recycle" style="color:orange;" aria-hidden="true"></i> <i class="fa fa-eject" style="color:red;"> <i class="fa fa-university" style="color:black;" aria-hidden="true"></i> </i></div></div>');
       $("#column4").find("div.columnitem:first").fadeIn("slow");
+      var postviewer = document.getElementById('postviewer');
+      var closepostviewer = document.getElementById("closepostviewer");
+      closepostviewer.onclick = function() {$('#postviewer').style.display = "none";}
+      window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}}
       getstats();
       var tx = Function.prototype;
       tx = steem.api.streamOperations(function onOperation(error, operation) {
@@ -608,4 +611,5 @@ function streamtx(txType,txData) {
 </div>
 <div id="focuscontent"></div>
 <div id="steemvizlogo"><div id="followthevotes" style="color:#228DFF;"><span onclick="followthevotesconfigopen();"><i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a></div>
+<div id="postviewer" class="modal"><span id="closepostviewer" class="closebutton"><i class="fa fa-times hovergrow" aria-hidden="true"> </i></span><div class="modal-content" id="postviewer-content"></div></div>
 </body></html>
