@@ -7,6 +7,9 @@
   <script src="steem.min.js"></script><script src="jquery.min.js"></script>
   <script type="text/javascript">
   var post='';var posts=[];var total=0;var pending='';var pending2=0;var results='';
+  function round(value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+  }
   function loadposts(username) {
    results='';pending2=0;total=0;
    steem.api.getState('/@'+username, function(err, result) {
@@ -20,8 +23,8 @@
          //console.log(post);
          results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
          pending=post['pending_payout_value'].split(" ");
-         pending2=Number(pending[0]);
-         total=pending2+total;
+         pending2=round(Number(pending[0]),3);
+         total=round(pending2+total,3);
          $("#results").html(results);
        }
      }
