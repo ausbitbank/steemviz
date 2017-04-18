@@ -18,7 +18,7 @@
        post=result['content'][postauthor+'/'+postpermlink];
        if (post['author']==username && post['max_accepted_payout']!='0.000 SBD' && post['pending_payout_value']!='0.000 SBD'){
          console.log(post);
-         results+='"<a href=\"https://steemit.com/'+post['author']+'/'+post['permlink']+'\" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
+         results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
          pending=post['pending_payout_value'].split(" ");
          pending2=parseInt(pending[0]);
          total=pending2+total;
