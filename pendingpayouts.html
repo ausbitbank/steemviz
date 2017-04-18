@@ -20,7 +20,7 @@
          console.log(post);
          results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
          pending=post['pending_payout_value'].split(" ");
-         pending2=parseInt(pending[0]);
+         pending2=Number(pending[0]);
          total=pending2+total;
          $("#results").html(results);
        }
