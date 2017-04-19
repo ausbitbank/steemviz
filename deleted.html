@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html> <head>
+  <title>steemviz.com : deleted post viewer</title>
+  <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
+  <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
+  <meta charset="UTF-8">
+  <script src="steem.min.js"></script><script src="jquery.min.js"></script>
+  <script type="text/javascript">
+  var result='';var handle='';var items = [];
+  var query2='';
+
+  function getdeletedpost(username,permlink){
+    query2='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22comment%22,%22account%22:%22'+username+'%22,%22permlink%22:%22'+permlink+'%22}&sort=-timestamp';
+    handle=username+'/'+permlink;
+    $.getJSON(query2, function( data ) {
+      result=(data['_items'][0]);
+      var spanhandle=document.getElementById(handle);
+      spanhandle.innerHTML=result['body'];
+      $("handle").html('<blockquote>'+result['body']+'</blockquote>');
+    });
+  }
+
+
+  function getpostindex(username){
+      if (username==undefined){
+        var queryurl='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22}&sort=-timestamp';
+        } else {
+        var queryurl='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22,%22account%22:%22'+username+'%22}&sort=-timestamp'
+        }
+      $.getJSON(queryurl, function( data ) {
+        items = data['_items'];
+        result='<ul>';
+        $.each( items, function( key, value ) {
+          result+='<li>'+value['account']+' deleted '+value['permlink']+'<br />'+value['timestamp']+'</li><br />';
+          result+='<span id="'+value['account']+'/'+value['permlink']+'" class="deletedcontent"><a href="#" onClick="getdeletedpost(\''+value['account']+'\',\''+value['permlink']+'\')">Retrieve post</a></span><br /><br />';
+        });
+      result+='</ul>';
+      $("#results").html(result);
+    });
+  }
+
+  $(document).ready(function() {
+    getpostindex();
+    $("#userform").submit(function(event) {
+      event.preventDefault();
+      $("#results").html("<img src=loader.gif>");
+      var username = $("#username").val();
+      if (username.startsWith("@")){username=username.substr(1)}
+      getpostindex(username);
+    })
+  });
+  </script>
+  <style type="text/css">
+    body {height:100%;text-align:center;}
+    #outerContainer {height:100%;width:80%;margin:0 auto;}
+    .logo {text-align:center;clear:both;margin:0 auto;height:100px;}
+    a {text-decoration:none;font-weight:bold;color:rgb(26, 80, 153);}
+    li {font-weight:bold;}
+    #result{text-align:left;}
+    .deletedcontent {padding:5px;border:1px dashed blue;}
+    .deletedcontent:hover {border:1px dashed red;}
+    #username {text-align:center;border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
+    #submitbutton {border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
+  </style>
+</head><body>
+<div id="outerContainer">
+  <a href="https://steemviz.com"><img src="steemvizlogo1b6ac.png" class="logo"></a><br /><br />
+  <h3>
+    Recently deleted posts :
+  </h3>
+  <form id="userform"><input type="text" id="username" name="username" value="username"><input type="submit" id="submitbutton" value="check account"></form><br /><br />
+  <div id="results"><img src="loader.gif"></div>
+  </div>
+</div>
+</body></html>
