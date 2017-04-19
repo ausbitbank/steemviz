@@ -23,18 +23,21 @@
   }
 
 
-  function getpostindex(username){
-      if (username==undefined){
+  function getpostindex(username,page){
+      result='';
+      if (username==undefined||username=='undefined'){
         var queryurl='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22}&sort=-timestamp';
         } else {
         var queryurl='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delete_comment%22,%22account%22:%22'+username+'%22}&sort=-timestamp'
         }
+      if (page!=undefined){queryurl='https://webapi.steemdata.com/'+page;}
       $.getJSON(queryurl, function( data ) {
         items = data['_items'];
         $.each( items, function( key, value ) {
           result+='<img src="https://img.steemconnect.com/@'+value['account']+'?size=50" class="avatar"> <strong>'+value['account']+'</strong> deleted '+value['permlink']+'<br /><em>'+value['timestamp']+'</em><br />';
-          result+='<span id="'+value['account']+'/'+value['permlink']+'" class="deletedcontent"><a href="#" onClick="getdeletedpost(\''+value['account']+'\',\''+value['permlink']+'\')">View post</a></span><br /><br />';
+          result+='<span id="'+value['account']+'/'+value['permlink']+'" class="deletedcontent"><a href="javascript:void(0);" onClick="getdeletedpost(\''+value['account']+'\',\''+value['permlink']+'\')">View post</a></span><br /><br />';
         });
+        //result+='<br /><a href="javascript:void(0);" onClick="getpostindex(\''+username+'\',\''+data['_links']['next']['href']+'\');">Load more</a>';
       $("#results").html(result);
     });
   }
