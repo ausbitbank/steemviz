@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html> <head>
-  <title>steemviz.com : deleted post viewer</title>
+  <title>steemviz.com : deleted comments viewer</title>
   <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
   <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
   <meta charset="UTF-8">
@@ -12,9 +12,11 @@
   function getdeletedpost(username,permlink){
     query2='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22comment%22,%22account%22:%22'+username+'%22,%22permlink%22:%22'+permlink+'%22}&sort=-timestamp';
     handle=username+'/'+permlink;
+    var spanhandle=document.getElementById(handle);
+    spanhandle.innerHTML='Retrieving post from SteemData';
     $.getJSON(query2, function( data ) {
       result=(data['_items'][0]);
-      var spanhandle=document.getElementById(handle);
+
       spanhandle.innerHTML=result['body'];
       $("handle").html('<blockquote>'+result['body']+'</blockquote>');
     });
@@ -29,12 +31,10 @@
         }
       $.getJSON(queryurl, function( data ) {
         items = data['_items'];
-        result='<ul>';
         $.each( items, function( key, value ) {
-          result+='<li>'+value['account']+' deleted '+value['permlink']+'<br />'+value['timestamp']+'</li><br />';
-          result+='<span id="'+value['account']+'/'+value['permlink']+'" class="deletedcontent"><a href="#" onClick="getdeletedpost(\''+value['account']+'\',\''+value['permlink']+'\')">Retrieve post</a></span><br /><br />';
+          result+='<img src="https://img.steemconnect.com/@'+value['account']+'?size=50" class="avatar"> <strong>'+value['account']+'</strong> deleted '+value['permlink']+'<br /><em>'+value['timestamp']+'</em><br />';
+          result+='<span id="'+value['account']+'/'+value['permlink']+'" class="deletedcontent"><a href="#" onClick="getdeletedpost(\''+value['account']+'\',\''+value['permlink']+'\')">View post</a></span><br /><br />';
         });
-      result+='</ul>';
       $("#results").html(result);
     });
   }
@@ -57,10 +57,11 @@
     a {text-decoration:none;font-weight:bold;color:rgb(26, 80, 153);}
     li {font-weight:bold;}
     #result{text-align:left;}
-    .deletedcontent {padding:5px;border:1px dashed blue;}
+    .deletedcontent {margin:5px;border:1px dashed blue;}
     .deletedcontent:hover {border:1px dashed red;}
     #username {text-align:center;border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
     #submitbutton {border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
+    .avatar{vertical-align:middle;border-radius:5px;}
   </style>
 </head><body>
 <div id="outerContainer">
