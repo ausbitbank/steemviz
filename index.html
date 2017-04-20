@@ -551,6 +551,12 @@ function streamtx(txType,txData) {
     }
     function postpreview(post) {var txt=post.replace(/ +/g,' ');var max_words=15;var words = 0;var preview='';for (let i = 0;i<txt.length; i++) {var char = txt.charAt(i);if (char === '.') break;if (char === ' ' || char === '\n') {words++;if(words>max_words)break;if (i>30) break;};preview += char;}return preview;}
 
+    function showtools(){
+      document.getElementById('toolkit').style.display="block";
+      console.log("showing tools");
+      $('#toolkit').fadeIn();
+    }
+
     $(document).ready(function() {
       $('#column1').prepend('<div class="columnheader" style="display:none;"><div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <i class="fa fa-star" style="color:gold;" aria-hidden="true"></i></div></div>');
       $("#column1").find("div.columnheader:first").fadeIn("slow");
@@ -562,8 +568,9 @@ function streamtx(txType,txData) {
       $("#column4").find("div.columnitem:first").fadeIn("slow");
       var postviewer = document.getElementById('postviewer');
       var closepostviewer = document.getElementById("closepostviewer");
+      var toolkit = document.getElementById('toolkit');
       closepostviewer.onclick = function() {$('#postviewer').style.display = "none";}
-      window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}}
+      window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}if (event.target == toolkit){toolkit.style.display = "none";}}
       getstats();
       var tx = Function.prototype;
       tx = steem.api.streamOperations(function onOperation(error, operation) {
@@ -624,6 +631,21 @@ function streamtx(txType,txData) {
   <div id="votehistoryholder"></div>
 </div>
 <div id="focuscontent"></div>
-<div id="steemvizlogo"><div id="followthevotes" style="color:#228DFF;"><span onclick="followthevotesconfigopen();"><i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a></div>
+<div id="steemvizlogo" style="color:#228DFF;"><div id="followthevotes"><span onclick="followthevotesconfigopen();"><i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a><span id="showtools" onclick="showtools();"><i class="fa fa-wrench hovergrow" aria-hidden="true"></i></span></div>
 <div id="postviewer" class="modal"><span id="closepostviewer" class="closebutton"><i class="fa fa-times hovergrow" aria-hidden="true"> </i></span><div class="modal-content" id="postviewer-content"></div></div>
+<div id="toolkit" class="modal" style="display:none;"><div class="modal-content" id="toolkit-content"><h2>More Steem Tools from <a href="https://steemit.com/@ausbitbank">@ausbitbank</a></h2>
+  <strong>Blockchain viewer and curation tools</strong> - <a href="https://steemviz.com">steemviz.com</a> & <a href="https://golosviz.com">golosviz.com</a><br />
+  <strong>Deleted Posts Viewer</strong> - <a href="https://steemviz.com/deleted">steemviz.com/deleted</a><br />
+  <strong>Pending payout calculator</strong> - <a href="https://steemviz.com/pendingpayouts">steemviz.com/pendingpayouts</a><br />
+  <strong>Promotion cost checker</strong> - <a href="https://steemviz.com/promo">steemviz.com/promo</a><br />
+  <strong>Minimalist steem blog viewer</strong> - <a href="https://steemlink">steemlink.com</a> (<a href="http://steemit.com/@ausbitbank/install-steemlink-your-own-custom-steem-blog-in-moments">install guide</a>)<br />
+  <strong>View videos posted to Steem</strong> - <a href="https://steemvids.com">steemvids.com</a><br />
+  <strong>Video post template creator</strong> - <a href="https://steemvids.com/create">steemvids.com/create</a><br />
+  <strong>Steem indicator and chart</strong> - <a href="https://www.tradingview.com/chart/SkINGKNk/">tradingview.com/chart/SkINGKNK</a><br />
+  <strong>Compare steem marketcap and google trends</strong> <a href="https://steemcap.com">steemcap.com</a><br />
+  <strong>Donate to wikileaks via steem</strong> - <a href="https://steemleak.com">steemleak.com</a> (on hold)
+  <h3>See more at <a href="https://steemtools.com">steemtools.com</a></h3>
+  <a href="https://steemit.com/@ausbitbank"><img src="https://img1.steemit.com/0x0/https://www.steemimg.com/images/2016/09/21/ausbitbank4275c.png"></a>
+
+  </ul></div></div>
 </body></html>
