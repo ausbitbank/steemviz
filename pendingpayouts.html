@@ -12,10 +12,67 @@
     return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
   }
 
-  function loadblogposts(username,start_author,start_permlink,total){
+  function loadcomments(username){
+    if (username.startsWith("@")){username=username.substr(1)}
+    var results2='';var pendingc2=0;var total2=0;var allcommentspaid=false;$("#total").html("");var pendingc;$("#commentsheader").html("Comments by "+username);
+    var handle2;var commentauthor='';var commentpermlink='';var comment;var totalstring2='';
+    steem.api.getState('/@'+username+'/comments', function(err, result) {
+      if (err){console.log(err);$("#results2").html("Error loading data for user "+username);}
+      var sortindex=result['accounts'][username]['comments'];
+      for (var i=0;i<sortindex.length;i+=1) {
+       handle2 = sortindex[i].split('/');
+       commentauthor = handle2[0];commentpermlink = handle2[1];
+       comment=result['content'][commentauthor+'/'+commentpermlink];
+       if (comment['author']==username && comment['max_accepted_payout']!='0.000 SBD' && comment['pending_payout_value']!='0.000 SBD'){
+         results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target="_blank" title=\"'+comment['cashout_time']+'\">'+comment['root_title']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
+         pendingc=comment['pending_payout_value'].split(" ");
+         pendingc2=round(Number(pendingc[0]),3);
+         total2=round(pendingc2+total2,3);
+         $("#results2").html(results2);
+         if (comment['cashout_time'].startsWith("1969")){allcommentspaid=true;}
+       }
+        if (i==sortindex.length-1){c_start_permlink=comment['permlink'];}
+      }
+      totalstring2='<br /><strong style="text-decoration:underline;">Total pending comment payouts : '+total2+' SBD</strong><br /><br />';
+      $("#loader2").fadeOut().html('');
+      $("#total2").html(totalstring2);
+      if (allcommentspaid==false){loadmorecomments(username,c_start_permlink,total2);}
+    });
+  }
+
+  function loadmorecomments(username,c_start_permlink,total2){
+    $("#loader2").html('<img src="loader.gif">');
+    var pendingc;var pendingc2;var results2;var totalstring2;var comment;
+    steem.api.getRepliesByLastUpdate(username,c_start_permlink,20, function(err, result2){
+      if (err){console.log(err);}
+      //console.log(result2);
+      for (var i=0;i<result2.length;i+=1){
+        comment=result2[i];
+        //if (i==0){continue;} // Skip first returned content
+        if (username==comment['author']&&comment['max_accepted_payout']!='0.000 SBD'&&comment['pending_payout_value']!='0.000SBD'){
+          if (comment['cashout_time'].startsWith("1969")){continue;} // Paid out posts cashout in 1969 (?)
+          results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target="_blank" title=\"'+comment['cashout_time']+'\">'+comment['permlink']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
+          pendingc=comment['pending_payout_value'].split(" ");
+          pendingc2=round(Number(pendingc[0]),3);
+          total2=round(pendingc2+total2,3);
+          //console.log(pendingc);console.log(pendingc2);console.log(total2);console.log(results2);
+          $("#results2").append(results2);
+          if (comment['cashout_time'].startsWith("1969")){var allcommentspaid=true;}
+        }
+        totalstring2='<br /><strong style="text-decoration:underline;">Total pending comment payouts : '+total2+' SBD</strong><br /><br />';
+        $("#loader2").fadeOut().html('');
+        $("#total2").html(totalstring2);
+        if (i==result2.length-1){c_start_permlink=comment['permlink'];}
+      }
+      if (allcommentspaid==false){loadmorecomments(username,c_start_permlink,total2);}
+    });
+  }
+
+  function loadmoreposts(username,start_author,start_permlink,total){
     $("#loader").html('<img src="loader.gif">');
     var query={tag: username,limit:30,start_author: start_author,start_permlink:start_permlink};
     steem.api.getDiscussionsByBlog(query, function(err, result) {
+      if (err){console.log(err);}
       for (var i=0;i<result.length;i+=1){
         post=result[i];
         if (i==0){continue;} // Skip first returned content
@@ -28,18 +85,18 @@
           $("#results").html(results);
           if (post['cashout_time'].startsWith("1969")){var allpaid=true;}
         }
-        totalstring='<br /><strong style="text-decoration:underline;">Total pending payouts : '+total+' SBD</strong><br /><br />';
-        $("#loader").html('');
+        totalstring='<br /><strong style="text-decoration:underline;">Total pending post payouts : '+total+' SBD</strong><br /><br />';
+        $("#loader").fadeOut().html('');
         $("#total").html(totalstring);
         if (i==result.length-1){start_author=post['author'];start_permlink=post['permlink'];}
       }
-      if (allpaid==false){loadblogposts(username,start_author,start_permlink,total);}
+      if (allpaid==false){loadmoreposts(username,start_author,start_permlink,total);}
     });
   }
 
   function loadposts(username) {
    if (username.startsWith("@")){username=username.substr(1)}
-   results='';pending2=0;total=0;var allpaid=false;$("#total").html("");
+   results='';pending2=0;total=0;var allpaid=false;$("#total").html("");$("#postsheader").html("Posts by "+username);
    steem.api.getState('/@'+username, function(err, result) {
      if (err){console.log(err);$("#results").html("Error loading data for user "+username);}
      var sortindex=result['accounts'][username]['blog'];
@@ -58,20 +115,21 @@
        if (i==sortindex.length-1){start_author=post['author'];start_permlink=post['permlink'];}
      }
      totalstring='<br /><strong style="text-decoration:underline;">Total pending payouts : '+total+' SBD</strong><br /><br />';
-     $("#loader").html('');
+     $("#loader").fadeOut().html('');
      $("#total").html(totalstring);
      $("#submitbutton").removeAttr('disabled');
-     if (allpaid==false){loadblogposts(username,start_author,start_permlink,total);}
+     if (allpaid==false){loadmoreposts(username,start_author,start_permlink,total);}
   })
 }
   $(document).ready(function() {
      $("#userform").submit(function(event) {
        event.preventDefault();
-       $("#results").html("");
+       $("#results").html("");$("#results2").html("");
        $("#submitbutton").attr('disabled','disabled');
-       $("#loader").html('<img src="loader.gif">');
+       $("#loader").html('<img src="loader.gif">').fadeIn();$("#loader2").html('<img src="loader.gif">').fadeIn();
        var username = $("#username").val();
        loadposts(username);
+       loadcomments(username);
      }
   )});
   </script>
@@ -82,16 +140,25 @@
     a {text-decoration:none;font-weight:bold;color:rgb(26, 80, 153);}
     #username {text-align:center;border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
     #submitbutton {border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
+    h1,h2,h3,h4,h5 {color:#0a66c9;}
+    #disclaimer{display:none;}
   </style>
 </head><body>
 <div id="outerContainer">
   <a href="https://steemviz.com"><img src="steemvizlogo1b6ac.png" class="logo"></a><br /><br />
   <strong>Check your potential steemit payouts</strong><br /><br />
-  <form id="userform"><input type="text" id="username" name="username" value="username"><input type="submit" id="submitbutton" value="check account"></form><br /><br />
+  <form id="userform"><input type="text" id="username" name="username" value="username"><input type="submit" id="submitbutton" value="check account"></form><br />
+
+
+  <div id="disclaimer"><small>Listed amounts are <strong>potential</strong> future payouts - don't count your chickens before they hatch.</small></div>
+  <h3 id="postsheader"></h3>
   <div id="results"></div>
   <div id="loader"></div>
-  <div id="total"></div>
-  <small>Listed amounts are <strong>potential</strong> future payouts - don't count your chickens before they hatch.</small>
+  <h2 id="total"></h2>
+  <h3 id="commentsheader"></h3>
+  <div id="results2"></div>
+  <div id="loader2"></div>
+  <h2 id="total2"></h2>
   </div>
 </div>
 </body></html>
