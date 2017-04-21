@@ -6,37 +6,70 @@
   <meta charset="UTF-8">
   <script src="steem.min.js"></script><script src="jquery.min.js"></script>
   <script type="text/javascript">
-  var post='';var posts=[];var total=0;var pending='';var pending2=0;var results='';
+  var post='';var posts=[];var total=0;var totalstring='';var pending='';var pending2=0;var results='';var start_author='';start_permlink='';
+
   function round(value, decimals) {
     return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
   }
+
+  function loadblogposts(username,start_author,start_permlink,total){
+    $("#loader").html('<img src="loader.gif">');
+    var query={tag: username,limit:30,start_author: start_author,start_permlink:start_permlink};
+    steem.api.getDiscussionsByBlog(query, function(err, result) {
+      for (var i=0;i<result.length;i+=1){
+        post=result[i];
+        if (i==0){continue;} // Skip first returned content
+        if (username==post['author']&&post['max_accepted_payout']!='0.000 SBD'&&post['pending_payout_value']!='0.000SBD'){
+          if (post['cashout_time'].startsWith("1969")){continue;} // Paid out posts cashout in 1969 (?)
+          results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" target="_blank" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
+          pending=post['pending_payout_value'].split(" ");
+          pending2=round(Number(pending[0]),3);
+          total=round(pending2+total,3);
+          $("#results").html(results);
+          if (post['cashout_time'].startsWith("1969")){var allpaid=true;}
+        }
+        totalstring='<br /><strong style="text-decoration:underline;">Total pending payouts : '+total+' SBD</strong><br /><br />';
+        $("#loader").html('');
+        $("#total").html(totalstring);
+        if (i==result.length-1){start_author=post['author'];start_permlink=post['permlink'];}
+      }
+      if (allpaid==false){loadblogposts(username,start_author,start_permlink,total);}
+    });
+  }
+
   function loadposts(username) {
    if (username.startsWith("@")){username=username.substr(1)}
-   results='';pending2=0;total=0;
+   results='';pending2=0;total=0;var allpaid=false;$("#total").html("");
    steem.api.getState('/@'+username, function(err, result) {
-     if (err){console.log(err);}
+     if (err){console.log(err);$("#results").html("Error loading data for user "+username);}
      var sortindex=result['accounts'][username]['blog'];
      for (var i=0;i<sortindex.length;i+=1) {
        var handle = sortindex[i].split('/');
        var postauthor = handle[0];var postpermlink = handle[1];
        post=result['content'][postauthor+'/'+postpermlink];
        if (post['author']==username && post['max_accepted_payout']!='0.000 SBD' && post['pending_payout_value']!='0.000 SBD'){
-         //console.log(post);
          results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" target="_blank" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
          pending=post['pending_payout_value'].split(" ");
          pending2=round(Number(pending[0]),3);
          total=round(pending2+total,3);
          $("#results").html(results);
+         if (post['cashout_time'].startsWith("1969")){allpaid=true;}
        }
+       if (i==sortindex.length-1){start_author=post['author'];start_permlink=post['permlink'];}
      }
-     results+='<br /><strong style="text-decoration:underline;">Total pending payouts : '+total+' SBD</strong><br /><br />';
-     $("#results").html(results);
+     totalstring='<br /><strong style="text-decoration:underline;">Total pending payouts : '+total+' SBD</strong><br /><br />';
+     $("#loader").html('');
+     $("#total").html(totalstring);
+     $("#submitbutton").removeAttr('disabled');
+     if (allpaid==false){loadblogposts(username,start_author,start_permlink,total);}
   })
 }
   $(document).ready(function() {
      $("#userform").submit(function(event) {
        event.preventDefault();
-       $("#results").html("<img src=loader.gif>");
+       $("#results").html("");
+       $("#submitbutton").attr('disabled','disabled');
+       $("#loader").html('<img src="loader.gif">');
        var username = $("#username").val();
        loadposts(username);
      }
@@ -56,6 +89,8 @@
   <strong>Check your potential steemit payouts</strong><br /><br />
   <form id="userform"><input type="text" id="username" name="username" value="username"><input type="submit" id="submitbutton" value="check account"></form><br /><br />
   <div id="results"></div>
+  <div id="loader"></div>
+  <div id="total"></div>
   <small>Listed amounts are <strong>potential</strong> future payouts - don't count your chickens before they hatch.</small>
   </div>
 </div>
