@@ -96,7 +96,7 @@
 
   function loadposts(username) {
    if (username.startsWith("@")){username=username.substr(1)}
-   results='';pending2=0;total=0;var allpaid=false;$("#total").html("");$("#postsheader").html("Posts by "+username);
+   results='';pending2=0;total=0;var allpaid=false;$("#total").html("");$("#postsheader").html("Posts by "+username);$("#disclaimer").fadeIn();
    steem.api.getState('/@'+username, function(err, result) {
      if (err){console.log(err);$("#results").html("Error loading data for user "+username);}
      var sortindex=result['accounts'][username]['blog'];
