@@ -24,7 +24,7 @@
        commentauthor = handle2[0];commentpermlink = handle2[1];
        comment=result['content'][commentauthor+'/'+commentpermlink];
        if (comment['author']==username && comment['max_accepted_payout']!='0.000 SBD' && comment['pending_payout_value']!='0.000 SBD'){
-         results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target="_blank" title=\"'+comment['cashout_time']+'\">'+comment['root_title']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
+         results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target=\"_blank\" title=\"'+comment['cashout_time']+'\">'+comment['root_title']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
          pendingc=comment['pending_payout_value'].split(" ");
          pendingc2=round(Number(pendingc[0]),3);
          total2=round(pendingc2+total2,3);
@@ -51,7 +51,7 @@
         //if (i==0){continue;} // Skip first returned content
         if (username==comment['author']&&comment['max_accepted_payout']!='0.000 SBD'&&comment['pending_payout_value']!='0.000SBD'){
           if (comment['cashout_time'].startsWith("1969")){continue;} // Paid out posts cashout in 1969 (?)
-          results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target="_blank" title=\"'+comment['cashout_time']+'\">'+comment['permlink']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
+          results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target=\"_blank\" title=\"'+comment['cashout_time']+'\">'+comment['permlink']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
           pendingc=comment['pending_payout_value'].split(" ");
           pendingc2=round(Number(pendingc[0]),3);
           total2=round(pendingc2+total2,3);
@@ -154,11 +154,11 @@
   <h3 id="postsheader"></h3>
   <div id="results"></div>
   <div id="loader"></div>
-  <h2 id="total"></h2>
+  <h1 id="total"></h1>
   <h3 id="commentsheader"></h3>
   <div id="results2"></div>
   <div id="loader2"></div>
-  <h2 id="total2"></h2>
+  <h1 id="total2"></h1>
   </div>
 </div>
 </body></html>
