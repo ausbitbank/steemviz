@@ -16,7 +16,7 @@ html, body {margin: 0; padding: 0; overflow: hidden; font-family: Source Sans Pr
 #steemvizlogo a { font-size: 1.5em; color: #228DFF;  font-family: Iceland;}
 #steemvizlogo a:hover {color:black;  -webkit-animation: neon2 1.5s ease-in-out infinite alternate;  -moz-animation: neon2 1.5s ease-in-out infinite alternate;  animation: neon2 1.5s ease-in-out infinite alternate;}
 #stats {padding:5px; font-size:12px;}
-#followthevotes {font-size:18px !important;text-align:left;display:block;margin:0px;padding:0px; position:absolute;z-index:9999999;left:5px;bottom:5px;}
+#followthevotes {font-size:18px !important;text-align:left;display:block;margin:5px;padding:0px; position:absolute;z-index:9999999;left:5px;bottom:5px;}
 #votelist {font-size:12px;}
 #followthevoteshistorycontainer {z-index:15; position:absolute; left:10px;top:5%;background-color:white; overflow-y: auto; overflow-x:hidden;text-align:left;max-height:90%; max-width:50%;padding:10px;display:none;border:1px solid #228DFF; border-radius: 15px; filter: alpha(opacity=85); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=85); -moz-opacity: 0.85; opacity: 0.85; padding:10px;box-shadow: 10px 10px 5px #888888;}
 #votehistorycontainer {z-index:15; position:absolute; right:10px;top:5%;background-color:white; overflow-y: auto; overflow-x:hidden;text-align:left;max-height:90%; max-width:50%;padding:10px;display:none;border:1px solid #228DFF; border-radius: 15px; filter: alpha(opacity=85); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=85); -moz-opacity: 0.85; opacity: 0.85; padding:10px;box-shadow: 10px 10px 5px #888888;}
@@ -43,7 +43,7 @@ padding:5px;overflow-y: auto;max-width:95%;width:600px;max-height:100%;box-shado
 .undertitle { font-family: Helvetica Neue,Helvetica,Verdana,Arial,sans-serif; color: #666; line-height: 1.3; font-size: 12px; word-wrap: break-word;}
 .postimage { float:right;width:100px;height:100px }
 .reblog {color: green !important; fill:green !important;}
-#showtools {float:right;margin-right:5px;vertical-align:middle;font-size: 18px !important;}
+#showtools {float:right;margin:5px;vertical-align:middle;font-size: 18px !important;}
 #toolkit {text-align:center;}
 blockquote, dd, div, dl, dt, form, h1, h2, h3, h4, h5, h6, li, ol, p, pre, td, th, ul { margin: 0; padding: 0; }
 blockquote { overflow:hidden; }
