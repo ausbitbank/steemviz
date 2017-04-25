@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html> <head>
+  <title>steemviz.com : potential pending payout calculator</title>
+  <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
+  <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
+  <meta charset="UTF-8"><script src="steem.min.js"></script><script src="jquery.min.js"></script><script src="https://cdn.jsdelivr.net/clipboard.js/1.6.0/clipboard.min.js"></script>
+  <script type="text/javascript">
+  var author;var handle;
+
+  function loadpost(author,permlink){
+   steem.api.getContent(author, permlink, function(err, result) {
+     console.log(result);
+    $("#loader").fadeOut();
+    $("#source").html(result['body']);
+    $(".clipbtn").fadeIn();
+    $('#source').fadeIn();
+   });
+  }
+
+  $(document).ready(function() {
+    new Clipboard('.clipbtn');
+     $("#permlink").submit(function(event) {
+       event.preventDefault();
+       $("#loader").fadeIn();
+       var handle = $("#permlinkstr").val();
+       if (handle.startsWith("@")){handle=handle.substr(1);}
+       handle = handle.split("/");
+       var author = handle[0];
+       var permlink = handle[1];
+       loadpost(author,permlink);
+     }
+  )});
+
+
+  </script>
+  <style type="text/css">
+    body {height:100%;text-align:center;}
+    #outerContainer {height:100%;width:80%;margin:0 auto;}
+    .logo {text-align:center;clear:both;margin:0 auto;height:100px;}
+    a {text-decoration:none;font-weight:bold;color:rgb(26, 80, 153);}
+    #permlinkstr {text-align:center;border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9; width:80%;}
+    #submitbutton , .clipbtn {border : solid 2px #ffffff;border-radius : 3px;moz-border-radius : 3px;font-size : 20px;color : #ffffff;	padding : 1px 17px;	background-color : #0a66c9;}
+    h1,h2,h3,h4,h5 {color:#0a66c9;}
+    #source {width:100%;display:none;height:100%;padding:5px;border-radius:3px;border:3px solid #0a66c9;}
+    pre,#log {white-space: pre-wrap;white-space: -moz-pre-wrap; white-space: -o-pre-wrap;}
+    #loader {display:none;}
+    .clipbtn {display:none;}
+    textarea {height:auto;}
+  </style>
+</head><body>
+<div id="outerContainer">
+<a href="https://steemviz.com"><img src="steemvizlogo1b6ac.png" class="logo"></a><br /><br />
+  <form id="permlink"><input type="text" id="permlinkstr" name="permlink" value="ausbitbank/elon-musk-explains-chemtrails"><br /><input type="submit" id="submitbutton" value="view source"></form><br />
+  <textarea class="markup" id="source" rows="25"></textarea>
+  <div id="loader"><img src="loader.gif"></div>
+  <button class="clipbtn" data-clipboard-target="#source"><i class="fa fa-clipboard" aria-hidden="true"></i> Copy markdown to clipboard</button>
+</div>
+</body></html>
