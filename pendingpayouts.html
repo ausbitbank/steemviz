@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <script src="steem.min.js"></script><script src="jquery.min.js"></script>
   <script type="text/javascript">
-  var post='';var posts=[];var total=0;var totalstring='';var pending='';var pending2=0;var results='';var start_author='';start_permlink='';
+  var post='';var posts=[];var total=0;var totalstring='';var pending='';var pending2=0;var results='';var start_author='';start_permlink='';var postcount=0;var avgpayout=0;
 
   function round(value, decimals) {
     return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
@@ -48,7 +48,7 @@
       //console.log(result2);
       for (var i=0;i<result2.length;i+=1){
         comment=result2[i];
-        //if (i==0){continue;} // Skip first returned content
+        if (comment['permlink']==undefined){continue;}
         if (username==comment['author']&&comment['max_accepted_payout']!='0.000 SBD'&&comment['pending_payout_value']!='0.000SBD'){
           if (comment['cashout_time'].startsWith("1969")){continue;} // Paid out posts cashout in 1969 (?)
           results2+='"<a href=\"https://steemit.com/@'+comment['author']+'/'+comment['permlink']+'\" target=\"_blank\" title=\"'+comment['cashout_time']+'\">'+comment['permlink']+'</a>" - <strong>'+comment['pending_payout_value']+'</strong><br />';
@@ -81,11 +81,14 @@
           results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" target="_blank" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
           pending=post['pending_payout_value'].split(" ");
           pending2=round(Number(pending[0]),3);
+          postcount++;
           total=round(pending2+total,3);
           $("#results").html(results);
           if (post['cashout_time'].startsWith("1969")){var allpaid=true;}
         }
-        totalstring='<br /><strong style="text-decoration:underline;">Total pending post payouts : '+total+' SBD</strong><br /><br />';
+        avgpayout=total/postcount;
+        avgpayout=round(Number(avgpayout),3);
+        totalstring='<br /><strong style="text-decoration:underline;">'+postcount+' total pending payouts : '+total+' SBD</strong><br /><small>Averaging '+avgpayout+' SBD per post</small><br /><br />';
         $("#loader").fadeOut().html('');
         $("#total").html(totalstring);
         if (i==result.length-1){start_author=post['author'];start_permlink=post['permlink'];}
@@ -95,6 +98,7 @@
   }
 
   function loadposts(username) {
+   postcount=0;
    if (username.startsWith("@")){username=username.substr(1)}
    results='';pending2=0;total=0;var allpaid=false;$("#total").html("");$("#postsheader").html("Posts by "+username);$("#disclaimer").fadeIn();
    steem.api.getState('/@'+username, function(err, result) {
@@ -109,12 +113,15 @@
          pending=post['pending_payout_value'].split(" ");
          pending2=round(Number(pending[0]),3);
          total=round(pending2+total,3);
+         postcount++;
          $("#results").html(results);
          if (post['cashout_time'].startsWith("1969")){allpaid=true;}
        }
        if (i==sortindex.length-1){start_author=post['author'];start_permlink=post['permlink'];}
      }
-     totalstring='<br /><strong style="text-decoration:underline;">Total pending payouts : '+total+' SBD</strong><br /><br />';
+     avgpayout=total/postcount;
+     avgpayout=round(Number(avgpayout),3);
+     totalstring='<br /><strong style="text-decoration:underline;">'+postcount+' total pending payouts : '+total+' SBD</strong><br /><small>Averaging '+avgpayout+' SBD per post</small><br /><br />';
      $("#loader").fadeOut().html('');
      $("#total").html(totalstring);
      $("#submitbutton").removeAttr('disabled');
