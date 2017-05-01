@@ -17,7 +17,8 @@
   });
 
   function checklogin(){
-    console.log('clicked');
+    console.log(loginURL);
+    $("#login").html(loginURL);
     steemconnect.isAuthenticated(function(err, result) {
 	    console.log(err, result);
     });
@@ -29,4 +30,7 @@
   </script>
   </head><body>
 <a href="#" onClick="checklogin();">click</a>
+  <div id="login">
+
+  </div>
   </body></html>
