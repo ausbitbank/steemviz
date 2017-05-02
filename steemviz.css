@@ -9,7 +9,6 @@ html, body {margin: 0; padding: 0; overflow: hidden; font-family: Source Sans Pr
 #column2, #column4 {z-index:1;}
 #column1, #column3 {z-index:1;}
 .upvote, .downvote {clear:none;}
-.highlight {border:1px dashed #228DFF;}
 .hovergrow {-webkit-transition-duration: 0.3s; -moz-transition-duration: 0.3s; -o-transition-duration: 0.3s; transition-duration: 0.3s;}
 .hovergrow:hover { -ms-transform: scale(1.5); -moz-transform:scale(1.5); -webkit-transform: scale(1.5); transform: scale(1.5); -webkit-transition-duration: 0.3s; -moz-transition-duration: 0.3s; -o-transition-duration: 0.3s; transition-duration: 0.3s;}
 #steemvizlogo { font-size: 1.6em; position:fixed;left:0px;text-align:center;bottom:0px;height:40px;width:100%; z-index:3; background:white; border-top:1px inset #228DFF; filter: alpha(opacity=75); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=75); -moz-opacity: 0.75; opacity: 0.75;-webkit-transition-duration: 0.3s; -moz-transition-duration: 0.3s; -o-transition-duration: 0.3s; transition-duration: 0.3s; }
@@ -166,4 +165,4 @@ to { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #4BA2F2, 
 .closebutton {color: #aaa;float: right;font-size: 28px;font-weight: bold;}
 .closebutton:hover,.closebutton:focus {color: black;text-decoration: none;cursor: pointer;}
 .avatar{vertical-align:middle;border-radius:10px;}
-.highlight {}
+.highlight {-webkit-animation: neon2 1.5s ease-in-out infinite alternate;  -moz-animation: neon2 1.5s ease-in-out infinite alternate;  animation: neon2 1.5s ease-in-out infinite alternate;}
