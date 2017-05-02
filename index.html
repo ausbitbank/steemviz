@@ -12,6 +12,9 @@
   <script src="remarkable.js"></script>
   <link href="steemviz.css" rel="stylesheet" type="text/css">
   <script type="text/javascript">
+    //steemconnect
+    !function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={exports:{},id:n,loaded:!1};return e[n].call(o.exports,o,o.exports,t),o.loaded=!0,o.exports}var r={};return t.m=e,t.c=r,t.p="",t(0)}([function(e,t,r){(function(n){"use strict";var o=r(1);"undefined"!=typeof window&&(window.steemconnect=o),"undefined"!=typeof n&&(n.steemconnect=o),t=e.exports=o}).call(t,function(){return this}())},function(e,t,r){"use strict";var n=r(2),o=r(4),s=r(7)("steemconnect"),i={baseURL:"https://steemconnect.com",app:"",callbackURL:""};i.init=function(e){e.baseURL&&i.setBaseURL(e.baseURL),e.app&&i.setApp(e.app),e.callbackURL&&i.setCallbackURL(e.callbackURL)},i.setBaseURL=function(e){i.baseURL=e},i.setApp=function(e){i.app=e},i.setCallbackURL=function(e){i.callbackURL=e},i.getLoginURL=function(e){return e?i.baseURL+"/authorize/@"+i.app+"?redirect_url="+e:i.baseURL+"/authorize/@"+i.app+"?redirect_url="+i.callbackURL},i.send=function(e,t,r){var a=i.baseURL+"/api/@"+i.app+"/"+e,c=n(a+"?"+o.stringify(t),{credentials:"include"}).then(function(e){if(s("GET "+e.status+" "+a),e.status>=400){var t=new Error("Steem Connect API call failed with "+e.status);throw t.res=e,t}return e.json()});return r?c.then(function(e){r(null,e)},function(e){r(e)}):c},i.isAuthenticated=function(e){return i.send("verify",{},e)},i.vote=function(e,t,r,n,o){var s={voter:e,author:t,permlink:r,weight:n};return i.send("vote",s,o)},i.follow=function(e,t,r){var n={follower:e,following:t};return i.send("follow",n,r)},i.unfollow=function(e,t,r){var n={follower:e,following:t};return i.send("unfollow",n,r)},i.ignore=function(e,t,r){var n={follower:e,following:t};return i.send("ignore",n,r)},i.reblog=function(e,t,r,n){var o={account:e,author:t,permlink:r};return i.send("reblog",o,n)},i.comment=function(e,t,r,n,o,s,a,c){var u={parentAuthor:e,parentPermlink:t,author:r,permlink:n,title:o,body:s,jsonMetadata:a};return i.send("comment",u,c)},i.deleteComment=function(e,t,r){var n={author:e,permlink:t};return i.send("deleteComment",n,r)},i.post=function(e,t,r,n,o,s){var a={author:e,permlink:t,title:r,body:n,jsonMetadata:o};return i.send("post",a,s)},i.escrowTransfer=function(e,t,r,n,o,s,a,c,u,l){var f={from:e,to:t,amount:r,memo:n,escrow_id:o,agent:s,fee:a,json_meta:c,expiration:u};return i.send("escrowTransfer",f,l)},i.escrowDispute=function(e,t,r,n,o){var s={from:e,to:t,escrow_id:r,who:n};return i.send("escrowDispute",s,o)},i.escrowRelease=function(e,t,r,n,o,s){var a={from:e,to:t,escrow_id:r,who:n,amount:o};return i.send("escrowRelease",a,s)},t=e.exports=i},function(e,t,r){r(3),e.exports=self.fetch.bind(self)},function(e,t){!function(e){"use strict";function t(e){if("string"!=typeof e&&(e=String(e)),/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(e))throw new TypeError("Invalid character in header field name");return e.toLowerCase()}function r(e){return"string"!=typeof e&&(e=String(e)),e}function n(e){var t={next:function(){var t=e.shift();return{done:void 0===t,value:t}}};return y.iterable&&(t[Symbol.iterator]=function(){return t}),t}function o(e){this.map={},e instanceof o?e.forEach(function(e,t){this.append(t,e)},this):e&&Object.getOwnPropertyNames(e).forEach(function(t){this.append(t,e[t])},this)}function s(e){return e.bodyUsed?Promise.reject(new TypeError("Already read")):void(e.bodyUsed=!0)}function i(e){return new Promise(function(t,r){e.onload=function(){t(e.result)},e.onerror=function(){r(e.error)}})}function a(e){var t=new FileReader;return t.readAsArrayBuffer(e),i(t)}function c(e){var t=new FileReader;return t.readAsText(e),i(t)}function u(){return this.bodyUsed=!1,this._initBody=function(e){if(this._bodyInit=e,"string"==typeof e)this._bodyText=e;else if(y.blob&&Blob.prototype.isPrototypeOf(e))this._bodyBlob=e;else if(y.formData&&FormData.prototype.isPrototypeOf(e))this._bodyFormData=e;else if(y.searchParams&&URLSearchParams.prototype.isPrototypeOf(e))this._bodyText=e.toString();else if(e){if(!y.arrayBuffer||!ArrayBuffer.prototype.isPrototypeOf(e))throw new Error("unsupported BodyInit type")}else this._bodyText="";this.headers.get("content-type")||("string"==typeof e?this.headers.set("content-type","text/plain;charset=UTF-8"):this._bodyBlob&&this._bodyBlob.type?this.headers.set("content-type",this._bodyBlob.type):y.searchParams&&URLSearchParams.prototype.isPrototypeOf(e)&&this.headers.set("content-type","application/x-www-form-urlencoded;charset=UTF-8"))},y.blob?(this.blob=function(){var e=s(this);if(e)return e;if(this._bodyBlob)return Promise.resolve(this._bodyBlob);if(this._bodyFormData)throw new Error("could not read FormData body as blob");return Promise.resolve(new Blob([this._bodyText]))},this.arrayBuffer=function(){return this.blob().then(a)},this.text=function(){var e=s(this);if(e)return e;if(this._bodyBlob)return c(this._bodyBlob);if(this._bodyFormData)throw new Error("could not read FormData body as text");return Promise.resolve(this._bodyText)}):this.text=function(){var e=s(this);return e?e:Promise.resolve(this._bodyText)},y.formData&&(this.formData=function(){return this.text().then(p)}),this.json=function(){return this.text().then(JSON.parse)},this}function l(e){var t=e.toUpperCase();return m.indexOf(t)>-1?t:e}function f(e,t){t=t||{};var r=t.body;if(f.prototype.isPrototypeOf(e)){if(e.bodyUsed)throw new TypeError("Already read");this.url=e.url,this.credentials=e.credentials,t.headers||(this.headers=new o(e.headers)),this.method=e.method,this.mode=e.mode,r||(r=e._bodyInit,e.bodyUsed=!0)}else this.url=e;if(this.credentials=t.credentials||this.credentials||"omit",!t.headers&&this.headers||(this.headers=new o(t.headers)),this.method=l(t.method||this.method||"GET"),this.mode=t.mode||this.mode||null,this.referrer=null,("GET"===this.method||"HEAD"===this.method)&&r)throw new TypeError("Body not allowed for GET or HEAD requests");this._initBody(r)}function p(e){var t=new FormData;return e.trim().split("&").forEach(function(e){if(e){var r=e.split("="),n=r.shift().replace(/\+/g," "),o=r.join("=").replace(/\+/g," ");t.append(decodeURIComponent(n),decodeURIComponent(o))}}),t}function d(e){var t=new o,r=(e.getAllResponseHeaders()||"").trim().split("\n");return r.forEach(function(e){var r=e.trim().split(":"),n=r.shift().trim(),o=r.join(":").trim();t.append(n,o)}),t}function h(e,t){t||(t={}),this.type="default",this.status=t.status,this.ok=this.status>=200&&this.status<300,this.statusText=t.statusText,this.headers=t.headers instanceof o?t.headers:new o(t.headers),this.url=t.url||"",this._initBody(e)}if(!e.fetch){var y={searchParams:"URLSearchParams"in e,iterable:"Symbol"in e&&"iterator"in Symbol,blob:"FileReader"in e&&"Blob"in e&&function(){try{return new Blob,!0}catch(e){return!1}}(),formData:"FormData"in e,arrayBuffer:"ArrayBuffer"in e};o.prototype.append=function(e,n){e=t(e),n=r(n);var o=this.map[e];o||(o=[],this.map[e]=o),o.push(n)},o.prototype.delete=function(e){delete this.map[t(e)]},o.prototype.get=function(e){var r=this.map[t(e)];return r?r[0]:null},o.prototype.getAll=function(e){return this.map[t(e)]||[]},o.prototype.has=function(e){return this.map.hasOwnProperty(t(e))},o.prototype.set=function(e,n){this.map[t(e)]=[r(n)]},o.prototype.forEach=function(e,t){Object.getOwnPropertyNames(this.map).forEach(function(r){this.map[r].forEach(function(n){e.call(t,n,r,this)},this)},this)},o.prototype.keys=function(){var e=[];return this.forEach(function(t,r){e.push(r)}),n(e)},o.prototype.values=function(){var e=[];return this.forEach(function(t){e.push(t)}),n(e)},o.prototype.entries=function(){var e=[];return this.forEach(function(t,r){e.push([r,t])}),n(e)},y.iterable&&(o.prototype[Symbol.iterator]=o.prototype.entries);var m=["DELETE","GET","HEAD","OPTIONS","POST","PUT"];f.prototype.clone=function(){return new f(this)},u.call(f.prototype),u.call(h.prototype),h.prototype.clone=function(){return new h(this._bodyInit,{status:this.status,statusText:this.statusText,headers:new o(this.headers),url:this.url})},h.error=function(){var e=new h(null,{status:0,statusText:""});return e.type="error",e};var b=[301,302,303,307,308];h.redirect=function(e,t){if(b.indexOf(t)===-1)throw new RangeError("Invalid status code");return new h(null,{status:t,headers:{location:e}})},e.Headers=o,e.Request=f,e.Response=h,e.fetch=function(e,t){return new Promise(function(r,n){function o(){return"responseURL"in i?i.responseURL:/^X-Request-URL:/m.test(i.getAllResponseHeaders())?i.getResponseHeader("X-Request-URL"):void 0}var s;s=f.prototype.isPrototypeOf(e)&&!t?e:new f(e,t);var i=new XMLHttpRequest;i.onload=function(){var e={status:i.status,statusText:i.statusText,headers:d(i),url:o()},t="response"in i?i.response:i.responseText;r(new h(t,e))},i.onerror=function(){n(new TypeError("Network request failed"))},i.ontimeout=function(){n(new TypeError("Network request failed"))},i.open(s.method,s.url,!0),"include"===s.credentials&&(i.withCredentials=!0),"responseType"in i&&y.blob&&(i.responseType="blob"),s.headers.forEach(function(e,t){i.setRequestHeader(t,e)}),i.send("undefined"==typeof s._bodyInit?null:s._bodyInit)})},e.fetch.polyfill=!0}}("undefined"!=typeof self?self:this)},function(e,t,r){"use strict";t.decode=t.parse=r(5),t.encode=t.stringify=r(6)},function(e,t){"use strict";function r(e,t){return Object.prototype.hasOwnProperty.call(e,t)}e.exports=function(e,t,n,o){t=t||"&",n=n||"=";var s={};if("string"!=typeof e||0===e.length)return s;var i=/\+/g;e=e.split(t);var a=1e3;o&&"number"==typeof o.maxKeys&&(a=o.maxKeys);var c=e.length;a>0&&c>a&&(c=a);for(var u=0;u<c;++u){var l,f,p,d,h=e[u].replace(i,"%20"),y=h.indexOf(n);y>=0?(l=h.substr(0,y),f=h.substr(y+1)):(l=h,f=""),p=decodeURIComponent(l),d=decodeURIComponent(f),r(s,p)?Array.isArray(s[p])?s[p].push(d):s[p]=[s[p],d]:s[p]=d}return s}},function(e,t){"use strict";var r=function(e){switch(typeof e){case"string":return e;case"boolean":return e?"true":"false";case"number":return isFinite(e)?e:"";default:return""}};e.exports=function(e,t,n,o){return t=t||"&",n=n||"=",null===e&&(e=void 0),"object"==typeof e?Object.keys(e).map(function(o){var s=encodeURIComponent(r(o))+n;return Array.isArray(e[o])?e[o].map(function(e){return s+encodeURIComponent(r(e))}).join(t):s+encodeURIComponent(r(e[o]))}).join(t):o?encodeURIComponent(r(o))+n+encodeURIComponent(r(e)):""}},function(e,t,r){function n(){return"WebkitAppearance"in document.documentElement.style||window.console&&(console.firebug||console.exception&&console.table)||navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)&&parseInt(RegExp.$1,10)>=31}function o(){var e=arguments,r=this.useColors;if(e[0]=(r?"%c":"")+this.namespace+(r?" %c":" ")+e[0]+(r?"%c ":" ")+"+"+t.humanize(this.diff),!r)return e;var n="color: "+this.color;e=[e[0],n,"color: inherit"].concat(Array.prototype.slice.call(e,1));var o=0,s=0;return e[0].replace(/%[a-z%]/g,function(e){"%%"!==e&&(o++,"%c"===e&&(s=o))}),e.splice(s,0,n),e}function s(){return"object"==typeof console&&console.log&&Function.prototype.apply.call(console.log,console,arguments)}function i(e){try{null==e?t.storage.removeItem("debug"):t.storage.debug=e}catch(e){}}function a(){var e;try{e=t.storage.debug}catch(e){}return e}function c(){try{return window.localStorage}catch(e){}}t=e.exports=r(8),t.log=s,t.formatArgs=o,t.save=i,t.load=a,t.useColors=n,t.storage="undefined"!=typeof chrome&&"undefined"!=typeof chrome.storage?chrome.storage.local:c(),t.colors=["lightseagreen","forestgreen","goldenrod","dodgerblue","darkorchid","crimson"],t.formatters.j=function(e){return JSON.stringify(e)},t.enable(a())},function(e,t,r){function n(){return t.colors[l++%t.colors.length]}function o(e){function r(){}function o(){var e=o,r=+new Date,s=r-(u||r);e.diff=s,e.prev=u,e.curr=r,u=r,null==e.useColors&&(e.useColors=t.useColors()),null==e.color&&e.useColors&&(e.color=n());var i=Array.prototype.slice.call(arguments);i[0]=t.coerce(i[0]),"string"!=typeof i[0]&&(i=["%o"].concat(i));var a=0;i[0]=i[0].replace(/%([a-z%])/g,function(r,n){if("%%"===r)return r;a++;var o=t.formatters[n];if("function"==typeof o){var s=i[a];r=o.call(e,s),i.splice(a,1),a--}return r}),"function"==typeof t.formatArgs&&(i=t.formatArgs.apply(e,i));var c=o.log||t.log||console.log.bind(console);c.apply(e,i)}r.enabled=!1,o.enabled=!0;var s=t.enabled(e)?o:r;return s.namespace=e,s}function s(e){t.save(e);for(var r=(e||"").split(/[\s,]+/),n=r.length,o=0;o<n;o++)r[o]&&(e=r[o].replace(/\*/g,".*?"),"-"===e[0]?t.skips.push(new RegExp("^"+e.substr(1)+"$")):t.names.push(new RegExp("^"+e+"$")))}function i(){t.enable("")}function a(e){var r,n;for(r=0,n=t.skips.length;r<n;r++)if(t.skips[r].test(e))return!1;for(r=0,n=t.names.length;r<n;r++)if(t.names[r].test(e))return!0;return!1}function c(e){return e instanceof Error?e.stack||e.message:e}t=e.exports=o,t.coerce=c,t.disable=i,t.enable=s,t.enabled=a,t.humanize=r(9),t.names=[],t.skips=[],t.formatters={};var u,l=0},function(e,t){function r(e){if(e=""+e,!(e.length>1e4)){var t=/^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(e);if(t){var r=parseFloat(t[1]),n=(t[2]||"ms").toLowerCase();switch(n){case"years":case"year":case"yrs":case"yr":case"y":return r*l;case"days":case"day":case"d":return r*u;case"hours":case"hour":case"hrs":case"hr":case"h":return r*c;case"minutes":case"minute":case"mins":case"min":case"m":return r*a;case"seconds":case"second":case"secs":case"sec":case"s":return r*i;case"milliseconds":case"millisecond":case"msecs":case"msec":case"ms":return r}}}}function n(e){return e>=u?Math.round(e/u)+"d":e>=c?Math.round(e/c)+"h":e>=a?Math.round(e/a)+"m":e>=i?Math.round(e/i)+"s":e+"ms"}function o(e){return s(e,u,"day")||s(e,c,"hour")||s(e,a,"minute")||s(e,i,"second")||e+" ms"}function s(e,t,r){if(!(e<t))return e<1.5*t?Math.floor(e/t)+" "+r:Math.ceil(e/t)+" "+r+"s"}var i=1e3,a=60*i,c=60*a,u=24*c,l=365.25*u;e.exports=function(e,t){return t=t||{},"string"==typeof e?r(e):t.long?o(e):n(e)}}]);
+
     var txString; var followthetags = false;var showimages = true;var imageproxystatus=true;
     var imageproxy = 'https://steemitimages.com/';
     var lastblocknum = 0;
@@ -25,6 +28,7 @@
     var followthecommentvotes = false;
     var showimages = true;
     var shownsfwimages = true;
+    var nsfwtag = 'https://steemviz.com/nsfw.png';
     var AccountCount = 110000;
     var myusername = '';
     var sbd_print_rate_last = 50;
@@ -32,6 +36,8 @@
     var limitorderlastprice = 0.16;
     var postpreview = false;
     var postpreviewpinned = false;
+    var username;
+    var hlclass;
 
     var md = new Remarkable();
     md.set({html: true,breaks: true,linkify: true,typographer: true});
@@ -67,6 +73,8 @@ function imageproxytoggle() {
   return true
 }
 
+
+
 function followthevotestoggle() {
   if (followthevotes == false) {
     $("#followthevotestoggle").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
@@ -90,6 +98,18 @@ function followthetagstoggle() {
     followthetags = false;
   }
   console.log("Follow the tags toggled. Status: "+followthetags+" for tags "+defaultfollowthetags);
+  return true;
+}
+
+
+function nsfwtoggle() {
+  if (shownsfwimages == false) {
+    $("#nsfwtoggle").removeClass("fa fa-toggle-off").addClass("fa fa-toggle-on")
+    shownsfwimages = true;
+  } else {
+    $("#nsfwtoggle").removeClass("fa fa-toggle-on").addClass("fa fa-toggle-off")
+    shownsfwimages = false;
+  }
   return true;
 }
 
@@ -179,9 +199,9 @@ function followthevotesadduser() {
 
 function readtime(a){var b=270,c=b/60,d=a.trim().split(/\s+/g).length,e=d/c,f=Math.round(e/60);Math.round(e-60*f);return f<1?"Less than a minute read":f+" min read"}
 
-function setuser(){
-  myusername = document.getElementsByTagName("input")[0].value.toLowerCase();
-  console.log("username set to "+myusername);
+function setuser(username){
+  if (username.startsWith("@")) {username=username.substr(1);}
+  console.log("username set to "+username);
 }
 
 function followthevotesremoveuser(index) {
@@ -283,7 +303,8 @@ function streamtx(txType,txData) {
           } else if (txData.weight == '0') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:grey" aria-hidden="true"></i>';
           } else if (txData.weight == '1') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:orange" aria-hidden="true"></i>';
           } else { votestring = '<i class="fa fa-flag" style="color:red" aria-hidden="true"></i>'; }
-          rendertx('<div class="title"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="#" style="color:grey !important;" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
+          if (txData.voter == username||txData.author==username){hlclass="title highlight";} else {hlclass="title";}
+          rendertx('<div class="'+hlclass+'"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="#" style="color:grey !important;" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
 
           if (followthevotes == true) {
             if ($.inArray(txData.voter, followthevoters) != -1){
@@ -332,6 +353,7 @@ function streamtx(txType,txData) {
                   }
                   if (postjson.hasOwnProperty("image") && showimages == true) {
                     if (imageproxystatus == false) {backgroundimage = postjson.image[0];} else {backgroundimage = imageproxy+'100x100/'+postjson.image[0];}
+                    if (shownsfwimages==false && $.inArray('nsfw',postjson.tags) !== -1){console.log("replaced nsfw image");backgroundimage=nsfwtag;}
                     postimage = '<a href="https://steemit.com/'+txData.parent_permlink+'/@'+txData.author+'/'+txData.permlink+'" target="_blank"><img src="'+backgroundimage+'" class="postimage"></a>'
                     postimagelink = '  <small><a href="'+stripHTML(postjson.image[0])+'" target="_blank"><i class="fa fa-camera" style="color:black;"> </i> '+stripHTML(postjson.image[0].substring(8,30))+'</a> ..</small>';
                     postcontentshort = postimage+postcontentshort+postimagelink;
@@ -557,6 +579,24 @@ function streamtx(txType,txData) {
       $('#toolkit').fadeIn();
     }
 
+    function savelocalstore(key,data) {
+     sessionStorage.settings = {key:data};
+    }
+
+    function restorelocalstore(key,data){
+
+    }
+
+    function checklogin(){
+      //$("#login").html(loginURL);
+      steemconnect.isAuthenticated(function(err, result) {
+  	    console.log(err, result);
+        //var loginURL = steemconnect.getLoginURL();
+        var loginurl="https://steemconnect.com/authorize/@ausbitbank?redirect_url=https://steemviz.com";
+        $("#logindiv").html('<a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a>');
+      });
+    }
+
     $(document).ready(function() {
       $('#column1').prepend('<div class="columnheader" style="display:none;"><div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <i class="fa fa-star" style="color:gold;" aria-hidden="true"></i></div></div>');
       $("#column1").find("div.columnheader:first").fadeIn("slow");
@@ -569,9 +609,17 @@ function streamtx(txType,txData) {
       var postviewer = document.getElementById('postviewer');
       var closepostviewer = document.getElementById("closepostviewer");
       var toolkit = document.getElementById('toolkit');
-      closepostviewer.onclick = function() {$('#postviewer').style.display = "none";}
-      window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}if (event.target == toolkit){toolkit.style.display = "none";}}
+      var settings=document.getElementById('followthevotesconfigscreen');
+      window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}if (event.target == toolkit){toolkit.style.display = "none";}if (event.target == settings){settings.style.display = "none";}}
+      $("#userform").submit(function(event) {event.preventDefault();var username=$("#setuserinput").val();savelocalstore('username',username);})
       getstats();
+      steemconnect.init({
+        app: 'ausbitbank',
+        callbackURL: 'https://steemviz.com'
+      });
+      checklogin();
+
+
       var tx = Function.prototype;
       tx = steem.api.streamOperations(function onOperation(error, operation) {
         if (error) throw error;
@@ -586,52 +634,50 @@ function streamtx(txType,txData) {
 <div id="outerContainer">
     <div id="column1"> </div> <div id="column2"> </div> <div id="column3"> </div> <div id="column4"> </div>
 </div>
-<div id="followthevotesconfigscreen">
-  <div id="followthevotesconfigclose" style="display:block;position:absolute;right:5px;top:5px;"> <a href="#" onclick="followthevotesconfigclose();" style="color:red;">  <i class="fa fa-times hovergrow" aria-hidden="true"> </i></a> </div>
-  <center><img src="steemvizlogo1b6ac.png" width="250" title="SteemViz - thanks to @minion for the logo!"></center>
+<div id="followthevotesconfigscreen" class="modal">
+  <div class="modal-content" id="settings">
+    <center><img src="steemvizlogo1b6ac.png" width="250" title="SteemViz - thanks to @minion for the logo!"></center>
   <center><strong>Realtime steem blockchain viewer and curation tool</strong></center>
   <i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true" title="New Post"> </i> <i class="fa fa-star" style="color:gold;" title="New Promotion" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Upvote" style="color:#4ba2f2" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Unvote" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-flag" style="color:red" title="Downvote" aria-hidden="true"> </i> <i class="fa fa-low-vision" title="Mute" style="color:red;" aria-hidden="true"> </i> <img src="follow.png" title="Follow" style="vertical-align:middle;"> <img src="unfollow.png" title="Unfollow" style="vertical-align:middle;"> <i class="fa fa-check" title="Approve witness" style="color:green;"> </i> <i class="fa fa-times" title="Dissaprove witness" style="color:red;"> </i> <i class="fa fa-commenting-o" title="New comment" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-pencil-square-o" title="Edit" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-ban" title="Deletion" style="color:red" aria-hidden="true"> </i> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog" title="Resteem" ><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z" class="reblog"></path></svg></span> <img src="mushroom.png" title="Powerup" style="margin-bottom:-2px; vertical-align="bottom"> <i class="fa fa-cube" aria-hidden="true" style="color:brown;" title="New block"></i> <i class="fa fa-key" title="Account update" style="color:red" aria-hidden="true"></i> <i class="fa fa-user-plus" title="New user"  style="color:blue" aria-hidden="true"></i> <i class="fa fa-balance-scale" title="Market Trade" style="color:purple" aria-hidden="true" title="Market Trades"></i> <i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" title="Transaction/Transfer"></i> <i class="fa fa-line-chart" title="Witness price feed" style="color:brown;" aria-hidden="true"> </i> <i class="fa fa-recycle" title="SBD Conversion request" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-eject" style="color:red;" title="Powerdown"> </i> <i class="fa fa-university" style="color:black;" title="Savings" aria-hidden="true"></i><i class="fa fa-money" aria-hidden="true" style="color:green;" alt="Claim reward balance"></i><br />
-  <div style="float:left;text-align:left;padding:10px;">
   <center><h3>Settings</h3></center>
   <p><span onclick="showimagestoggle()"><i class="fa fa-toggle-on hovergrow" id="showimagestoggle" aria-hidden="true"> </i> Show Images <i class="fa fa-camera hovergrow" style="color:black;" aria-hidden="true"> </i></span> <a href="#" onclick="emergencypurge();" style="color:red !important;"><i class="fa fa-exclamation-triangle hovergrow" aria-hidden="true" title="Disable image display and purge current images"> </i></a></span></p>
   <p><span onclick="imageproxytoggle();"> <i class="fa fa-toggle-on hovergrow" id="imageproxytoggle" aria-hidden="true"></i></span> Image Proxy <a href="https://steemit.com/steemviz/@ausbitbank/steemviz-update-more-curators-less-bugs-and-a-new-image-proxy-toggle-feature" title="Like this feature ? Upvote this announcement post"><i class="fa fa-chevron-circle-up hovergrow" title="Like this feature ? Upvote this post!" style="color:grey;" aria-hidden="true"> </i></small></a></p>
   <p><span onclick="followthevotestoggle()"> <i class="fa fa-toggle-off hovergrow" id="followthevotestoggle2" aria-hidden="true"></i></span> Follow the Votes <small style="color:green;" ><a href="https://steemit.com/steemviz/@ausbitbank/follow-the-votes-with-steemviz-no-login-required" title="Like this feature ? Upvote this announcement post"><i class="fa fa-chevron-circle-up hovergrow" title="Like this feature ? Upvote this post!" style="color:grey;" aria-hidden="true"> </i></small></a></p>
   <p><span onclick="followthecommentvotestoggle()"><i class="fa fa-toggle-off hovergrow" id="followthecommentvotestoggle" aria-hidden="true"> </i> Follow comment votes</span></p>
   <p><span onclick="postpreviewtoggle()"><i class="fa fa-toggle-off hovergrow" id="postpreviewtoggle" area-hidden="true"> </i> Automatically view new posts <small style="color:green;" >New<i class="fa fa-exclamation" aria-hidden="true"></i></small></span></p>
+  <p><span onclick="nsfwtoggle()"><i class="fa fa-toggle-off hovergrow" id="nsfwtoggle" area-hidden="true"> </i> Show thumbnails for posts tagged NSFW</span></p>
   <div id="followtagscontainer">
     <span onclick="followthetagstoggle()"><i class="fa fa-toggle-off hovergrow" id="followthetagstoggle2" aria-hidden="true"> </i></span> Follow the Tags <form onsubmit="event.preventDefault();followthetagsaddtag();"><input type="text" value="add tag" id="followthetagsaddtaginput"> <a href="#" onclick="followthetagsclearlist();" style="color:red;" title="Clear list"><i class="fa fa-trash hovergrow" aria-hidden="true"> </i></a></form>
     <div id="followthevotesconfigscreentaglist"> </div>
   </div>
   <center><p><a href="#" onclick="followthevoteslisthistory()"><i class="fa fa-history" aria-hidden="true"></i> Show history of followed votes</a></p></center>
-  <!-- <center><form onsubmit="event.preventDefault();setuser();"><input type="text" value="your username" id="setuserinput" style="display:none;"></form></center> -->
+  <center><form id="userform" style="display:none;"><input type="text" value="your username" id="setuserinput"><input type="submit" id="submitbutton" value="set username"></form></center>
+  <div id="logindiv"></div>
   <center><h3>Statistics <a href="#" onClick="getstats();$('#refreshstats').fadeOut;"><i class="fa fa-refresh hovergrow" aria-hidden="true" id="refreshstats"></i></a></h3></center>
   <div id="stats">
     <i class="fa fa-users" aria-hidden="true"></i> <strong>Registered accounts </strong><span id="statsAccountCount"></span><br />
     <span id="blocknumber"> </span> <span id="currentwitness"> </span> <br />
     <span id="timestamp"> </span><br />
     <div id="supplystats"></div>
-      <script language="JavaScript">
-      var fhs = document.createElement('script');var fhs_id = "5378485";
-      var ref = (''+document.referrer+'');var pn =  window.location;var w_h = window.screen.width + " x " + window.screen.height;
-      fhs.src = "https://s1.freehostedscripts.net/ocounter.php?site="+fhs_id+"&e1=Online User&e2=Online Users&r="+ref+"&m=0&wh="+w_h+"&a=1&pn="+pn+"";
-      document.head.appendChild(fhs);document.write("<i class='fa fa-users' aria-hidden='true' style='color:blue;'>&nbsp;&nbsp;  </i><span id='o_"+fhs_id+"'></span>");
-      </script>
-    </div>
+  </div>
 
-</div>
   <div id="userlistcontainer">
     <center><h3>Vote Following:</h3> <form onsubmit="event.preventDefault();followthevotesadduser();"><input type="text" value="add user" id="followthevotesadduserinput">  <a href="#" onclick="followthevotesclearlist();" style="color:red;" title="Clear list"><i class="fa fa-trash hovergrow" aria-hidden="true"> </i></a>  <a href="#" onclick="followthevotesrestoredefaults();" style="color:blue;" title="Return follower list to default"> <i class="fa fa-eraser hovergrow" aria-hidden="true"> </i></a> </form></center>
     <div id="followthevotesconfigscreenuserlist"> </div>
   </div>
 </div>
+</div>
+</div>
+
 <div id="followthevoteshistorycontainer">
 
 </div>
 <div id="votehistorycontainer">
   <div id="votehistoryholder"></div>
 </div>
+
 <div id="focuscontent"></div>
-<div id="steemvizlogo" style="color:#228DFF;"><div id="followthevotes"><span onclick="followthevotesconfigopen();">Settings <i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a><span id="showtools" onclick="showtools();">More Tools <i class="fa fa-wrench hovergrow" aria-hidden="true"></i></span></div>
+<div id="steemvizlogo" style="color:#228DFF;"><div id="followthevotes"><span onClick="followthevotesconfigopen();">Settings <i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">steemviz</a><span id="showtools" onclick="showtools();">More Tools <i class="fa fa-wrench hovergrow" aria-hidden="true"></i></span></div>
 <div id="postviewer" class="modal"><span id="closepostviewer" class="closebutton"><i class="fa fa-times hovergrow" aria-hidden="true"> </i></span><div class="modal-content" id="postviewer-content"></div></div>
 <div id="toolkit" class="modal" style="display:none;"><div class="modal-content" id="toolkit-content"><h2>More Steem Tools from <a href="https://steemit.com/@ausbitbank">@ausbitbank</a></h2>
   <strong>Blockchain viewer and curation tools</strong> - <a href="https://steemviz.com">steemviz.com</a> & <a href="https://golosviz.com">golosviz.com</a><br />
