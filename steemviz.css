@@ -166,3 +166,12 @@ to { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #4BA2F2, 
 .closebutton:hover,.closebutton:focus {color: black;text-decoration: none;cursor: pointer;}
 .avatar{vertical-align:middle;border-radius:10px;}
 .highlight {-webkit-animation: neon2 1.5s ease-in-out infinite alternate;  -moz-animation: neon2 1.5s ease-in-out infinite alternate;  animation: neon2 1.5s ease-in-out infinite alternate;}
+.vote {    vertical-align: center;    display: flex;    flex-direction: row;    line-height: 20px;    height: 20px;  }
+.btn-vote {    width: 20px;    height: 20px;  }
+.btn-vote circle {    stroke: #8a8a8a;    fill: none;  }
+.btn-vote path {    fill: #8a8a8a; }
+.btn-vote:hover circle {    stroke: #121313;    fill: none;  }
+.btn-vote:hover path {    fill: #121313;  }
+.btn-vote.active circle {    stroke: #4ba2f2;    fill: #4ba2f2;  }
+.btn-vote.active path {    fill: #FFFFFF;  }
+.count {    height: 20px;    margin-left: 4px;  }
