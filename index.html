@@ -590,10 +590,15 @@ function streamtx(txType,txData) {
     function checklogin(){
       //$("#login").html(loginURL);
       steemconnect.isAuthenticated(function(err, result) {
-  	    console.log(err, result);
-        //var loginURL = steemconnect.getLoginURL();
-        var loginurl="https://steemconnect.com/authorize/@ausbitbank?redirect_url=https://steemviz.com";
-        $("#logindiv").html('<a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a>');
+        if (err){console.log(err);}
+  	    console.log(result);
+        if (result['isAuthenticated']==false){
+          $("#logindiv").html('<h3><a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a></h3>');
+        } else if (result['isAuthenticated']==true){
+          var username = result['username'];
+          $("#logindiv").html('Logged in as '+username);
+        }
+
       });
     }
 
