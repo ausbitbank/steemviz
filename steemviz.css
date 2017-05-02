@@ -16,22 +16,21 @@ html, body {margin: 0; padding: 0; overflow: hidden; font-family: Source Sans Pr
 #steemvizlogo a { font-size: 1.5em; color: #228DFF;  font-family: Iceland;}
 #steemvizlogo a:hover {color:black;  -webkit-animation: neon2 1.5s ease-in-out infinite alternate;  -moz-animation: neon2 1.5s ease-in-out infinite alternate;  animation: neon2 1.5s ease-in-out infinite alternate;}
 #stats {padding:5px; font-size:12px;}
-#followthevotes {font-size:18px !important;text-align:left;display:block;margin:5px;padding:0px; position:absolute;z-index:9999999;left:5px;bottom:5px;}
+#followthevotes {font-size:18px !important;text-align:left;display:block;margin:0px;padding:0px; position:absolute;z-index:9999999;left:5px;bottom:5px;}
 #votelist {font-size:12px;}
-#followthevoteshistorycontainer {z-index:15; position:absolute; left:10px;top:5%;background-color:white; overflow-y: auto; overflow-x:hidden;text-align:left;max-height:90%; max-width:50%;padding:10px;display:none;border:1px solid #228DFF; border-radius: 15px; filter: alpha(opacity=85); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=85); -moz-opacity: 0.85; opacity: 0.85; padding:10px;box-shadow: 10px 10px 5px #888888;}
-#votehistorycontainer {z-index:15; position:absolute; right:10px;top:5%;background-color:white; overflow-y: auto; overflow-x:hidden;text-align:left;max-height:90%; max-width:50%;padding:10px;display:none;border:1px solid #228DFF; border-radius: 15px; filter: alpha(opacity=85); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=85); -moz-opacity: 0.85; opacity: 0.85; padding:10px;box-shadow: 10px 10px 5px #888888;}
-#votehistoryholder {white-space: -moz-pre-wrap; /* Firefox */ white-space: -o-pre-wrap; /* Opera */  white-space: pre-wrap; /* Chrome */  word-wrap: break-word; /* IE */ padding:10px;}
+#followthevoteshistorycontainer {z-index:15; position:absolute; left:10px;top:5%; overflow-y: auto; overflow-x:hidden;text-align:left;max-height:90%; max-width:50%;padding:10px;display:none;border:1px solid #228DFF; border-radius: 15px; padding:10px;box-shadow: 10px 10px 5px #888888;}
+#votehistorycontainer {z-index:15; position:absolute; right:10px;top:5%;background-color:white; overflow-y: auto; overflow-x:hidden;text-align:left;max-height:90%; max-width:50%;padding:10px;display:none;border:1px solid #228DFF; border-radius: 15px; padding:10px;box-shadow: 10px 10px 5px #888888;}
+#votehistoryholder {white-space: -moz-pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap;word-wrap: break-word;padding:10px;}
 #votehistoryholder a:hover {color:#228DFF;}
-#userlistcontainer {float:right;overflow-y: auto; overflow-x:hidden; text-align:left;max-height:500px;width:200px;padding:10px;}
+#userlistcontainer {text-align:center;max-height:50%;overflow-y:scroll;height:50%;}
 #taglistcontainer {overflow-y: auto; overflow-x:hidden; text-align:left;max-height:100px;width:200px;padding:10px;}
 h1,h2,h3,h4,h5 {color:#228DFF;}
-#focuscontent {width:75%; height:75%;overflow:scroll; display:none; z-index:15;border:1px solid #228DFF; border-radius: 5px; filter: alpha(opacity=95); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=95); -moz-opacity: 0.95; opacity: 0.95; padding:10px;box-shadow: 10px 10px 5px #888888;background:white;
+#focuscontent {width:75%; height:75%;overflow:scroll; display:none; z-index:15;border:1px solid #228DFF; border-radius: 5px;opacity: 0.95; padding:10px;box-shadow: 10px 10px 5px #888888;background:white;
 position: absolute;margin: auto;top: 0; left: 0; bottom: 0; right: 0;}
 #focuscontent img { max-width: 50%; height: auto; text-align:center; }
 #followthevotesconfigscreen h2 {color:#228DFF;}
-#followthevotesconfigscreen {display:none;z-index:10;border:1px solid #228DFF; border-radius: 15px;text-align:center;background-color:white;filter: alpha(opacity=95); filter: progid: DXImageTransform.Microsoft.Alpha(opacity=95); -moz-opacity: 0.95; opacity: 0.95;
-position:fixed; left: 50%; top: 50%; -ms-transform: translate(-50%,-50%); -moz-transform:translate(-50%,-50%); -webkit-transform: translate(-50%,-50%);  transform: translate(-50%,-50%);
-padding:5px;overflow-y: auto;max-width:95%;width:600px;max-height:100%;box-shadow: 10px 10px 5px #888888;}
+#followthevotesconfigscreen {text-align:center;box-shadow: 10px 10px 5px #888888;}
+#settings {-webkit-column-count: 2;-moz-column-count: 2;column-count: 2;background-color:white;}
 #followthevotesconfigscreenuserlist li, #followthevotesconfigscreentaglist li {list-style-type: none; font-weight:bold;}
 #followthevotesadduserinput, #followthetagsaddtaginput {width:100px;}
 .fa-toggle-off { color: red;}
@@ -41,7 +40,7 @@ padding:5px;overflow-y: auto;max-width:95%;width:600px;max-height:100%;box-shado
 #hoverselect { z-index:35;display:block;position:static;border-radius:5px;border:1px solid #228DFF; box-shadow: 10px 10px 5px #888888;}
 .title { font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Arial, sans-serif; font-size: 15px; clear:both;word-wrap: break-word;}
 .undertitle { font-family: Helvetica Neue,Helvetica,Verdana,Arial,sans-serif; color: #666; line-height: 1.3; font-size: 12px; word-wrap: break-word;}
-.postimage { float:right;width:100px;height:100px }
+.postimage { float:right;width:100px;height:100px; }
 .reblog {color: green !important; fill:green !important;}
 #showtools {float:right;margin:5px;vertical-align:middle;font-size: 18px !important;}
 #toolkit {text-align:center;}
@@ -167,3 +166,4 @@ to { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #4BA2F2, 
 .closebutton {color: #aaa;float: right;font-size: 28px;font-weight: bold;}
 .closebutton:hover,.closebutton:focus {color: black;text-decoration: none;cursor: pointer;}
 .avatar{vertical-align:middle;border-radius:10px;}
+.highlight {}
