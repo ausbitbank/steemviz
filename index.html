@@ -30,13 +30,12 @@
     var shownsfwimages = true;
     var nsfwtag = 'https://steemviz.com/nsfw.png';
     var AccountCount = 110000;
-    var myusername = '';
+    var username = 'ausbitbank';
     var sbd_print_rate_last = 50;
     var sbd_print_rate_color = 'green';
     var limitorderlastprice = 0.16;
     var postpreview = false;
     var postpreviewpinned = false;
-    var username;
     var hlclass;
 
     var md = new Remarkable();
@@ -285,8 +284,9 @@ function followvotepoptab(url) {
 
 function postview(content) {
   $('#postviewer-content').html(md.render(content));
+  $('#postviewer-content').append('');
   document.getElementById('postviewer').style.display="block";
-  $('#postviewer').fadeIn();
+  $('#postviewer').slideDown().fadeIn();
 }
 
 
@@ -295,6 +295,7 @@ function closePost() {
 }
 
 function streamtx(txType,txData) {
+  if (txData.voter == username||txData.author==username||txData.account==username||txData.witness==username){hlclass="title highlight";} else {hlclass="title";}
 
       switch(txType) {
         case 'vote':
@@ -303,7 +304,6 @@ function streamtx(txType,txData) {
           } else if (txData.weight == '0') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:grey" aria-hidden="true"></i>';
           } else if (txData.weight == '1') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:orange" aria-hidden="true"></i>';
           } else { votestring = '<i class="fa fa-flag" style="color:red" aria-hidden="true"></i>'; }
-          if (txData.voter == username||txData.author==username){hlclass="title highlight";} else {hlclass="title";}
           rendertx('<div class="'+hlclass+'"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="#" style="color:grey !important;" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
 
           if (followthevotes == true) {
@@ -329,6 +329,7 @@ function streamtx(txType,txData) {
         case 'comment':
           var postcontentfull = stripHTML(txData["body"]);
           var postcontentshort = postcontentfull.substring(0,250);
+          if (txData.author==username){hlclass="title highlight";} else {hlclass="title";}
           if (txData.json_metadata != "") {
             postjson = JSON.parse(txData.json_metadata);
             if (postjson.hasOwnProperty("tags")) {
@@ -360,17 +361,17 @@ function streamtx(txType,txData) {
                   }
                 }
 
-                if (postcontentfull.substring(0,2) == "@@") {rendertx('<div class="title"><i class="fa fa-pencil-square-o" style="color:orange;" aria-hidden="true"></i><strong><small style="color:orange;"> </small></strong> <a href="https://steemit.com/@'+txData.author+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div><div class="undertitle"><small>on <a href="https://phist.steemdata.com/history?identifier=@'+txData.author+'/'+txData.permlink+' target="_blank" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>',3);break;}
+                if (postcontentfull.substring(0,2) == "@@") {rendertx('<div class="'+hlclass+'"><i class="fa fa-pencil-square-o" style="color:orange;" aria-hidden="true"></i><strong><small style="color:orange;"> </small></strong> <a href="https://steemit.com/@'+txData.author+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div><div class="undertitle"><small>on <a href="https://phist.steemdata.com/history?identifier=@'+txData.author+'/'+txData.permlink+' target="_blank" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>',3);break;}
 
                 if(txData.title == '' || txData.title.substring(0,4) == "Re: ") {
-                  title = '<div class="title"><a href="http://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div>';
+                  title = '<div class="'+hlclass+'"><a href="http://steemit.com/tag/@'+txData.author+'/'+txData.permlink+'" target="_blank" class="user">'+txData.author+' <i class="fa fa-commenting-o" style="color:grey;" aria-hidden="true"></i> '+txData.parent_author+'</a></div>';
                   subtitle = '<div class="undertitle"><small>on <a href="#" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')" class="user">'+txData.permlink.substring(0,70)+'</a></small><br />'+postcontentshort+'</div>';
                   rendertx(title+' '+subtitle,3);
                   break;
                 }
 
                 if (txData.title != '') {
-                  title = '<div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.author+'" target="_blank" class="user">'+txData.author+'</a></div>';
+                  title = '<div class="'+hlclass+'"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.author+'" target="_blank" class="user">'+txData.author+'</a></div>';
                   subtitle = '<div class="undertitle"><a href="#" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\');">'+stripHTML(txData.title)+'</a><br /><blockquote>'+postcontentshort+'</blockquote></div>';
                   rendertx(title+' '+subtitle,1);
 
@@ -388,17 +389,17 @@ function streamtx(txType,txData) {
           break;
         case 'transfer':
            if (txData.to == 'null') {
-            title = '<div class="title"><strong style="color:gold;"><i class="fa fa-star" aria-hidden="true"></i> Paid Promotion</strong> <small>'+txData.amount+' by</small> <a href="https://steemit.com/@'+txData.from+'" target="_blank">'+txData.from+'</a></div>',
+            title = '<div class="'+hlclass+'"><strong style="color:gold;"><i class="fa fa-star" aria-hidden="true"></i> Paid Promotion</strong> <small>'+txData.amount+' by</small> <a href="https://steemit.com/@'+txData.from+'" target="_blank">'+txData.from+'</a></div>',
             subtitle = '<div class="undertitle"><a href="https://steemit.com/undefined/'+txData.memo+'" target="_blank">'+stripHTML(txData.memo)+'</a></div>',
             rendertx(title+' '+subtitle,1);
             } else {
-              title = '<div class="title"><i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" alt="Market Trades"></i> <small>'+txData.amount+'</small> from <a href="http://steemit.com/@'+txData.from+'" target="_blank" class="user">'+txData.from+'</a> to <a href="http://steemit.com/@'+txData.to+'" target="_blank" class="user">'+txData.to+'</a></div>',
+              title = '<div class="'+hlclass+'"><i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" alt="Market Trades"></i> <small>'+txData.amount+'</small> from <a href="http://steemit.com/@'+txData.from+'" target="_blank" class="user">'+txData.from+'</a> to <a href="http://steemit.com/@'+txData.to+'" target="_blank" class="user">'+txData.to+'</a></div>',
               subtitle = '<div class="undertitle"><blockquote>'+stripHTML(txData.memo)+'</blockquote></div>',
               rendertx(title+' '+subtitle,4);
             }
           break;
           case 'account_create':
-            rendertx('<div class="title"><i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.new_account_name+'" target="_blank" class="user">'+txData.new_account_name+'</a></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.new_account_name+'" target="_blank" class="user">'+txData.new_account_name+'</a></div>',4);
             AccountCount++;
             $("#statsAccountCount").html(AccountCount);
           break;
@@ -424,20 +425,20 @@ function streamtx(txType,txData) {
               limitordercolor = "grey";
             }
             limitorderstring = '<a href="https://steemit.com/@'+limitorderowner+'">'+limitorderowner+'</a> offers '+limitordersellamount+' '+limitorderselltype+' at $<span style="color:'+limitordercolor+';">'+limitorderprice.toFixed(8)+'</span>';
-            rendertx('<div class="title"><i class="fa fa-balance-scale" style="color:purple" aria-hidden="true" alt="Market Trades"></i> <small>'+limitorderstring+'</div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-balance-scale" style="color:purple" aria-hidden="true" alt="Market Trades"></i> <small>'+limitorderstring+'</div>',4);
             limitorderlastprice = limitorderprice;
           break;
 
           case 'account_update':
-            rendertx('<div class="title"><i class="fa fa-key" style="color:red;" aria-hidden="true"></i>  <a href="http://steemd.com/@'+txData.account+'" target="_blank" class="user">'+txData.account+'</a></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-key" style="color:red;" aria-hidden="true"></i>  <a href="http://steemd.com/@'+txData.account+'" target="_blank" class="user">'+txData.account+'</a></div>',4);
           break;
 
           case 'limit_order_cancel':
-            rendertx('<div class="title"><i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.owner+'" target="_blank" class="user">'+txData.owner+'</a> <small>cancelled '+txData.orderid+'</small></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.owner+'" target="_blank" class="user">'+txData.owner+'</a> <small>cancelled '+txData.orderid+'</small></div>',4);
           break;
 
           case 'pow':
-            rendertx('<div class="title"><i class="fa fa-cube" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.worker_account+'" target="_blank" class="user">'+txData.worker_account+'</a></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-cube" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.worker_account+'" target="_blank" class="user">'+txData.worker_account+'</a></div>',4);
           break;
 
           case 'pow2':
@@ -453,7 +454,7 @@ function streamtx(txType,txData) {
             } else {
             voteDirection = '<i class="fa fa-times" style="color:red;"> </i>';
             }
-            rendertx('<div class="title"><a href="https://steemit.com/@'+txData.account+'" target="_blank">'+txData.account+'</a> '+voteDirection+' <a href="https://steemit.com/@'+txData.witness+'" target="_blank">'+txData.witness+'</a></div>',4);
+            rendertx('<div class="'+hlclass+'"><a href="https://steemit.com/@'+txData.account+'" target="_blank">'+txData.account+'</a> '+voteDirection+' <a href="https://steemit.com/@'+txData.witness+'" target="_blank">'+txData.witness+'</a></div>',4);
           break;
 
           case 'custom_json':
@@ -461,15 +462,15 @@ function streamtx(txType,txData) {
               customjson = JSON.parse(txData.json);
               if (customjson[0] == "follow") {
                 if (customjson[1].what == '') {
-                  rendertx('<div class="title"><a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="unfollow.png" alt="Unfollowing" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a></div>',2);
+                  rendertx('<div class="'+hlclass+'"><a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="unfollow.png" alt="Unfollowing" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a></div>',2);
                 } else if (customjson[1].what == 'blog') {
-                  rendertx('<div class="title"><a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="follow.png" alt="Following" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a></div>',2);
+                  rendertx('<div class="'+hlclass+'"><a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <img src="follow.png" alt="Following" border="0" style="vertical-align:middle;"> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a></div>',2);
                 } else if (customjson[1].what == 'ignore') {
-                  rendertx('<div class="title"><a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <i class="fa fa-low-vision" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a></div>',2);
+                  rendertx('<div class="'+hlclass+'"><a href="https://steemit.com/@'+customjson[1].follower+'/" target="_blank">'+customjson[1].follower+'</a> <i class="fa fa-low-vision" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@'+customjson[1].following+'" target="_blank">'+customjson[1].following+'</a></div>',2);
                 }
               }
               if (customjson[0] == "reblog") {
-                rendertx('<div class="title"><a href="https://steemit.com/@'+customjson[1].account+'/" target="_blank">'+customjson[1].account+'</a> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z"></path></svg></span> <a href="https://steemit.com/@'+customjson[1].author+'" target="_blank">'+customjson[1].author+'</a></div><div class="undertitle"><a href="#" onClick="loadpost(\''+customjson[1].author+'\',\''+customjson[1].permlink+'\');">'+customjson[1].permlink+'</a></div>',3);
+                rendertx('<div class="'+hlclass+'"><a href="https://steemit.com/@'+customjson[1].account+'/" target="_blank">'+customjson[1].account+'</a> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z"></path></svg></span> <a href="https://steemit.com/@'+customjson[1].author+'" target="_blank">'+customjson[1].author+'</a></div><div class="undertitle"><a href="#" onClick="loadpost(\''+customjson[1].author+'\',\''+customjson[1].permlink+'\');">'+customjson[1].permlink+'</a></div>',3);
               }
             } else {
               console.log('custom json operation');
@@ -483,40 +484,40 @@ function streamtx(txType,txData) {
             } else {
               withdrawvestmessage = 'Powerdown '+txData.vesting_shares+'';
             }
-            rendertx('<div class="title"><i class="fa fa-eject" style="color:red;"> </i> <a href="https://steemit.com/@'+txData.account+'" target="_blank">'+txData.account+'</a> <small>'+withdrawvestmessage+'</small></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-eject" style="color:red;"> </i> <a href="https://steemit.com/@'+txData.account+'" target="_blank">'+txData.account+'</a> <small>'+withdrawvestmessage+'</small></div>',4);
           break;
 
           case 'convert':
-            rendertx('<div class="title"><i class="fa fa-recycle" style="color:orange;" aria-hidden="true"></i> <a href="https://steemit.com/@'+txData.owner+'" target="_blank">'+txData.owner+'</a> <small>converted '+txData.amount+' to Steem</small></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-recycle" style="color:orange;" aria-hidden="true"></i> <a href="https://steemit.com/@'+txData.owner+'" target="_blank">'+txData.owner+'</a> <small>converted '+txData.amount+' to Steem</small></div>',4);
           break;
 
           case 'transfer_to_vesting':
             if (txData.from == txData.to) {
-              rendertx('<div class="title"><img src="mushroom.png" style="padding:none; margin:none; position:relative;" vertical-align="middle"> Powerup <small>'+txData.amount+' by</small> <a href="https://steemit.com/@'+txData.to+'" target="_blank">'+txData.to+'</a></div>',4);
+              rendertx('<div class="'+hlclass+'"><img src="mushroom.png" style="padding:none; margin:none; position:relative;" vertical-align="middle"> Powerup <small>'+txData.amount+' by</small> <a href="https://steemit.com/@'+txData.to+'" target="_blank">'+txData.to+'</a></div>',4);
             } else {
-              rendertx('<div class="title"><img src="mushroom.png" style="padding:none; margin:none; position:relative;" vertical-align="middle"> Powerup <small>'+txData.amount+' for</small> <a href="https://steemit.com/@'+txData.to+'" target="_blank">'+txData.to+'</a> by <a href="https://steemit.com/@'+txData.from+'" target="_blank">'+txData.from+'</a></div>',4);
+              rendertx('<div class="'+hlclass+'"><img src="mushroom.png" style="padding:none; margin:none; position:relative;" vertical-align="middle"> Powerup <small>'+txData.amount+' for</small> <a href="https://steemit.com/@'+txData.to+'" target="_blank">'+txData.to+'</a> by <a href="https://steemit.com/@'+txData.from+'" target="_blank">'+txData.from+'</a></div>',4);
             }
           break;
 
           case 'delete_comment':
-          rendertx('<div class="title"><i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@"'+txData.author+'" target="_blank">'+txData.author+'</a> deleted <a href="https://phist.steemdata.com/history?identifier=@'+txData.author+'/'+txData.permlink+'">'+txData.permlink+'</a></div>',3);
+          rendertx('<div class="'+hlclass+'"><i class="fa fa-ban" style="color:red;" aria-hidden="true"></i> <a href="https://steemit.com/@"'+txData.author+'" target="_blank">'+txData.author+'</a> deleted <a href="https://phist.steemdata.com/history?identifier=@'+txData.author+'/'+txData.permlink+'">'+txData.permlink+'</a></div>',3);
           break;
 
           case 'feed_publish':
-            rendertx('<div class="title"><i class="fa fa-line-chart" style="color:brown;" aria-hidden="true"></i> <small>"'+txData.exchange_rate.base+' per Steem" reports </small><a href="https://steemit.com/@'+txData.publisher+'" target="_blank">'+txData.publisher+'</a></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-line-chart" style="color:brown;" aria-hidden="true"></i> <small>"'+txData.exchange_rate.base+' per Steem" reports </small><a href="https://steemit.com/@'+txData.publisher+'" target="_blank">'+txData.publisher+'</a></div>',4);
           break;
 
           case 'transfer_to_savings':
-            rendertx('<div class="title"><i class="fa fa-university" style="color:black;" aria-hidden="true"></i> <small><a href="https://steemit.com/@'+txData.to+'">'+txData.to+' deposited '+txData.amount+' in savings </small></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-university" style="color:black;" aria-hidden="true"></i> <small><a href="https://steemit.com/@'+txData.to+'">'+txData.to+' deposited '+txData.amount+' in savings </small></div>',4);
           break;
 
           case 'transfer_from_savings':
-            rendertx('<div class="title"><i class="fa fa-university" style="color:black;" aria-hidden="true"></i> <small><a href="https://steemit.com/@'+txData.to+'">'+txData.to+' withdrew '+txData.amount+' from savings </small></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-university" style="color:black;" aria-hidden="true"></i> <small><a href="https://steemit.com/@'+txData.to+'">'+txData.to+' withdrew '+txData.amount+' from savings </small></div>',4);
           break;
 
           case 'witness_update':
             sbdinterest = txData.props['sbd_interest_rate'] / 100;
-            title = '<div class="title"><i class="fa fa-key" aria-hidden="true" style="color:red;"> </i> <a href="http://steemit.com/@'+txData.owner+'" target="_blank" class="user">'+txData.owner+'</a></div>',
+            title = '<div class="'+hlclass+'"><i class="fa fa-key" aria-hidden="true" style="color:red;"> </i> <a href="http://steemit.com/@'+txData.owner+'" target="_blank" class="user">'+txData.owner+'</a></div>',
             subtitle = '<div class="undertitle">'+txData.props['account_creation_fee']+' acct fee , max blocksize '+txData.props['maximum_block_size']+' & '+sbdinterest+' % SBD interest</div>',
             rendertx(title+' '+subtitle,4);
           break;
@@ -526,11 +527,11 @@ function streamtx(txType,txData) {
             if (txData['reward_sbd']!='0.000 SBD') {claim+=txData['reward_sbd']+' ';}
             if (txData['reward_steem']!='0.000 STEEM') {claim+=txData['reward_steem']+' ';}
             if (txData['reward_vests']!='0.000 VESTS') {claim+=txData['reward_vests'];}
-            rendertx('<div class="title"><i class="fa fa-money" aria-hidden="true" style="color:green;"></i> <a href="https://steemit.com/@'+txData['account']+'">'+txData['account']+'</a> <small>claimed '+claim+'</small></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-money" aria-hidden="true" style="color:green;"></i> <a href="https://steemit.com/@'+txData['account']+'">'+txData['account']+'</a> <small>claimed '+claim+'</small></div>',4);
           break;
 
           case 'account_create_with_delegation':
-            rendertx('<div class="title"><i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.new_account_name+'" target="_blank" class="user">'+txData.new_account_name+'</a> created by <a href="https://steemit.com/@'+txData['creator']+'">'+txData['creator']+'</a></div>',4);
+            rendertx('<div class="'+hlclass+'"><i class="fa fa-user-plus" style="color:blue" aria-hidden="true"></i> <a href="http://steemit.com/@'+txData.new_account_name+'" target="_blank" class="user">'+txData.new_account_name+'</a> created by <a href="https://steemit.com/@'+txData['creator']+'">'+txData['creator']+'</a></div>',4);
             AccountCount++;
             $("#statsAccountCount").html(AccountCount);
           break;
@@ -598,7 +599,6 @@ function streamtx(txType,txData) {
           var username = result['username'];
           $("#logindiv").html('Logged in as '+username);
         }
-
       });
     }
 
@@ -696,7 +696,4 @@ function streamtx(txType,txData) {
   <strong>Steem marketcap, google trends and tweets</strong> <a href="https://steemcap.com">steemcap.com</a><br />
   <strong>Donate to wikileaks via steem</strong> - <a href="https://steemleak.com">steemleak.com</a> (on hold)
   <h3>See more at <a href="https://steemtools.com">steemtools.com</a></h3>
-  <a href="https://steemit.com/@ausbitbank"><img src="https://img1.steemit.com/0x0/https://www.steemimg.com/images/2016/09/21/ausbitbank4275c.png"></a>
-
-  </ul></div></div>
-</body></html>
+  <a href="https://steemit.com/@ausbitbank"><img src="https://img1.steemit.com/0x0/https://www.steemimg.com/images/2016/09/
