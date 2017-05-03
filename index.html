@@ -30,7 +30,7 @@
     var shownsfwimages = true;
     var nsfwtag = 'https://steemviz.com/nsfw.png';
     var AccountCount = 110000;
-    var username = 'ausbitbank';
+    var username = '';
     var sbd_print_rate_last = 50;
     var sbd_print_rate_color = 'green';
     var limitorderlastprice = 0.16;
@@ -285,7 +285,7 @@ function followvotepoptab(url) {
 function postview(content) {
   $('#postviewer-content').html(md.render(content));
   document.getElementById('postviewer').style.display="block";
-  $('#postviewer').slideDown().fadeIn();
+  $('#postviewer').fadeIn();
 }
 
 
@@ -294,7 +294,6 @@ function closePost() {
 }
 
 function vote(voter,author,permlink,weight){
-
   steemconnect.vote(voter, author, permlink, weight, function(err, result) {
 	  console.log(err, result);
   });
@@ -573,11 +572,11 @@ function streamtx(txType,txData) {
         } else {
           var votectl = '<div class="vote active"><a id="vote" href="#;" onClick="vote(\''+username+'\',\''+author+'\',\''+permlink+'\',1000);" class="btn-vote active"><svg enable-background="new 0 0 33 33" version="1.1" viewBox="0 0 33 33" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Chevron_Up_Circle"><circle cx="16" cy="16" r="15" stroke="#121313" fill="none"></circle><path d="M16.699,11.293c-0.384-0.38-1.044-0.381-1.429,0l-6.999,6.899c-0.394,0.391-0.394,1.024,0,1.414 c0.395,0.391,1.034,0.391,1.429,0l6.285-6.195l6.285,6.196c0.394,0.391,1.034,0.391,1.429,0c0.394-0.391,0.394-1.024,0-1.414 L16.699,11.293z" fill="#121313"></path></g></svg></a><span class="count" id="counter">'+result['net_votes']+'</span></div>';
         }
-        //votectl = '<iframe src="https://steemconnect.com/embed/vote?author='+result['author']+'&amp;permlink='+result['permlink']+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe>';
+        votectl = '<iframe src="https://steemconnect.com/embed/vote?author='+result['author']+'&amp;permlink='+result['permlink']+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe>';
 
         if (result['title']==''){result['title']='Comment on '+result['parent_permlink'];}
         postcontentformatted = '<center><h3><a href="https://steemit.com/'+result['parent_permlink']+'/@'+result['author']+'/'+result['permlink']+'" target="_blank">'+result['title']+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;</h3></center>\n';
-        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+' '+votectl+'</center><br />';
+        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+' </center><br />';
         postcontentformatted += sanitize(result['body']);
         postview(postcontentformatted);
       });
@@ -610,12 +609,11 @@ function streamtx(txType,txData) {
     }
 
     function checklogin(){
-      //$("#login").html(loginURL);
       steemconnect.isAuthenticated(function(err, result) {
         if (err){console.log(err);}
   	    //console.log(result);
         if (result['isAuthenticated']==false){
-          $("#logindiv").html('<h3><a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a></h3>');
+          $("#logindiv").html('<a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a>');
         } else if (result['isAuthenticated']==true){
           var username = result['username'];
           $("#logindiv").html('Logged in as '+username);
@@ -704,4 +702,4 @@ function streamtx(txType,txData) {
 </div>
 
 <div id="focuscontent"></div>
-<div id="steemvizlogo" style="color:#228DFF;"><div id="followthevotes"><span onClick="followthevotesconfigopen();">Settings <i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_b
+<div id="steemvizlogo" style="color:#228DFF;"><div id="followthevotes"><span onClick="followthevotesconfigopen();">Settings <i class="fa fa-cogs hovergrow" aria-hidden="true"></i></span></div><a href="https://steemit.com/@ausbitbank" class="steemvizlogotext" target="_blank" id="settingstoggle" alt="Created by @ausbitbank - view my steemit profile">
