@@ -293,6 +293,13 @@ function closePost() {
  $('#postviewer').fadeOut();
 }
 
+function follow(follower,following){
+  steemconnect.follow(follower, following, function(err, result) {
+  	console.log(err, result);
+
+  });
+}
+
 function vote(voter,author,permlink,weight){
   steemconnect.vote(voter, author, permlink, weight, function(err, result) {
 	  console.log(err, result);
@@ -554,7 +561,13 @@ function streamtx(txType,txData) {
       containerfoot = '</div>';
       container = containerhead+txString+containerfoot;
       $('#column'+column).prepend(container);
-      $('#column'+column).fadeIn("slow");
+      $('#column'+column).slideDown();
+    }
+
+    function reblog(author,permlink){
+      steemconnect.reblog(username, author, permlink, function(err, result) {
+	      console.log(err, result);
+      });
     }
 
     function loadpost(author,permlink){
@@ -574,8 +587,11 @@ function streamtx(txType,txData) {
         votectl = '<iframe src="https://steemconnect.com/embed/vote?author='+result['author']+'&amp;permlink='+result['permlink']+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe>';
 
         if (result['title']==''){result['title']='Comment on '+result['parent_permlink'];}
+
+        var followstring = '<a href="#" onClick="follow(\''+username+'\',\''+author+'\');" class="followbutton" title="Follow '+author+'"><i class="fa fa-heart-o hovergrow" aria-hidden="true"></i></a>';
+        var reblogstring = '<a href="#" title="Resteem" onClick="reblog(\''+author+'\',\''+permlink+'\');" title="Reblog this post"><span class="Icon reblog hovergrow" style="display: inline-block; width: 1.12rem; height: 1.12rem;"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z"></path></svg></span></a>';
         postcontentformatted = '<center><h3><a href="https://steemit.com/'+result['parent_permlink']+'/@'+result['author']+'/'+result['permlink']+'" target="_blank">'+result['title']+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;</h3></center>\n';
-        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+' <br />'+votectl+'</center><br />';
+        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> '+followstring+' in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+' '+reblogstring+'<br />'+votectl+'</center><br />';
         postcontentformatted += sanitize(result['body']);
         postview(postcontentformatted);
       });
@@ -600,21 +616,20 @@ function streamtx(txType,txData) {
     }
 
     function savelocalstore(key,data) {
-     sessionStorage.settings = {key:data};
+     localStorage.setItem(key,data);
     }
 
-    function restorelocalstore(key,data){
-
+    function restorelocalstore(){
+    username=localStorage.getItem('username');
+    if (username==undefined){username='ausbitbank'}
+    console.log('retrieved username '+username+' from localStorage')
     }
 
     function checklogin(){
       steemconnect.isAuthenticated(function(err, result) {
         if (err){console.log(err);}
-  	    //console.log(result);
-        if (result['isAuthenticated']==false){
-          $("#logindiv").html('<a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a>');
-        } else if (result['isAuthenticated']==true){
-          var username = result['username'];
+  	    if (result['isAuthenticated']==true){
+          username = result['username'];
           $("#logindiv").html('Logged in as '+username);
         }
       });
@@ -633,6 +648,7 @@ function streamtx(txType,txData) {
       var closepostviewer = document.getElementById("closepostviewer");
       var toolkit = document.getElementById('toolkit');
       var settings=document.getElementById('followthevotesconfigscreen');
+      restorelocalstore();
       window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}if (event.target == toolkit){toolkit.style.display = "none";}if (event.target == settings){settings.style.display = "none";}}
       $("#userform").submit(function(event) {event.preventDefault();var username=$("#setuserinput").val();savelocalstore('username',username);})
       getstats();
@@ -662,7 +678,7 @@ function streamtx(txType,txData) {
     <center><img src="steemvizlogo1b6ac.png" width="250" title="SteemViz - thanks to @minion for the logo!"></center>
   <center><strong>Realtime steem blockchain viewer and curation tool</strong></center>
   <i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true" title="New Post"> </i> <i class="fa fa-star" style="color:gold;" title="New Promotion" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Upvote" style="color:#4ba2f2" aria-hidden="true"> </i> <i class="fa fa-chevron-circle-up" title="Unvote" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-flag" style="color:red" title="Downvote" aria-hidden="true"> </i> <i class="fa fa-low-vision" title="Mute" style="color:red;" aria-hidden="true"> </i> <img src="follow.png" title="Follow" style="vertical-align:middle;"> <img src="unfollow.png" title="Unfollow" style="vertical-align:middle;"> <i class="fa fa-check" title="Approve witness" style="color:green;"> </i> <i class="fa fa-times" title="Dissaprove witness" style="color:red;"> </i> <i class="fa fa-commenting-o" title="New comment" style="color:grey;" aria-hidden="true"> </i> <i class="fa fa-pencil-square-o" title="Edit" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-ban" title="Deletion" style="color:red" aria-hidden="true"> </i> <span style="vertical-align:middle; display: inline-block; width: 1.12rem; height: 1.12rem;" class="Icon reblog" title="Resteem" ><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve"><path d="M448,192l-128,96v-64H128v128h248c4.4,0,8,3.6,8,8v48c0,4.4-3.6,8-8,8H72c-4.4,0-8-3.6-8-8V168c0-4.4,3.6-8,8-8h248V96 L448,192z" class="reblog"></path></svg></span> <img src="mushroom.png" title="Powerup" style="margin-bottom:-2px; vertical-align="bottom"> <i class="fa fa-cube" aria-hidden="true" style="color:brown;" title="New block"></i> <i class="fa fa-key" title="Account update" style="color:red" aria-hidden="true"></i> <i class="fa fa-user-plus" title="New user"  style="color:blue" aria-hidden="true"></i> <i class="fa fa-balance-scale" title="Market Trade" style="color:purple" aria-hidden="true" title="Market Trades"></i> <i class="fa fa-exchange" style="color:#11922c" aria-hidden="true" title="Transaction/Transfer"></i> <i class="fa fa-line-chart" title="Witness price feed" style="color:brown;" aria-hidden="true"> </i> <i class="fa fa-recycle" title="SBD Conversion request" style="color:orange;" aria-hidden="true"> </i> <i class="fa fa-eject" style="color:red;" title="Powerdown"> </i> <i class="fa fa-university" style="color:black;" title="Savings" aria-hidden="true"></i><i class="fa fa-money" aria-hidden="true" style="color:green;" alt="Claim reward balance"></i><br /><br />
-  <div id="logindiv"></div>
+  <div id="logindiv"><a href="https://steemconnect.com/authorize?redirect_url=https://steemviz.com">Log in</a></div>
   <center><h3>Settings</h3></center>
   <p><span onclick="showimagestoggle()"><i class="fa fa-toggle-on hovergrow" id="showimagestoggle" aria-hidden="true"> </i> Show Images <i class="fa fa-camera hovergrow" style="color:black;" aria-hidden="true"> </i></span> <a href="#" onclick="emergencypurge();" style="color:red !important;"><i class="fa fa-exclamation-triangle hovergrow" aria-hidden="true" title="Disable image display and purge current images"> </i></a></span></p>
   <p><span onclick="imageproxytoggle();"> <i class="fa fa-toggle-on hovergrow" id="imageproxytoggle" aria-hidden="true"></i></span> Image Proxy <a href="https://steemit.com/steemviz/@ausbitbank/steemviz-update-more-curators-less-bugs-and-a-new-image-proxy-toggle-feature" title="Like this feature ? Upvote this announcement post"><i class="fa fa-chevron-circle-up hovergrow" title="Like this feature ? Upvote this post!" style="color:grey;" aria-hidden="true"> </i></small></a></p>
