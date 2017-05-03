@@ -559,7 +559,6 @@ function streamtx(txType,txData) {
 
     function loadpost(author,permlink){
       steem.api.getContent(author, permlink, function(err, result) {
-        //console.log(result);
         var alreadyvoted=false;
         $.each( result['active_votes'], function( key, value ) {
           if (key=='voter' && value==username){
@@ -576,7 +575,7 @@ function streamtx(txType,txData) {
 
         if (result['title']==''){result['title']='Comment on '+result['parent_permlink'];}
         postcontentformatted = '<center><h3><a href="https://steemit.com/'+result['parent_permlink']+'/@'+result['author']+'/'+result['permlink']+'" target="_blank">'+result['title']+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;</h3></center>\n';
-        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+' </center><br />';
+        postcontentformatted += '<center>Posted by <a href="https://steemit.com/@'+result['author']+'"><img src="https://img.steemconnect.com/@'+result['author']+'?size=50" class="avatar"> '+result['author']+'</a> in <a href="https://steemit.com/created/'+result['category']+'">'+result['category']+'</a> - '+readtime(result['body'])+' <br />'+votectl+'</center><br />';
         postcontentformatted += sanitize(result['body']);
         postview(postcontentformatted);
       });
