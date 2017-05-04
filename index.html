@@ -39,6 +39,8 @@
     var postpreview = false;
     var postpreviewpinned = false;
     var hlclass;
+    var lastvoteperm;
+    var loggedin=false;
 
     var md = new Remarkable();
     md.set({html: true,breaks: true,linkify: true,typographer: true});
@@ -308,7 +310,7 @@ function vote(voter,author,permlink,weight){
 }
 
 function streamtx(txType,txData) {
-  if (txData.voter == username||txData.author==username||txData.account==username||txData.witness==username||txData.to==username||txData.from==username){hlclass="title highlight";} else {hlclass="title";}
+  if (txData.publisher == username||txData.voter == username||txData.author==username||txData.account==username||txData.witness==username||txData.to==username||txData.from==username){hlclass="title highlight";} else {hlclass="title";}
 
       switch(txType) {
         case 'vote':
@@ -317,7 +319,10 @@ function streamtx(txType,txData) {
           } else if (txData.weight == '0') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:grey" aria-hidden="true"></i>';
           } else if (txData.weight == '1') {  votestring = '<i class="fa fa-chevron-circle-up" style="color:orange" aria-hidden="true"></i>';
           } else { votestring = '<i class="fa fa-flag" style="color:red" aria-hidden="true"></i>'; }
-          rendertx('<div class="'+hlclass+'"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="#" style="color:grey !important;" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')">'+txData.permlink.substring(0,50)+'</a></small></div>',2);
+
+          lastvoteperm = txData.permlink;
+          var votestring = '<div class="'+hlclass+'"><small><a href="https://steemit.com/@'+txData.voter+'">'+txData.voter+'</a> '+votestring+'</small><small style="color:#11922c !important;"> '+votepercent+' %</small> <small><a href="https://steemit.com/@'+txData.author+'">'+txData.author+'</a></small></div><div class="undertitle"><small><a href="#" style="color:grey !important;" onClick="loadpost(\''+txData.author+'\',\''+txData.permlink+'\')">'+txData.permlink.substring(0,50)+'</a></small></div>';
+          rendertx(votestring,2);
 
           if (followthevotes == true) {
             if ($.inArray(txData.voter, followthevoters) != -1){
@@ -529,6 +534,7 @@ function streamtx(txType,txData) {
           break;
 
           case 'witness_update':
+            console.log(txData);
             sbdinterest = txData.props['sbd_interest_rate'] / 100;
             title = '<div class="'+hlclass+'"><i class="fa fa-key" aria-hidden="true" style="color:red;"> </i> <a href="http://steemit.com/@'+txData.owner+'" target="_blank" class="user">'+txData.owner+'</a></div>',
             subtitle = '<div class="undertitle">'+txData.props['account_creation_fee']+' acct fee , max blocksize '+txData.props['maximum_block_size']+' & '+sbdinterest+' % SBD interest</div>',
@@ -618,12 +624,14 @@ function streamtx(txType,txData) {
 
     function savelocalstore(key,data) {
      localStorage.setItem(key,data);
+     console.log(key);console.log(data);
     }
 
     function restorelocalstore(){
-    username=localStorage.getItem('username');
-    if (username==undefined){username='ausbitbank'}
-    console.log('retrieved username '+username+' from localStorage')
+      if (localStorage.getItem('username')!=undefined){
+        username=localStorage.getItem('username');
+        console.log('retrieved username '+username+' from localStorage');
+      }
     }
 
     function checklogin(){
@@ -631,10 +639,10 @@ function streamtx(txType,txData) {
         if (err){console.log(err);}
   	    if (result['isAuthenticated']==true){
           username = result['username'];
-          $.notify("Logged in as ","success");
+          $.notify("Logged in as "+username,"success");
           $("#logindiv").html('Logged in as '+username);
-        } else if (result['isAuthenticated']==false) {
-          $.notify("Not logged in","info");
+          savelocalstore('username',username);
+          loggedin=true;
         }
       });
     }
