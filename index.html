@@ -316,7 +316,7 @@ function closePost() {
 
 function follow(follower,following){
   steemconnect.follow(follower, following, function(err, result) {
-  	if (err){console.log(err)}{$.notify("Followed user "+following);}
+  	if (err){console.log(err)}{$.notify("Followed user "+following,"info");}
   });
 }
 
