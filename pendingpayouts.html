@@ -70,15 +70,18 @@
 
   function loadmoreposts(username,start_author,start_permlink,total){
     console.log('loading more posts for '+username+' from '+start_author+'/'+start_permlink+' , current total '+total);
+    var allpaid=false;
     $("#loader").html('<img src="loader.gif">');
     var query={tag: username,limit:30,start_author: start_author,start_permlink:start_permlink};
     steem.api.getDiscussionsByBlog(query, function(err, result) {
+      console.log(result);
       if (err){console.log(err);}
       for (var i=0;i<result.length;i+=1){
         post=result[i];
-        if (i==0){console.log('skipping first content');continue;} // Skip first returned content
+        //if (i==0){console.log('skipping first content');continue;} // Skip first returned content
+        if (post['permlink']==start_permlink){console.log('permlink is start_permlink, skipping');continue;}
         if (username==post['author']&&post['max_accepted_payout']!='0.000 SBD'&&post['pending_payout_value']!='0.000SBD'){
-          if (post['cashout_time'].startsWith("1969")){continue;} // Paid out posts cashout in 1969 (?)
+          if (post['cashout_time'].startsWith("1969")){allpaid=true;continue;} // Paid out posts cashout in 1969 (?)
           results+='"<a href=\"https://steemit.com/@'+post['author']+'/'+post['permlink']+'\" target="_blank" title=\"'+post['cashout_time']+'\">'+post['title']+'</a>" - <strong>'+post['pending_payout_value']+'</strong><br />';
           pending=post['pending_payout_value'].split(" ");
           pending2=round(Number(pending[0]),3);
@@ -86,7 +89,6 @@
           total=round(pending2+total,3);
           console.log('adding '+post['pending_payout_value']+' from '+post['title']+' , new total = '+total);
           $("#results").html(results);
-          if (post['cashout_time'].startsWith("1969")){var allpaid=true;}
         }
         if (i==result.length-1){start_author=post['author'];start_permlink=post['permlink'];}
       }
@@ -96,7 +98,7 @@
       console.log(total);console.log(totalstring);
       $("#loader").fadeOut().html('');
       $("#total").html(totalstring);
-      if (allpaid==false){loadmoreposts(username,start_author,start_permlink,total);}
+      if (allpaid==false){console.log(start_permlink);loadmoreposts(username,start_author,start_permlink,total);}
     });
   }
 
