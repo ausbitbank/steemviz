@@ -24,9 +24,10 @@
 
     var defaultfollowthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better", "steemtrail", "titusfrost", "jamesc"];
     var defaultfollowthetags = [ "steemviz"];
+    if (localStorage.getItem('followthetags')!=undefined){var followthetags=localStorage.getItem('followthetags').split(",")} else {var followthetags = defaultfollowthetags;}
     if (localStorage.getItem('followthevoters')!=undefined){var followthevoters=localStorage.getItem('followthevoters').split(",")} else {var followthevoters = defaultfollowthevoters;}
     var followthevoteshistory = [];
-    var followthetags = false;
+    var followthetagsstatus = false;
     var followthevotes = false;
     var followthecommentvotes = false;
     var showimages = true;
@@ -162,29 +163,33 @@ function followthevoteslistusers(){
 
 function followthetagslisttags(){
   var taglisthtml = ['<ul>'];
-  $.each(defaultfollowthetags, function(index, value) {
+  $.each(followthetags, function(index, value) {
     taglisthtml.push('<li id="followthetags-'+value+'"><small><a href="#" onclick="followthetagsremovetag('+index+');"><i class="fa fa-times hovergrow" title="Remove tag" style="color:red;" aria-hidden="true"></i></a>  <a href="https://steemit.com/created/'+value+'"><i class="fa fa-external-link-square" aria-hidden="true"></i> '+value+'</a></small></li>');
   });
   taglisthtml.push('</ul>');
+  if (followthetags.length==0 || followthetags==[ "" ]||followthetags==''){var taglisthtml=['']}
   $("#followthevotesconfigscreentaglist").fadeIn("fast").html(taglisthtml.join(""));
 }
 
 function followthetagsaddtag() {
   tmpuserinput2 = document.getElementsByTagName("input")[0].value.toLowerCase();
   document.getElementsByTagName("input")[0].value = '';
-  defaultfollowthetags.push(tmpuserinput2);
-  savelocalstore('followthetags',defaultfollowthetags);
+  if (tmpuserinput2==''){return false;}
+  followthetags.push(tmpuserinput2);
+  savelocalstore('followthetags',followthetags.join(""));
   followthetagslisttags();
   return true;
 }
 
 function followthetagsremovetag(index) {
-  defaultfollowthetags.splice(index,1);
+  followthetags.splice(index,1);
+  savelocalstore('followthetags',followthetags.join(""));
   followthetagslisttags();
 }
 
 function followthetagsclearlist() {
-  defaultfollowthetags = [];
+  followthetags = [];
+  savelocalstore('followthetags',followthetags.join(""));
   followthetagslisttags();
 }
 
@@ -365,9 +370,9 @@ function streamtx(txType,txData) {
             if (postjson.hasOwnProperty("tags")) {
               tagstring = '<small><a href="https://steemit.com/created/'+stripHTML(postjson.tags[0])+'" target="_blank"><i class="fa fa-tags" aria-hidden="true" style="color:brown;"></i> '+stripHTML(postjson.tags[0])+'</a> ..</small>';
               postcontentshort = postcontentshort+'<br>'+tagstring;
-              if (followthetags == true) {
+              if (followthetagsstatus == true) {
                 $.each(postjson.tags, function( index, value ){
-                if ($.inArray(value, defaultfollowthetags) !== -1) {
+                if ($.inArray(value, followthetags) !== -1) {
                   if (txData.title != '') {
                     popurl = "https://steemit.com/steemviz-tag-"+value+"/@"+txData["author"]+"/"+txData["permlink"];
                     console.log("followed tag "+value)
