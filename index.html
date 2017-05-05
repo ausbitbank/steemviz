@@ -167,6 +167,7 @@ function followthetagsaddtag() {
   tmpuserinput2 = document.getElementsByTagName("input")[0].value.toLowerCase();
   document.getElementsByTagName("input")[0].value = '';
   defaultfollowthetags.push(tmpuserinput2);
+  savelocalstore('followthetags',defaultfollowthetags);
   followthetagslisttags();
   return true;
 }
@@ -192,10 +193,10 @@ function followthevoteslisthistory(){
 function followthevotesconfigclose() {$("#followthevotesconfigscreen").fadeOut("slow");}
 
 function followthevotesadduser() {
-  // Add new user to watchlist array
   tmpuserinput = document.getElementsByTagName("input")[1].value.toLowerCase();
   document.getElementsByTagName("input")[1].value = '';
   followthevoters.push(tmpuserinput);
+  savelocalstore('followthevoters',followthevoters);
   followthevoteslistusers();
   return true;
 }
@@ -209,13 +210,16 @@ function setuser(username){
 
 function followthevotesremoveuser(index) {
   followthevoters.splice(index,1);
+  savelocalstore('followthevoters',followthevoters);
   followthevoteslistusers();
 }
 
 function followthevotesrestoredefaults() {
-  followthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "projectnewbie", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "kiddarko", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "fyrstikken", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better"];
+  //followthevoters=localStorage.getItem('followthevoters')
+  followthevoters = defaultfollowthevoters;
   followthevoteslistusers();
 }
+
 
 function followthevotesclearlist() {
   followthevoters = [];
@@ -632,6 +636,7 @@ function streamtx(txType,txData) {
         username=localStorage.getItem('username');
         console.log('retrieved username '+username+' from localStorage');
       }
+      var followthevoters=localStorage.getItem('followthevoters');
     }
 
     function checklogin(){
