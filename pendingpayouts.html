@@ -69,12 +69,12 @@
   }
 
   function loadmoreposts(username,start_author,start_permlink,total){
-    console.log('loading more posts for '+username+' from '+start_author+'/'+start_permlink+' , current total '+total);
+    //console.log('loading more posts for '+username+' from '+start_author+'/'+start_permlink+' , current total '+total);
     var allpaid=false;
     $("#loader").html('<img src="loader.gif">');
     var query={tag: username,limit:30,start_author: start_author,start_permlink:start_permlink};
     steem.api.getDiscussionsByBlog(query, function(err, result) {
-      console.log(result);
+      //console.log(result);
       if (err){console.log(err);}
       for (var i=0;i<result.length;i+=1){
         post=result[i];
@@ -87,7 +87,7 @@
           pending2=round(Number(pending[0]),3);
           postcount++;
           total=round(pending2+total,3);
-          console.log('adding '+post['pending_payout_value']+' from '+post['title']+' , new total = '+total);
+          //console.log('adding '+post['pending_payout_value']+' from '+post['title']+' , new total = '+total);
           $("#results").html(results);
         }
         if (i==result.length-1){start_author=post['author'];start_permlink=post['permlink'];}
@@ -95,7 +95,7 @@
       avgpayout=total/postcount;
       avgpayout=round(Number(avgpayout),3);
       var totalstring='<br /><strong style="text-decoration:underline;">'+postcount+' total pending payouts : '+total+' SBD</strong><br /><small>Averaging '+avgpayout+' SBD per post</small><br /><br />';
-      console.log(total);console.log(totalstring);
+      //console.log(total);console.log(totalstring);
       $("#loader").fadeOut().html('');
       $("#total").html(totalstring);
       if (allpaid==false){console.log(start_permlink);loadmoreposts(username,start_author,start_permlink,total);}
@@ -118,7 +118,7 @@
          pending=post['pending_payout_value'].split(" ");
          pending2=round(Number(pending[0]),3);
          total=round(pending2+total,3);
-         console.log('adding '+post['pending_payout_value']+' from '+post['title']+' , new total = '+total);
+         //console.log('adding '+post['pending_payout_value']+' from '+post['title']+' , new total = '+total);
          postcount++;
          $("#results").html(results);
          if (post['cashout_time'].startsWith("1969")){allpaid=true;}
