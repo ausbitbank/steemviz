@@ -21,9 +21,10 @@
     var imageproxy = 'https://steemitimages.com/';
     var lastblocknum = 0;
     var lastpermlink;
+
     var defaultfollowthevoters = [ "ausbitbank", "steemleak", "curie", "robinhoodwhale", "krystle", "dantheman", "ned", "steemitblog", "acidyo", "merej99", "opheliafu", "complexring", "positive", "trogdoor", "applecrisp", "nextgen622", "nextgencrypto", "laonie", "blocktrades", "smooth", "teamsteem", "sykochica", "sauravrungta", "robotev", "liberosist", "nanzo-scoop", "steemstem", "voteinterestpool", "instructor2121" , "somebody", "donkeypong", "officialfuzzy", "furion", "infovore", "shadowspub", "cjclaro", "steevc", "better", "steemtrail", "titusfrost", "jamesc"];
     var defaultfollowthetags = [ "steemviz"];
-    var followthevoters = defaultfollowthevoters;
+    if (localStorage.getItem('followthevoters')!=undefined){var followthevoters=localStorage.getItem('followthevoters').split(",")} else {var followthevoters = defaultfollowthevoters;}
     var followthevoteshistory = [];
     var followthetags = false;
     var followthevotes = false;
@@ -44,6 +45,9 @@
 
     var md = new Remarkable();
     md.set({html: true,breaks: true,linkify: true,typographer: true});
+
+    restorelocalstore();
+
 
     function stripHTML(dirtyString) {
       var container = document.createElement('div');
@@ -147,10 +151,12 @@ function followthevotesconfigopen() {
 
 function followthevoteslistusers(){
   var userlisthtml = ['<ul>'];
+  //console.log(followthevoters);
   $.each(followthevoters, function(index, value) {
     userlisthtml.push('<li id="followthevoter-'+value+'"><small><a href="#" onclick="followthevotesremoveuser('+index+');"><i class="fa fa-times hovergrow" title="Remove user" style="color:red;" aria-hidden="true"></i></a> <a href="#" onclick="getVotes('+index+');"> <i class="fa fa-history hovergrow" title="Show voting history" aria-hidden="true" style="color:orange;"> </i>  ' + value + '</a></small></li>');
   });
   userlisthtml.push('</ul>');
+  if (followthevoters.length==0 || followthevoters==[ "" ]||followthevoters==''){var userlisthtml=['']}
   $("#followthevotesconfigscreenuserlist").fadeIn("fast").html(userlisthtml.join(""));
 }
 
@@ -195,6 +201,7 @@ function followthevotesconfigclose() {$("#followthevotesconfigscreen").fadeOut("
 function followthevotesadduser() {
   tmpuserinput = document.getElementsByTagName("input")[1].value.toLowerCase();
   document.getElementsByTagName("input")[1].value = '';
+  if (tmpuserinput==''){return false;}
   followthevoters.push(tmpuserinput);
   savelocalstore('followthevoters',followthevoters.toString());
   followthevoteslistusers();
@@ -215,6 +222,7 @@ function followthevotesremoveuser(index) {
 }
 
 function followthevotesrestoredefaults() {
+  localStorage.clear('followthevoters');
   followthevoters = defaultfollowthevoters;
   followthevoteslistusers();
 }
@@ -622,21 +630,23 @@ function streamtx(txType,txData) {
 
     function showtools(){
       document.getElementById('toolkit').style.display="block";
-      console.log("showing tools");
       $('#toolkit').fadeIn();
     }
 
     function savelocalstore(key,data) {
      localStorage.setItem(key,data);
-     console.log(key);console.log(data);
+     //console.log(key);console.log(data);
     }
 
     function restorelocalstore(){
+      console.log('restoring settings from local storage');
       if (localStorage.getItem('username')!=undefined){
         username=localStorage.getItem('username');
         console.log('retrieved username '+username+' from localStorage');
       }
+      //console.log(localStorage.getItem('followthevoters').split(","));
       var followthevoters=localStorage.getItem('followthevoters').split(",");
+      //console.log(followthevoters);
     }
 
     function checklogin(){
@@ -653,7 +663,6 @@ function streamtx(txType,txData) {
     }
 
     $(document).ready(function() {
-
       $('#column1').prepend('<div class="columnheader" style="display:none;"><div class="title"><i class="fa fa-newspaper-o" style="color:purple;" aria-hidden="true"></i> <i class="fa fa-star" style="color:gold;" aria-hidden="true"></i></div></div>');
       $("#column1").find("div.columnheader:first").fadeIn("slow");
       $('#column2').prepend('<div class="columnheader" style="display:none;"><i class="fa fa-chevron-circle-up" style="color:#4ba2f2" aria-hidden="true"></i> </i> <i class="fa fa-chevron-circle-up" style="color:grey;" aria-hidden="true"></i> <i class="fa fa-flag" style="color:red" aria-hidden="true"> <i class="fa fa-low-vision" style="color:red;" aria-hidden="true"></i> <img src="follow.png" style="vertical-align:middle;"><img src="unfollow.png" style="vertical-align:middle;"> </div></div>');
@@ -666,7 +675,7 @@ function streamtx(txType,txData) {
       var closepostviewer = document.getElementById("closepostviewer");
       var toolkit = document.getElementById('toolkit');
       var settings=document.getElementById('followthevotesconfigscreen');
-      restorelocalstore();
+
       window.onclick = function(event) {if (event.target == postviewer) {postviewer.style.display = "none";}if (event.target == toolkit){toolkit.style.display = "none";}if (event.target == settings){settings.style.display = "none";}}
       $("#userform").submit(function(event) {event.preventDefault();var username=$("#setuserinput").val();savelocalstore('username',username);})
       getstats();
