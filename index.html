@@ -196,7 +196,7 @@ function followthevotesadduser() {
   tmpuserinput = document.getElementsByTagName("input")[1].value.toLowerCase();
   document.getElementsByTagName("input")[1].value = '';
   followthevoters.push(tmpuserinput);
-  savelocalstore('followthevoters',followthevoters);
+  savelocalstore('followthevoters',followthevoters.toString());
   followthevoteslistusers();
   return true;
 }
@@ -210,12 +210,11 @@ function setuser(username){
 
 function followthevotesremoveuser(index) {
   followthevoters.splice(index,1);
-  savelocalstore('followthevoters',followthevoters);
+  savelocalstore('followthevoters',followthevoters.toString());
   followthevoteslistusers();
 }
 
 function followthevotesrestoredefaults() {
-  //followthevoters=localStorage.getItem('followthevoters')
   followthevoters = defaultfollowthevoters;
   followthevoteslistusers();
 }
@@ -224,6 +223,7 @@ function followthevotesrestoredefaults() {
 function followthevotesclearlist() {
   followthevoters = [];
   followthevoteslistusers();
+  savelocalstore('followthevoters',followthevoters.toString());
 }
 
 function emergencypurge() {
@@ -636,7 +636,7 @@ function streamtx(txType,txData) {
         username=localStorage.getItem('username');
         console.log('retrieved username '+username+' from localStorage');
       }
-      var followthevoters=localStorage.getItem('followthevoters');
+      var followthevoters=localStorage.getItem('followthevoters').split(",");
     }
 
     function checklogin(){
