@@ -638,14 +638,10 @@ function streamtx(txType,txData) {
       $('#toolkit').fadeIn();
     }
 
-    function savelocalstore(key,data) {
-     localStorage.setItem(key,data);
-     //console.log(key);console.log(data);
-    }
 
     function restorelocalstore(){
       console.log('restoring settings from local storage');
-      if (localStorage.getItem('username')!=undefined){
+      if (localStorage.getItem('username')!=null){
         username=localStorage.getItem('username');
         console.log('retrieved username '+username+' from localStorage');
       }
@@ -659,7 +655,7 @@ function streamtx(txType,txData) {
           username = result['username'];
           $.notify("Logged in as "+username,"success");
           $("#logindiv").html('Logged in as '+username);
-          savelocalstore('username',username);
+          localStorage.setItem('username',username);
           loggedin=true;
         }
       });
