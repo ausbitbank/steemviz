@@ -130,7 +130,6 @@
      totalstring='<br /><strong style="text-decoration:underline;">'+postcount+' total pending payouts : '+total+' SBD</strong><br /><small>Averaging '+avgpayout+' SBD per post</small><br /><br />';
      $("#loader").fadeOut().html('');
      $("#total").html(totalstring);
-     $("#submitbutton").removeAttr('disabled');
      if (allpaid==false){loadmoreposts(username,start_author,start_permlink,total);}
   })
 }
@@ -138,9 +137,8 @@
      $("#userform").submit(function(event) {
        event.preventDefault();
        $("#results").html("");$("#results2").html("");
-       $("#submitbutton").attr('disabled','disabled');
        $("#loader").html('<img src="loader.gif">').fadeIn();$("#loader2").html('<img src="loader.gif">').fadeIn();
-       var username = $("#username").val();
+       var username = $("#username").val().toLowerCase();
        loadposts(username);
        loadcomments(username);
      }
