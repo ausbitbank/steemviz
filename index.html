@@ -645,18 +645,22 @@ function streamtx(txType,txData) {
         username=localStorage.getItem('username');
         console.log('retrieved username '+username+' from localStorage');
       }
-      var followthevoters=localStorage.getItem('followthevoters').split(",");
+      if (localStorage.getItem('followthevoters')!=null){
+        var followthevoters=localStorage.getItem('followthevoters').split(",");
+      }
+
     }
 
     function checklogin(){
       steemconnect.isAuthenticated(function(err, result) {
-        if (err){console.log(err);}
+        if (err){console.log(err);return false;}
   	    if (result['isAuthenticated']==true){
           username = result['username'];
           $.notify("Logged in as "+username,"success");
           $("#logindiv").html('Logged in as '+username);
           localStorage.setItem('username',username);
           loggedin=true;
+          return true;
         }
       });
     }
