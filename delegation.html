@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html> <head>
-  <title>steemviz.com : deleted comments viewer</title>
+  <title>steemviz.com : delegation viewer</title>
   <meta name="description" content="steemviz displays all transactions on the steem network blockchain in real time."> <meta property="og:title" content="steem network realtime vizualisation"> <meta property="og:site_name" content="steemviz.com">
   <meta property="og:description" content="steemviz displays all transactions on the steem network blockchain in real time.">
   <meta charset="UTF-8">
@@ -8,20 +8,6 @@
   <script type="text/javascript">
   var result='';var handle='';var items = [];
   var query2='';
-
-  function getdelegation(username){
-    query2='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22comment%22,%22account%22:%22'+username+'%22,%22permlink%22:%22'+permlink+'%22}&sort=-timestamp';
-    handle=username+'/'+permlink;
-    var spanhandle=document.getElementById(handle);
-    spanhandle.innerHTML='Retrieving post from SteemData';
-    $.getJSON(query2, function( data ) {
-      result=(data['_items'][0]);
-
-      spanhandle.innerHTML=result['body'];
-      $("handle").html('<blockquote>'+result['body']+'</blockquote>');
-    });
-  }
-
 
   function getpostindex(username,page){
       result='';
@@ -33,11 +19,10 @@
       if (page!=undefined){queryurl='https://webapi.steemdata.com/'+page;}
       $.getJSON(queryurl, function( data ) {
         items = data['_items'];
+        console.log(items);
         $.each( items, function( key, value ) {
           result+='<img src="https://img.steemconnect.com/@'+value['account']+'?size=50" class="avatar"> <strong>'+value['account']+'</strong> deleted '+value['permlink']+'<br /><em>'+value['timestamp']+'</em><br />';
-          result+='<span id="'+value['account']+'/'+value['permlink']+'" class="deletedcontent"><a href="javascript:void(0);" onClick="getdeletedpost(\''+value['account']+'\',\''+value['permlink']+'\')">View post</a></span><br /><br />';
         });
-        //result+='<br /><a href="javascript:void(0);" onClick="getpostindex(\''+username+'\',\''+data['_links']['next']['href']+'\');">Load more</a>';
       $("#results").html(result);
     });
   }
