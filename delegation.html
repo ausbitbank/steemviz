@@ -9,19 +9,18 @@
   var result='';var handle='';var items = [];
   var query2='';
 
-  function getpostindex(username,page){
+  function getpostindex(username){
       result='';
       if (username==undefined||username=='undefined'){
         var queryurl='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delegate_vesting_shares%22}&sort=-timestamp';
         } else {
         var queryurl='https://webapi.steemdata.com/AccountOperations?where={%22type%22:%22delegate_vesting_shares%22,%22delegatee%22:%22'+username+'%22}&sort=-timestamp'
         }
-      if (page!=undefined){queryurl='https://webapi.steemdata.com/'+page;}
       $.getJSON(queryurl, function( data ) {
         items = data['_items'];
         console.log(items);
         $.each( items, function( key, value ) {
-          result+='<img src="https://img.steemconnect.com/@'+value['account']+'?size=50" class="avatar"> <strong>'+value['account']+'</strong> delegated '+value['vesting_shares']+' to '+value['delegatee']['amount']+'<br /><em>'+value['timestamp']+'</em><br />';
+          result+='<img src="https://img.steemconnect.com/@'+value['delegator']+'?size=50" class="avatar"> <strong>'+value['delegator']+'</strong> delegated '+value['vesting_shares']['amount']+' to '+value['delegatee']['delegatee']+'<br /><em>'+value['timestamp']+'</em><br />';
         });
       $("#results").html(result);
     });
@@ -55,7 +54,7 @@
 <div id="outerContainer">
   <a href="https://steemviz.com"><img src="steemvizlogo1b6ac.png" class="logo"></a><br /><br />
   <h3>
-    Recently delegated accounts :
+    Check delegations for which account ?
   </h3>
   <form id="userform"><input type="text" id="username" name="username" value="username"><input type="submit" id="submitbutton" value="check account"></form><br /><br />
   <div id="results"><img src="loader.gif"></div>
