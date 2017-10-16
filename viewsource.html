@@ -6,7 +6,7 @@
   <meta charset="UTF-8"><script src="steem.min.js"></script><script src="jquery.min.js"></script><script src="https://cdn.jsdelivr.net/clipboard.js/1.6.0/clipboard.min.js"></script>
   <script type="text/javascript">
   var author;var handle;
-
+  steem.api.setOptions({ url: 'wss://steemd.minnowsupportproject.org' });
   function loadpost(author,permlink){
    steem.api.getContent(author, permlink, function(err, result) {
      console.log(result);
