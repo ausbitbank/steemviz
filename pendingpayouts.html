@@ -7,7 +7,7 @@
   <script src="//cdn.steemjs.com/lib/latest/steem.min.js"></script></script><script src="jquery.min.js"></script>
   <script type="text/javascript">
   var post='';var posts=[];var total=0;var totalstring='';var pending='';var pending2=0;var results='';var start_author='';start_permlink='';var postcount=0;var avgpayout=0;
-
+  steem.api.setOptions({url: "https://api.steemit.com"});
   function round(value, decimals) {
     return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
   }
