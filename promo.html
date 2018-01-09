@@ -2,7 +2,7 @@
 <html lang="en"><head>
   <title>steemviz.com/promo : how much should I promote my steemit post for today ?</title>
   <meta charset="UTF-8">
-  <script src="./steem.min.js"></script>
+  <script src="//cdn.steemjs.com/lib/latest/steem.min.js"></script>
   <script src="./sorttable.js"></script>
   <script src="./jquery.min.js"></script>
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
@@ -39,7 +39,7 @@ function displayGuide() {
  postcontents += '<hr><center><a href="#" onClick="closePost();">Close <i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a></center>';
  $('#postcontent').html(postcontents).fadeIn();
 }
-
+steem.api.setOptions({url: "https://api.steemit.com"});
 steem.api.getState('/promoted', function(err, result) {
 console.log(result);
 promotedcontent = result.content;
