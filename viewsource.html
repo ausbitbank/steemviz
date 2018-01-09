@@ -17,6 +17,7 @@
   }
 
   $(document).ready(function() {
+    steem.api.setOptions({url: "https://api.steemit.com"});
     new Clipboard('.clipbtn');
      $("#permlink").submit(function(event) {
        event.preventDefault();
