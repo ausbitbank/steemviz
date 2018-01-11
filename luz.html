@@ -1,19 +1,72 @@
-<html><head><meta charset="UTF-8"><script src="https://unpkg.com/dsteem@^0.8.0/dist/dsteem.js"></script></head>
-<body><h1>OpenMic Post Creator</h1>
-  <form id="weekinputform" action="#" onsubmit="changeweek()">Current week :<input type="text" id="weekinput"><input type="submit" value="Get Entries"></form><br />
-  <textarea id="logbox" rows="5" cols="50"></textarea><br />
-  <textarea id="source" rows="30" cols="200"></textarea>
+<html><head><meta charset="UTF-8">
+  <script src="https://unpkg.com/dsteem@^0.8.0/dist/dsteem.js"></script>
+  <style>
+  body{text-align: center;}
+  textarea#source{height:60%;width: 80%;}
+  textarea#logbox{height:10%;width: 50%;}
+  textarea#source,textarea#logbox{
+  color:#666;
+  clear:both;
+  font-size:14px;
+  -moz-border-radius: 8px; -webkit-border-radius: 8px;
+  margin:5px 0px 10px 0px;
+  padding:10px;
+  border:#999 1px solid;
+  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  transition: all 0.25s ease-in-out;
+  -webkit-transition: all 0.25s ease-in-out;
+  -moz-transition: all 0.25s ease-in-out;
+  box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+  -webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+  -moz-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+  }
+  textarea#source:focus,textarea#logbox:focus{
+  color:#000;
+  outline:none;
+  border:#35a5e5 1px solid;
+  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  -webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  -moz-box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+  }
+  input {
+    width: auto;
+    padding: 9px 15px;
+    border: 1px solid #999;
+    font-size: 14px;
+    -webkit-transition: all 0.25s ease-in-out;
+    -moz-transition: all 0.25s ease-in-out;
+    box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+    -webkit-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+    -moz-box-shadow: 0 0 5px rgba(81, 203, 238, 0);
+    }
+    #weekinput {
+      width:50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>OpenMic Post Creator</h1>
+  <form id="weekinputform" action="#" onsubmit="changeweek()">Current week : <input type="text" id="weekinput"> <input type="submit" value="Get Entries"></form><br />
+  <span id="logbox"></span><br />
+  <textarea id="source" rows="30" cols="200"></textarea><br />
+  <form id="clipboardbutton" action="#" onsubmit="copytoclipboard()"><input type="submit" value="Copy to Clipboard"></form>
 
 </body>
 <script type="text/javascript">
 source.value='';logbox.value='';
-var entrycount=0;
-var apicount=0;
+var entrycount=0;var apicount=0;
 var client = new dsteem.Client('https://api.steemit.com')
 function changeweek() {
+  source.value='';logbox.value='';
   getentries(weekinput.value);
 }
-
+function copytoclipboard() {
+  var copyText = document.getElementById("source");
+  copyText.select();
+  document.execCommand("Copy");
+  logbox.innerHTML = "Copied source to clipboard";
+}
 function extractyt(url) {
   var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   var match = url.match(regExp);
@@ -22,30 +75,27 @@ function extractyt(url) {
 
 function getentries(week,lastauthor,lastpermlink){
   client.database.getDiscussions('created', {tag: 'openmic', limit: 100, truncate_body: 1, start_author: lastauthor, start_permlink: lastpermlink}).then(function(entries){
-    logbox.value += "loaded "+entries.length+" entries\n  ";
+    logbox.innerHTML = "Loaded "+entries.length+" entries\n  ";
     entries.forEach(function (item) {
       apicount++;
-      if (item.permlink==lastpermlink && item.author==lastauthor) { logbox.value += 'ignoring double result  '+item.permlink+'\n';return; } //ignore the final entry from the previous api request, first in this request
+      if (item.permlink==lastpermlink && item.author==lastauthor) { logbox.innerHTML = 'ignoring double result  '+item.permlink+'\n';return; } //ignore the final entry from the previous api request, first in this request
       if (item.title.match(week)) {  //Check entry has the right week number
         var metadata = JSON.parse(item.json_metadata);
         for (var i=0;i<item.active_votes.length;i++){if(item.active_votes[i].voter=='openmic')  {
-          if (metadata.links) {
-            metadata.links.forEach(function (link) {if (extractyt(link)) { source.value += link+' \n\n'; }})
-          }
-          source.value += '['+item.title + '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by <a href=\"https://steemit.com/@'+item.author+'\">' + item.author + '</a>\n\n---\n\n';
+          if (metadata.links) {metadata.links.forEach(function (link) {if (extractyt(link)) { source.value += link+' \n\n'; }})}
+          source.value += '['+item.title + '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by ['+item.author+'](https://steemit.com/@'+item.author+')\n\n---\n\n';
           entrycount++;
         }}
   }
 });
 
-if (entries.length<100) {logbox.value += 'Less then 100 entries returned, finished\n';logbox.value += apicount+' total loaded from API, '+entrycount+' displayed';} else {
-    logbox.value += 'Max 100 entries returned, loading more..\n';
+if (entries.length<100) {logbox.innerHTML = 'Less then 100 entries returned, finished\n';logbox.innerHTML = apicount+' total loaded from API, '+entrycount+' displayed';} else {
+    logbox.innerHTML = 'Max 100 entries returned, loading more..\n';
     var lastauthor = entries[entries.length-1].author;
     var lastpermlink = entries[entries.length-1].permlink;
     getentries(week,lastauthor,lastpermlink);
   }
 });
-
 }
 </script>
 </html>
