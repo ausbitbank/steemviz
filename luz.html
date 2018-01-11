@@ -1,0 +1,51 @@
+<html><head><meta charset="UTF-8"><script src="https://unpkg.com/dsteem@^0.8.0/dist/dsteem.js"></script></head>
+<body><h1>OpenMic Post Creator</h1>
+  <form id="weekinputform" action="#" onsubmit="changeweek()">Current week :<input type="text" id="weekinput"><input type="submit" value="Get Entries"></form><br />
+  <textarea id="logbox" rows="5" cols="50"></textarea><br />
+  <textarea id="source" rows="30" cols="200"></textarea>
+
+</body>
+<script type="text/javascript">
+source.value='';logbox.value='';
+var entrycount=0;
+var apicount=0;
+var client = new dsteem.Client('https://api.steemit.com')
+function changeweek() {
+  getentries(weekinput.value);
+}
+
+function extractyt(url) {
+  var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  var match = url.match(regExp);
+  if (match && match[2].length == 11) {return true} else { return false;}
+}
+
+function getentries(week,lastauthor,lastpermlink){
+  client.database.getDiscussions('created', {tag: 'openmic', limit: 100, truncate_body: 1, start_author: lastauthor, start_permlink: lastpermlink}).then(function(entries){
+    logbox.value += "loaded "+entries.length+" entries\n  ";
+    entries.forEach(function (item) {
+      apicount++;
+      if (item.permlink==lastpermlink && item.author==lastauthor) { logbox.value += 'ignoring double result  '+item.permlink+'\n';return; } //ignore the final entry from the previous api request, first in this request
+      if (item.title.match(week)) {  //Check entry has the right week number
+        var metadata = JSON.parse(item.json_metadata);
+        for (var i=0;i<item.active_votes.length;i++){if(item.active_votes[i].voter=='openmic')  {
+          if (metadata.links) {
+            metadata.links.forEach(function (link) {if (extractyt(link)) { source.value += link+' \n\n'; }})
+          }
+          source.value += '['+item.title + '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by <a href=\"https://steemit.com/@'+item.author+'\">' + item.author + '</a>\n\n---\n\n';
+          entrycount++;
+        }}
+  }
+});
+
+if (entries.length<100) {log.value += 'Less then 100 entries returned, finished\n';logbox.value += apicount+' total loaded from API, '+entrycount+' displayed';} else {
+    logbox.value += 'Max 100 entries returned, loading more..\n';
+    var lastauthor = entries[entries.length-1].author;
+    var lastpermlink = entries[entries.length-1].permlink;
+    getentries(week,lastauthor,lastpermlink);
+  }
+});
+
+}
+</script>
+</html>
