@@ -38,7 +38,7 @@ function getentries(week,lastauthor,lastpermlink){
   }
 });
 
-if (entries.length<100) {log.value += 'Less then 100 entries returned, finished\n';logbox.value += apicount+' total loaded from API, '+entrycount+' displayed';} else {
+if (entries.length<100) {logbox.value += 'Less then 100 entries returned, finished\n';logbox.value += apicount+' total loaded from API, '+entrycount+' displayed';} else {
     logbox.value += 'Max 100 entries returned, loading more..\n';
     var lastauthor = entries[entries.length-1].author;
     var lastpermlink = entries[entries.length-1].permlink;
