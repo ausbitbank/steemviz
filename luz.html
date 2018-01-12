@@ -55,10 +55,10 @@
 </body>
 <script type="text/javascript">
 source.value='';logbox.value='';
-var entrycount=0;var apicount=0;
+var entrycount=0;var apicount=0;var finalresult=[];
 var client = new dsteem.Client('https://api.steemit.com')
 function changeweek() {
-  source.value='';logbox.value='';
+  source.value='';logbox.value='';var entrycount=0;var apicount=0;
   getentries(weekinput.value);
 }
 function copytoclipboard() {
@@ -67,29 +67,36 @@ function copytoclipboard() {
   document.execCommand("Copy");
   logbox.innerHTML = "Copied source to clipboard";
 }
+
 function extractyt(url) {
   var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   var match = url.match(regExp);
   if (match && match[2].length == 11) {return true} else { return false;}
 }
 
+function displaysource(){
+  finalresult.reverse(); //Show older entries first
+  finalresult.forEach(function (line) {source.value+=line;})
+}
+
 function getentries(week,lastauthor,lastpermlink){
   client.database.getDiscussions('created', {tag: 'openmic', limit: 100, truncate_body: 1, start_author: lastauthor, start_permlink: lastpermlink}).then(function(entries){
     logbox.innerHTML = "Loaded "+entries.length+" entries\n  ";
     entries.forEach(function (item) {
-      apicount++;
+      apicount++;entrytext='';
       if (item.permlink==lastpermlink && item.author==lastauthor) { logbox.innerHTML = 'ignoring double result  '+item.permlink+'\n';return; } //ignore the final entry from the previous api request, first in this request
       if (item.title.match(week)) {  //Check entry has the right week number
         var metadata = JSON.parse(item.json_metadata);
         for (var i=0;i<item.active_votes.length;i++){if(item.active_votes[i].voter=='openmic')  {
-          if (metadata.links) {metadata.links.forEach(function (link) {if (extractyt(link)) { source.value += link+' \n\n'; }})}
-          source.value += '['+item.title + '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by ['+item.author+'](https://steemit.com/@'+item.author+')\n\n---\n\n';
+          if (metadata.links) {metadata.links.forEach(function (link) {if (extractyt(link)) { entrytext+= link+' \n\n'; }})}
+          entrytext+=('['+item.title + '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by ['+item.author+'](https://steemit.com/@'+item.author+')\n\n---\n\n');
+          finalresult.push(entrytext);
           entrycount++;
         }}
   }
 });
 
-if (entries.length<100) {logbox.innerHTML = 'Less then 100 entries returned, finished\n';logbox.innerHTML = apicount+' total loaded from API, '+entrycount+' displayed';} else {
+if (entries.length<100) {logbox.innerHTML = 'Less then 100 entries returned, finished\n';displaysource();logbox.innerHTML = apicount+' total loaded from API, '+entrycount+' displayed';} else {
     logbox.innerHTML = 'Max 100 entries returned, loading more..\n';
     var lastauthor = entries[entries.length-1].author;
     var lastpermlink = entries[entries.length-1].permlink;
