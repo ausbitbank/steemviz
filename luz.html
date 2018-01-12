@@ -57,6 +57,7 @@
 source.value='';logbox.value='';
 var entrycount=0;var apicount=0;var ignorecount=0;var finalresult=[];
 var client = new dsteem.Client('https://api.steemit.com')
+
 function changeweek() {
   source.value='';logbox.value='';var entrycount=0;var apicount=0;var ignorecount=0;var finalresult=[];
   getentries(weekinput.value);
@@ -71,12 +72,26 @@ function copytoclipboard() {
 function extractyt(url) {
   var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   var match = url.match(regExp);
-  if (match && match[2].length == 11) {return true} else { return false;}
+  if (match && match[2].length == 11) {return 'https://youtu.be/'+match[2];} else { return false;}
+}
+
+function extractvimeo(url){
+  var match = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i);
+  if (match ){return 'https://vimeo.com/'+match[1];} else { return false; }
 }
 
 function displaysource(){
   finalresult.reverse(); //Show older entries first
   finalresult.forEach(function (line) {source.value+=line;})
+}
+
+function tidytitle(title,author,week){
+  var newtitle=title.replace(/steemit open mic week|steemit openmic week|steemit open mic semana|steemit openmic semana|openmic week|open mic|openmic|week/gi,'');
+  newtitle=newtitle.replace(/by \@/gi,'').replace(' '+week,'').replace('#'+week,'').replace(author,'');
+  newtitle=newtitle.replace(/^[ \t]+|^[.]|[ \t]+$. /gi,''); //Remove leading and trailing spaces + tabs
+  newtitle=newtitle.replace(/^-|^#|^\;/,''); //Remove leading dashes, semicolons and hashes
+  if (newtitle==''||newtitle==' '){newtitle=title;} // Did we wipe it all out ? Use the original instead
+  return newtitle
 }
 
 function getentries(week,lastauthor,lastpermlink){
@@ -88,9 +103,11 @@ function getentries(week,lastauthor,lastpermlink){
       if (item.title.match(week)) {  //Check entry has the right week number
         var metadata = JSON.parse(item.json_metadata);
         for (var i=0;i<item.active_votes.length;i++){if(item.active_votes[i].voter=='openmic')  {
-          //console.log(item.active_votes[i]);
-          if (metadata.links) {metadata.links.forEach(function (link) {if (extractyt(link)) { entrytext+= link+' \n\n'; }})}
-          entrytext+=('['+item.title + '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by ['+item.author+'](https://steemit.com/@'+item.author+')\n\n---\n\n');
+          if (metadata.links) {metadata.links.forEach(function (link) {
+            if (extractyt(link)) { entrytext+= extractyt(link)+' \n\n';} //Add normalised youtube links
+            if (extractvimeo(link)) { console.log('vimeo link '+link+'\n'+extractvimeo(link)); entrytext+= extractvimeo(link)+' \n\n';} // Add normalised vimeo links
+          })}
+          entrytext+=('['+tidytitle(item.title,item.author,week)+ '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by @'+item.author+'\n\n---\n\n');
           for (var x=0;x<item.active_votes.length;x++){if(item.active_votes[x].voter=='luzcypher' && item.active_votes[x].percent>=500){finalresult.push(entrytext);} else if (item.active_votes[x].percent<=499 && item.active_votes[x].voter=='luzcypher'){ignorecount++;} } //Only list entries luz voted at more then 5% power
           entrycount++;
         }}
@@ -98,7 +115,7 @@ function getentries(week,lastauthor,lastpermlink){
 });
 
 if (entries.length<100) {logbox.innerHTML = 'Less then 100 entries returned, finished\n';displaysource();logbox.innerHTML = apicount+' total loaded from API, '+entrycount+' displayed, '+ignorecount+' excluded';} else {
-    logbox.innerHTML = 'Max 100 entries returned, loading more.. ('+apicount+' loaded, '+entrycount+' valid, '+ignorecount+' ignored) \n';
+    logbox.innerHTML = 'Max 100 entries returned, loading more.. ('+apicount+' loaded, '+entrycount+' valid, '+ignorecount+' excluded) \n';
     var lastauthor = entries[entries.length-1].author;
     var lastpermlink = entries[entries.length-1].permlink;
     getentries(week,lastauthor,lastpermlink);
