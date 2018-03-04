@@ -49,7 +49,9 @@
   <h1>OpenMic Post Creator</h1>
   <form id="weekinputform" action="#" onsubmit="changeweek()">Current week : <input type="text" id="weekinput"> <input type="submit" value="Get Entries"></form><br />
   <span id="logbox"></span><br />
-  <textarea id="source" rows="30" cols="200"></textarea><br />
+  <textarea id="ignorelist" rows="5" cols="200" placeholder="Ignore list goes here, paste full steemit urls 1 per line"></textarea><br />
+  <textarea id="source" rows="30" cols="200" placeholder="Post template code will appear here"></textarea><br />
+
   <form id="clipboardbutton" action="#" onsubmit="copytoclipboard()"><input type="submit" value="Copy to Clipboard"></form>
 
 </body>
@@ -57,10 +59,13 @@
 source.value='';logbox.value='';
 var entrycount=0;var apicount=0;var ignorecount=0;var finalresult=[];
 var client = new dsteem.Client('https://api.steemit.com')
+var ignorelist = []
 
 function changeweek() {
   source.value='';logbox.value='';var entrycount=0;var apicount=0;var ignorecount=0;var finalresult=[];
   getentries(weekinput.value);
+  document.getElementById('ignorelist').value.split('\n').forEach(function(entry) {ignorelist.push(entry);});
+
 }
 function copytoclipboard() {
   var copyText = document.getElementById("source");
@@ -83,6 +88,7 @@ function extractvimeo(url){
 function displaysource(){
   finalresult.reverse(); //Show older entries first
   finalresult.forEach(function (line) {source.value+=line;})
+  console.log(ignorelist);
 }
 
 function tidytitle(title,author,week){
@@ -108,7 +114,7 @@ function getentries(week,lastauthor,lastpermlink){
             if (extractvimeo(link)) { console.log('vimeo link '+link+'\n'+extractvimeo(link)); entrytext+= extractvimeo(link)+' \n\n';} // Add normalised vimeo links
           })}
           entrytext+=('['+tidytitle(item.title,item.author,week)+ '](https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink+') --- by @'+item.author+'\n\n---\n\n');
-          for (var x=0;x<item.active_votes.length;x++){if(item.active_votes[x].voter=='luzcypher' && item.active_votes[x].percent>=500){finalresult.push(entrytext);} else if (item.active_votes[x].percent<=499 && item.active_votes[x].voter=='luzcypher'){ignorecount++;} } //Only list entries luz voted at more then 5% power
+          for (var x=0;x<item.active_votes.length;x++){if(item.active_votes[x].voter=='luzcypher' && item.active_votes[x].percent>=500){if(ignorelist.includes('https://steemit.com/'+item.parent_permlink+'/@'+item.author+'/'+item.permlink)){console.log('ignoring '+item.permlink);} else {finalresult.push(entrytext);}} else if (item.active_votes[x].percent<=499 && item.active_votes[x].voter=='luzcypher'){ignorecount++;} } //Only list entries luz voted at more then 5% power
           entrycount++;
         }}
   }
