@@ -10,7 +10,7 @@
    steem.api.getContent(author, permlink, function(err, result) {
      console.log(result);
     $("#loader").fadeOut();
-    $("#source").html(result['body']);
+    $("#source").text(result['body']);
     $(".clipbtn").fadeIn();
     $('#source').fadeIn();
    });
