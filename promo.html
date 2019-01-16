@@ -22,7 +22,7 @@ var promotedcontent; var tablecontents = ''; var posts = ''; var postcontents=''
 
 function displayPost(key) {
   postcontents = '<center><h3><a href="https://steemit.com'+promotedcontent[key]["url"]+'" target="_blank">'+promotedcontent[key]["title"]+' <i class="fa fa-external-link" aria-hidden="true" style="color: #1a5099;"></i></a>&nbsp;<a href="#" onClick="closePost();"><i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a></h3></center>\n';
-  postcontents += '<center>Posted by <a href="https://steemit.com/@'+promotedcontent[key]["author"]+'"><i class="fa fa-user-o" aria-hidden="true"></i> '+promotedcontent[key]["author"]+'</a> ('+steem.formatter.reputation(promotedcontent[key]["author_reputation"])+') in <a href="https://steemit.com/created/'+promotedcontent[key]["category"]+'">'+promotedcontent[key]["category"]+'</a> and promoted for <strong>'+promotedcontent[key]["promoted"]+'<br />Current Cashout Time:</strong> '+promotedcontent[key]["cashout_time"]+'<br /><strong>Latest Cashout Time:</strong> '+promotedcontent[key]["max_cashout_time"]+'<br /><iframe src="https://steemconnect.com/embed/vote?author='+promotedcontent[key]["author"]+'&amp;permlink='+promotedcontent[key]["permlink"]+'" allowtransparency="true" scrolling="no" id="z" style="display:inline-block;" width="90" height="20" frameborder="0"></iframe></center><br />';
+  postcontents += '<center>Posted by <a href="https://steemit.com/@'+promotedcontent[key]["author"]+'"><i class="fa fa-user-o" aria-hidden="true"></i> '+promotedcontent[key]["author"]+'</a> ('+steem.formatter.reputation(promotedcontent[key]["author_reputation"])+') in <a href="https://steemit.com/created/'+promotedcontent[key]["category"]+'">'+promotedcontent[key]["category"]+'</a> and promoted for <strong>'+promotedcontent[key]["promoted"]+'<br />Current Cashout Time:</strong> '+promotedcontent[key]["cashout_time"]+'<br /><strong>Latest Cashout Time:</strong> '+promotedcontent[key]["max_cashout_time"]+'</center><br />';
   postcontents += md.render(promotedcontent[key]["body"]);
   postcontents += '<br /><hr><center><a href="#" onClick="closePost();">Close <i class="fa fa-window-close" style="color:red;" aria-hidden="true"></i></a>';
   $('#postcontent').html(postcontents).fadeIn();
@@ -50,7 +50,7 @@ tablecontents += '<center><table class="sortable" id="promotable"><thead ><tr><t
   var promotedamountint = 1;
   var promotedamountstring = obj["promoted"].split(" ");
   promotedamountint = parseFloat(promotedamountstring[0]).toFixed(3);
-  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="#" onClick="displayPost(\''+key+'\');">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+parseFloat(obj["total_payout_value"]).toFixed(3)+'</td><td>'+obj["net_votes"]+'</td></tr>';
+  tablecontents += '<tr><th scope="row">'+promotedamountint+'</th><td><a href="#" onClick="displayPost(\''+key+'\');">"'+obj["title"].substring(0, 60)+'</a>" by <a href="https://steemit.com/@'+obj["author"]+'">@'+obj["author"]+'</a></td><td>'+obj["pending_payout_value"]+'</td><td>'+obj["active_votes"].length+'</td></tr>';
   }
 tablecontents += '</tbody></table></center>';
 $('#posts').html(tablecontents).fadeIn();
