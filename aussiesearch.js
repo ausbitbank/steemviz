@@ -45,9 +45,9 @@ function getdata(apiurl) {
         card.appendChild(p);
       });
       console.log(data.next);
-      //const nextpage = document.createElement('p');
-      //nextpage.innerHTML = `<a href="#" id="loadmore" onClick="getdata("${data.next}");return false;">Load more</a>`;
-      //container.append(nextpage);
+      const nextpage = document.createElement('p');
+      nextpage.innerHTML = `<a href="#" id="loadmore" onClick='getdata("${data.next}");return false;'>Load more results</a>`;
+      container.append(nextpage);
   
     } else {
       const errorMessage = document.createElement('marquee');
