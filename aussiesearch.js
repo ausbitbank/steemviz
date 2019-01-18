@@ -5,8 +5,10 @@ logo.src = 'steemvizlogo1b6ac.png';
 
 const container = document.createElement('div');
 container.setAttribute('class', 'container');
-
+const description = document.createElement('p');
+description.innerText = 'Use this tool to discover new users that have put "Australia" in their profile page. Created by @ausbitbank to recruit for #teamaustralia';
 app.appendChild(logo);
+app.appendChild(description);
 app.appendChild(container);
 
 const apiurl = "https://hivemind.steemviz.com/api/v1/accounts/?location__contains=Australia&ordering=-created_at";
