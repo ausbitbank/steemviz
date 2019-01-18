@@ -55,6 +55,7 @@ p {
   transform: translate3D(0, -2px, 0);
 }
 
+
 @media screen and (min-width: 600px) {
   .card {
     flex: 1 1 calc(50% - 2rem);
@@ -68,11 +69,11 @@ p {
 }
 
 .card:nth-child(2n) h1 {
-  background-image: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+  background-image: linear-gradient(120deg, #7fffd9 0%, #8fd3f4 100%);
 }
 
 .card:nth-child(4n) h1 {
-  background-image: linear-gradient(120deg, #ff9a9e 0%, #fecfef 100%);
+  background-image: linear-gradient(120deg, #ff9a9e 0%, #ad5ccc 100%);
 }
 
 .card:nth-child(5n) h1 {
@@ -81,4 +82,6 @@ p {
 
 #loadmore {
   clear:both;
+  vertical-align: middle;
+  height:100%;
 }
