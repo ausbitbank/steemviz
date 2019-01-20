@@ -48,11 +48,11 @@ p {
   border-radius: 12px;
   overflow: hidden;
   transition: all .2s linear;
+  word-wrap: break-word;
 }
 
 .card:hover {
-  box-shadow: 2px 8px 45px rgba(0, 0, 0, .15);
-  transform: translate3D(0, -2px, 0);
+  box-shadow: 2px 8px 45px rgba(138, 9, 224, 0.25);
 }
 
 
