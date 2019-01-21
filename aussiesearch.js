@@ -38,6 +38,7 @@ function getdata(apiurl) {
           var value = user[key];
           if (key == 'website') {profile_text+=`<b>${key}:</b> <a href="${value}">${value}</a><br />`; continue;}
           if (key == 'name') {continue;}
+          if (key == 'apps' && value.length==0) {continue;}
           profile_text+=`<b>${key}:</b> ${value}<br />`;
         }
         p.innerHTML = profile_text;
@@ -75,14 +76,35 @@ function prepare_profile_data(data){
 
   if (data.raw_json) {
     var rawjson = JSON.parse(data.raw_json);
-    if (rawjson.witness_votes.length>0) { profile.witness_votes = clean(rawjson.witness_votes.join(', ')); }
-    if (rawjson.recovery_account) { profile.recovery_account = clean(rawjson.recovery_account); }
+    if (rawjson.witness_votes.length>0) { 
+      profile.witness_votes=[];
+      for (var witness in rawjson.witness_votes){profile.witness_votes.push(`<a href="https://steemit.com/@${clean(rawjson.witness_votes[witness])}">${clean(rawjson.witness_votes[witness])}</a>`);}
+      profile.witness_votes = profile.witness_votes.join(', ');
+    }
+    if (rawjson.recovery_account) { profile.recovery_account = `<a href="https://steemit.com/@${clean(rawjson.recovery_account)}">${clean(rawjson.recovery_account)}</a>`; }
     if (rawjson.sbd_balance) { profile.sbd_balance = clean(rawjson.sbd_balance); }
     if (rawjson.balance) { profile.steem_balance = clean(rawjson.balance); }
     if (rawjson.posting.account_auths){
-      profile.apps='';
-      for (var app in rawjson.posting.account_auths){profile.apps+=rawjson.posting.account_auths[app][0]+", ";}
-    }    
+      var authorised_apps = [];
+      for (var app in rawjson.posting.account_auths){authorised_apps.push(rawjson.posting.account_auths[app][0]);}
+      for (var app in rawjson.active.account_auths){authorised_apps.push(rawjson.posting.account_auths[app][0]);}
+    }
+    if (authorised_apps) {
+      profile.apps=[];
+      for (var app in authorised_apps){
+        switch(authorised_apps[app]){
+          case 'steemauto': profile.apps.push(`<a href="https://steemauto.com">steemauto</a>`); break;
+          case 'steempeak.app': profile.apps.push(`<a href="https://steempeak.com/@${profile.name}">steempeak</a>`); break;
+          case 'busy.app' : profile.apps.push(`<a href="https://busy.org/${profile.name}">busy</a>`);break;
+          case 'peakmonsters.app' : profile.apps.push(`<a href="https://monsters.steempeak.com/@${profile.name}">peakmonsters</a>`);break;
+          case 'dtube.app' : profile.apps.push(`<a href="https://d.tube/@${profile.name}">dtube</a>`);break;
+          case 'partiko-steemcon' : profile.apps.push(`<a href="https://partiko.app/@${profile.name}">partiko</a>`);break;
+          case 'steemhunt.com' : profile.apps.push(`<a href="https://steemhunt.com/@${profile.name}">steemhunt</a>`);break;
+          default : profile.apps.push(`<a href="https://steemd.com/@${authorised_apps[app]}">${authorised_apps[app]}</a>`);break;
+        }
+      }
+      if (profile.apps.length>0) {profile.apps = profile.apps.join(' , ');}
+    }
     
   }
   return profile;
