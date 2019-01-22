@@ -1,0 +1,174 @@
+
+.card {
+  margin: 1rem;
+  background: white;
+  box-shadow: 2px 4px 25px rgba(0, 0, 0, .1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all .2s linear;
+  word-wrap: break-word;
+}
+
+.card:hover {
+  box-shadow: 2px 8px 45px rgba(138, 9, 224, 0.25);
+}
+
+
+@media screen and (min-width: 600px) {
+  .card {
+    flex: 1 1 calc(50% - 2rem);
+  }
+}
+
+@media screen and (min-width: 900px) {
+  .card {
+    flex: 1 1 calc(33% - 2rem);
+  }
+}
+
+.card:nth-child(2n) h1 {
+  background-image: linear-gradient(120deg, #7fffd9 0%, #8fd3f4 100%);
+}
+
+.card:nth-child(4n) h1 {
+  background-image: linear-gradient(120deg, #ff9a9e 0%, #ad5ccc 100%);
+}
+
+.card:nth-child(5n) h1 {
+  background-image: linear-gradient(120deg, #ffc3a0 0%, #ffafbd 100%);
+}
+
+/* Defaults and resets */
+html {
+  box-sizing: border-box;
+  font-family: Tahoma, Verdana, Segoe, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+* {
+  font-family: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+/* Content container */
+.wrapper {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: linear-gradient(18deg, #7b4397, #dc2430, #fcb045, #4bc0c8, #2a0845, #43cea2);
+  background-size: 1200% 1200%;
+  
+  -webkit-animation: GradCycle 0s ease infinite;
+  -moz-animation: GradCycle 0s ease infinite;
+  animation: GradCycle 0s ease infinite;
+  
+  @-webkit-keyframes GradCycle {
+      0%{background-position:97% 0%}
+      50%{background-position:4% 100%}
+      100%{background-position:97% 0%}
+  }
+  @-moz-keyframes GradCycle {
+      0%{background-position:97% 0%}
+      50%{background-position:4% 100%}
+      100%{background-position:97% 0%}
+  }
+  @keyframes GradCycle {
+      0%{background-position:97% 0%}
+      50%{background-position:4% 100%}
+      100%{background-position:97% 0%}
+  }
+
+}
+
+/* Header */
+.header {
+  align-items: center;
+  color: rgb(255, 255, 255);
+  display: flex;
+  height: 70px;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: fixed;
+  transition: transform 300ms ease-in-out;
+  transform: translateY(0);
+  width: 100%;
+  border-bottom:1px solid black;
+  background: linear-gradient(58deg, #7b4397, #dc2430, #fcb045, #4bc0c8, #2a0845, #43cea2);
+  background-size: 1200% 1200%;
+  
+  -webkit-animation: GradCycle 0s ease infinite;
+  -moz-animation: GradCycle 0s ease infinite;
+  animation: GradCycle 0s ease infinite;
+  
+  @-webkit-keyframes GradCycle {
+      0%{background-position:97% 0%}
+      50%{background-position:4% 100%}
+      100%{background-position:97% 0%}
+  }
+  @-moz-keyframes GradCycle {
+      0%{background-position:97% 0%}
+      50%{background-position:4% 100%}
+      100%{background-position:97% 0%}
+  }
+  @keyframes GradCycle {
+      0%{background-position:97% 0%}
+      50%{background-position:4% 100%}
+      100%{background-position:97% 0%}
+  }
+}
+
+.header.is-hidden {
+  transform: translateY(-100%);
+}
+
+.header_title {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.header_nav {
+  list-style: none;
+  padding: 0;
+}
+
+.header_navItem {
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.header_navItem a {
+  text-decoration: none;
+}
+
+#root {
+margin:70px 15%;
+padding:10px 10px 10px 10px;
+background-color:white;
+-webkit-border-bottom-right-radius: 20px;
+-moz-border-radius-bottomright: 20px;
+ border-bottom-right-radius: 20px;
+ border:1px inset black;
+}
+
+.header_logo {height:65px;}
+.post_footer {}
+.avatar {border-radius:10px;}
+.profile_badge {text-align:center;justify-content:center; width:200px;}
+
+.center {
+  margin:auto;
+  width:50%;
+}
