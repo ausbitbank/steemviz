@@ -13,6 +13,11 @@
   box-shadow: 2px 8px 45px rgba(138, 9, 224, 0.25);
 }
 
+a {
+  text-decoration: none;
+  color:blue;
+  font-weight: bold;
+}
 
 @media screen and (min-width: 600px) {
   .card {

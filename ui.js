@@ -58,16 +58,37 @@ function tower_post_search(){
     data=get_tower_data(apiurl);
 }
 
-function tower_account_recent_posts_search(author){
-    const apiurl = `/api/v1/post_cache/?limit=20&author=${author}`;
-    data=get_tower_data(apiurl,'recent_posts');
+function tower_account_recent_posts_search(author,nextapiurl){
+    if (nextapiurl!==''){get_tower_data(nextapiurl,'recent_posts');}
+    if (author!=''){get_tower_data(`/api/v1/post_cache/?limit=20&author=${author}`,'recent_posts');}
 }
 
+function render_comment(comment) {
+    console.log(comment);
+    var rendered_comment = `<div class="card"><div class="comment_meta"><a href="#!/@${comment.author}">${comment.author}</a> replied to <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink}</a> at ${comment.created_at}</div><div class="comment_body">${clean(comment.body)}</div></div>
+    `;
+    app.innerHTML += rendered_comment;
 
-function tower_post_lookup(author,permlink,){
+}
+
+function render_post_preview(post){
+    console.log(post);
+    var rendered_post = `<div class="card"><div class="post_meta"><a href="#!/@${post.author}">${post.author}</a> posted <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> at ${post.created_at}</div><div class="comment_body">${clean(post.body)}</div></div>
+    
+    `;
+    app.innerHTML += rendered_post;
+}
+
+function tower_post_lookup(author,permlink){
     const apiurl = `/api/v1/post_cache/?author=${author}&permlink=${permlink}`;
     get_tower_data(apiurl,'singlepost');
 }
+
+function tower_post_lookup_id(id){
+    const apiurl = `/api/v1/post_cache/?id=${id}`;
+    get_tower_data(apiurl,'singlepost');
+}
+
 
 function tower_get_nested_replies(permlink){
 
@@ -86,26 +107,49 @@ function account_profile(user){
         profile_text+=`<b>${key}:</b> ${value}<br />`;
     }
     app.innerHTML=profile_text;
-    tower_account_recent_posts_search(user.name);
+    app.innerHTML+='<h2>Recent activity</h2>'
+    tower_account_recent_posts_search(user.name,'');
 }
 
 function recent_posts(data){
     console.log(data);
-    app.innerHTML+=``;
+    for (key in data.results){
+        if (data.results[key].post.parent!==null){
+            render_comment(data.results[key]);
+        } else {
+            render_post_preview(data.results[key]);
+        }
+    }
+    if (data.next){
+        app.innerHTML+=`<div class="card" id="loadmore"><h2 onClick="tower_account_recent_posts_search('','${data.next}');">Load more</h2></div>`;
+        //
+    }
 }
 
 function view_single_post(data){
+    console.log(data);
     if (data.json) {
         json = JSON.parse(data.json);
+        console.log(json);
         if (json.tags) {
             data.tags='';
             for (tag in json.tags){
                 data.tags += `<span class="tag is-info">${json.tags[tag]}</span> `;
             }
         }
-
+    }
+    if (data.raw_json){
+        json = JSON.parse(data.raw_json);
+        console.log(json);
+        if (json.root_author && json.root_permlink && json.root_title && json.root_permlink!=data.permlink) {
+            var link_root_article = `<b>View the root post:</b> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
+            console.log('F');
+        } else {
+            var link_root_article='';
+        }
     }
     app.innerHTML=`
+    ${link_root_article}
     <h1>${clean(data.title)}</h1>
     <div class="post_content">${clean(data.body)}</div>
     <hr>
@@ -114,6 +158,7 @@ function view_single_post(data){
     <i class="fas fa-user"></i> <a href="#!/@${data.author}">${data.author}</a> <i class="fas fa-star"></i> ${data.author_rep}</div>
     <p>Posted this at ${data.created_at}</p>
     <p>Tagged : ${data.tags}</p>
+
     </div>
     `;
 }
@@ -179,7 +224,9 @@ function prepare_profile_data(data){
 
 function get_tower_data(apiurl,return_to) {
     var request = new XMLHttpRequest();
-    request.open('GET', apiserver+apiurl, true);
+    if (apiurl.startsWith('https')==true) {var fullapiurl = apiurl;document.getElementById('loadmore').remove();} else {var fullapiurl = apiserver+apiurl;}
+    
+    request.open('GET', fullapiurl, true);
     request.onload = function () { 
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
