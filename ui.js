@@ -4,6 +4,8 @@ route('@*',function(account) {profile_page(account);})
 route('@*/*',function(account, permlink) {post_page(account,permlink);})
 route('about',function() {about_page();})
 route('settings',function() {settings_page();})
+route('recent-posts',function() {recent_posts_page();})
+route('search-accounts',function() {search_accounts_page();})
 route('search/tag/*',function(tag) {search_page('tag',tag);})
 route('search/tag/*/account/*',function(tag,account) {search_page('tag',tag);})
 route(function() {front_page();})
@@ -20,7 +22,7 @@ var nicenumber = function (number) {var temp = parseInt(number,10);return temp.t
 var md = new Remarkable({
     html: true,
     xhtmlOut: true,
-    linkify: false,
+    linkify: true,
     typographer: false
 });
 var clean = function (str) {return(md.render(filterXSS(str)))};
@@ -44,6 +46,8 @@ function about_page(){
 
 function front_page(){
     app.innerHTML = `<h1>Front Page</h1>\n
+    <a href="#!/recent-posts">Recent Posts from all users</a><br />
+    <a href="#!/search-accounts">Search Accounts</a><br />
     <p>test linking <a href="#!/@ausbitbank">@ausbitbank</a><br />
     <a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a><br />
     <a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></p>`;
@@ -53,18 +57,30 @@ function settings_page(){
     app.innerHTML = '<h1>Settings</h1>\n';
 }
 
-function tower_post_search(){
-    const apiurl = `/api/v1/accounts/?about=${formabout}&name__contains=${formname}&location__contains=${formlocation}&ordering=${direction}${sortby}`;
-    data=get_tower_data(apiurl);
+function recent_posts_page(){
+    app.innerHTML = '<h1>Recent Posts</h1>\n';
+    tower_account_recent_posts_search('','');
+}
+
+function search_accounts_page(){
+    app.innerHTML = `<h2>Search Accounts</h2>\n
+    <form onsubmit="return false;" id="searchform">Location contains: <input type="text" id="location" name="Location" value=""> Name contains: <input type="text" id="name" name="name" value=""> About (exact): <input type="text" id="about" name="about" value=""> Sort By <select id="sortby"><option value="created_at">created_at</option><option value="proxy_weight">proxy_weight</option><option value="vote_weight">vote_weight</option><option value="active_at">active_at</option><option value="followers">Followers</option><option value="following">Following</option><option value="reputation" selected="selected">Reputation</option><option value="post_count">Posts</option></select><select id="direction"><option value="">Ascending</option><option value="-" selected="selected">Descending</option><input type="button" onClick="search_accounts_form_submit();" value="Search"><input type="button" class="clearresults" value="Clear"></form><br /><hr><div id="search-status"></div><br ><div id="results"></div>
+    `;
+}
+
+function tower_account_search(about,name,location,direction,sortby){
+    const apiurl = `/api/v1/accounts/?about=${about}&name__contains=${name}&location__contains=${location}&ordering=${direction}${sortby}`;
+    get_tower_data(apiurl,'account-search-results');
 }
 
 function tower_account_recent_posts_search(author,nextapiurl){
     if (nextapiurl!==''){get_tower_data(nextapiurl,'recent_posts');}
-    if (author!=''){get_tower_data(`/api/v1/post_cache/?limit=20&author=${author}`,'recent_posts');}
+    if (author!='' && nextapiurl==''){get_tower_data(`/api/v1/post_cache/?limit=20&author=${author}`,'recent_posts');}
+    if (author=='' && nextapiurl==''){get_tower_data(`/api/v1/post_cache/?limit=20`,'recent_posts');}
 }
 
 function render_comment(comment) {
-    console.log(comment);
+    //console.log(comment);
     var rendered_comment = `<div class="card"><div class="comment_meta"><a href="#!/@${comment.author}">${comment.author}</a> replied to <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink}</a> at ${comment.created_at}</div><div class="comment_body">${clean(comment.body)}</div></div>
     `;
     app.innerHTML += rendered_comment;
@@ -72,11 +88,39 @@ function render_comment(comment) {
 }
 
 function render_post_preview(post){
-    console.log(post);
-    var rendered_post = `<div class="card"><div class="post_meta"><a href="#!/@${post.author}">${post.author}</a> posted <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> at ${post.created_at}</div><div class="comment_body">${clean(post.body)}</div></div>
-    
+    //console.log(post);
+    var rendered_post = `<div class="card"><div class="post_meta"><a href="#!/@${post.author}">${post.author}</a> posted <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> at ${post.created_at}</div><div class="comment_body">${clean(post.body)}</div></div>  
     `;
     app.innerHTML += rendered_post;
+}
+
+function render_account_search_results(data){
+    console.log('Rendering account search results');
+    console.log(data);
+    document.getElementById('search-status').innerHTML = `Found ${data.count} results`;
+    data.results.forEach(user => {
+        prepare_profile_data(user,'multi');
+      });
+}
+
+function render_account_card(user){
+    var profile_text = '';
+    for (var key in user) {
+      var value = user[key];
+      if (key == 'website') {profile_text+=`<b>${key}:</b> <a href="${value}">${value}</a><br />`; continue;}
+      if (key == 'name') {continue;}
+      if (key == 'raw_json') {continue;}
+      if (key == 'apps' && value.length==0) {continue;}
+      profile_text+=`<b>${key}:</b> ${value}<br />`;
+    }
+    const card = `
+    <div class="card">
+    <h1><a href="#!/@${user.name}">@${user.name}</a></h1>
+    <img src="https://steemitimages.com/u/${user.name}/avatar">
+    <p>${profile_text}</p>
+    </div>`;
+    
+    document.getElementById('results').innerHTML+=card;
 }
 
 function tower_post_lookup(author,permlink){
@@ -112,7 +156,7 @@ function account_profile(user){
 }
 
 function recent_posts(data){
-    console.log(data);
+    //console.log(data);
     for (key in data.results){
         if (data.results[key].post.parent!==null){
             render_comment(data.results[key]);
@@ -127,10 +171,9 @@ function recent_posts(data){
 }
 
 function view_single_post(data){
-    console.log(data);
+    //console.log(data);
     if (data.json) {
         json = JSON.parse(data.json);
-        console.log(json);
         if (json.tags) {
             data.tags='';
             for (tag in json.tags){
@@ -140,12 +183,9 @@ function view_single_post(data){
     }
     if (data.raw_json){
         json = JSON.parse(data.raw_json);
-        console.log(json);
+        var link_root_article='';
         if (json.root_author && json.root_permlink && json.root_title && json.root_permlink!=data.permlink) {
-            var link_root_article = `<b>View the root post:</b> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
-            console.log('F');
-        } else {
-            var link_root_article='';
+            link_root_article = `<b>View the root post:</b> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
         }
     }
     app.innerHTML=`
@@ -163,7 +203,7 @@ function view_single_post(data){
     `;
 }
 
-function prepare_profile_data(data){
+function prepare_profile_data(data,returntype){
     var profile = {};
     if (data.display_name) { profile.display_name = data.display_name; }
     if (data.about) { profile.about = data.about; }
@@ -190,13 +230,13 @@ function prepare_profile_data(data){
       if (rawjson.balance) { profile.steem_balance = rawjson.balance; }
       if (rawjson.posting.account_auths){
         var authorised_apps = [];
-        for (var app in rawjson.posting.account_auths){authorised_apps.push(rawjson.posting.account_auths[app][0]);}
-        for (var app in rawjson.active.account_auths){authorised_apps.push(rawjson.posting.account_auths[app][0]);}
+        for (var key in rawjson.posting.account_auths){authorised_apps.push(rawjson.posting.account_auths[key][0]);}
+        for (var key2 in rawjson.active.account_auths){authorised_apps.push(rawjson.posting.account_auths[key2][0]);}
       }
       if (authorised_apps) {
         profile.apps=[];
-        for (var app in authorised_apps){
-          switch(authorised_apps[app]){
+        for (var appkey in authorised_apps){
+          switch(authorised_apps[appkey]){
             case 'steemauto': profile.apps.push(`<a href="https://steemauto.com">steemauto</a>`);break;
             case 'steempeak.app': profile.apps.push(`<a href="https://steempeak.com/@${profile.name}">steempeak</a>`);break;
             case 'busy.app' : profile.apps.push(`<a href="https://busy.org/@${profile.name}">busy</a>`);break;
@@ -212,16 +252,19 @@ function prepare_profile_data(data){
             case 'fundition.app' : profile.apps.push(`<a href="https://fundition.io/#!/@${profile.name}">fundition</a>`);break;
             case 'dpoll.xyz' : profile.apps.push(`<a href="https://dpoll.xyz/user/@${profile.name}">dpoll.xyz</a>`);break;
             case 'actifit.app' : profile.apps.push(`<a href="http://actifit.io/">actifit</a>`);break;
-            default : profile.apps.push(`<a href="https://steemd.com/@${authorised_apps[app]}">${authorised_apps[app]}</a>`);break;
+            default : profile.apps.push(`<a href="https://steemd.com/@${authorised_apps[appkey]}">${authorised_apps[appkey]}</a>`);break;
           }
         }
         if (profile.apps.length>0) {profile.apps = profile.apps.join(' , ');}
       }
       
     }
-    account_profile(profile);
-  }
-
+    if (returntype == 'multi') {
+        render_account_card(profile);
+    } else {
+        account_profile(profile);
+    }
+}
 function get_tower_data(apiurl,return_to) {
     var request = new XMLHttpRequest();
     if (apiurl.startsWith('https')==true) {var fullapiurl = apiurl;document.getElementById('loadmore').remove();} else {var fullapiurl = apiserver+apiurl;}
@@ -231,9 +274,10 @@ function get_tower_data(apiurl,return_to) {
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
         switch(return_to){
-            case 'account': prepare_profile_data(data);break;
+            case 'account': prepare_profile_data(data,'single');break;
             case 'singlepost': view_single_post(data.results[0]);break;
             case 'recent_posts': recent_posts(data);break;
+            case 'account-search-results': render_account_search_results(data);break;
             default: console.log(data);
         }
 
@@ -246,6 +290,10 @@ function get_tower_data(apiurl,return_to) {
     }
     request.send();
   }
+
+function search_accounts_form_submit(){
+    tower_account_search(document.getElementById('about').value,document.getElementById('name').value,document.getElementById('location').value,document.getElementById('direction').value,document.getElementById('sortby').value);
+}
 
 // Establish canvas, logo, loader
 const app = document.getElementById('root');
@@ -275,8 +323,9 @@ function onScroll() {
   header.classList.toggle('is-hidden', isScrollingDown && !isHeaderVisible);
   lastScrollTop = currScrollTop;
 }
-
+// Event listeners
 pageWrap.addEventListener('scroll', debounce(onScroll, 16));
+
 
 // Initialize routing
 route.start(true);
