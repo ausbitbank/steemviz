@@ -91,6 +91,7 @@ function account_profile(user){
 
 function recent_posts(data){
     console.log(data);
+    app.innerHTML+=``;
 }
 
 function view_single_post(data){
