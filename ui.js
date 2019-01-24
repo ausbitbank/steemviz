@@ -9,7 +9,7 @@ route('search-accounts',function() {search_accounts_page();})
 route('tag/*',function(tag) {search_tags_page(tag);})
 route('tag/*/@*',function(tag,account) {search_tags_page(tag,account);})
 route(function() {front_page();})
-// Sanitize input
+
 var nicenumber = function (number) {var temp = parseInt(number,10);return temp.toFixed(0); };
 
 var md = new Remarkable({
@@ -38,8 +38,7 @@ function about_page(){
     app.innerHTML = '<h1>About Steemviz</h1>\n';
 }
 
-function front_page(){
-    check_steem_keychain();
+function front_page(){    
     app.innerHTML = `<h1>Front Page</h1>\n
     <ul>
     <li><a href="#!/recent-posts">Recent Posts from all users</a></li>
@@ -55,13 +54,13 @@ function settings_page(){
 }
 
 function recent_posts_page(){
-    app.innerHTML = '<h1>Recent Posts</h1>\n<div class="container"><div id="results"></div></div>';
+    app.innerHTML = '<h1>Recent Posts</h1>\n<div id="results" class="container"></div>';
     tower_account_recent_posts_search('','');
 }
 
 function search_accounts_page(){
     app.innerHTML = `<h1>Search Accounts</h1>\n
-    <form onsubmit="return false;" id="searchform">Location contains: <input type="text" id="location" name="Location" value=""> Name contains: <input type="text" id="name" name="name" value=""> About (exact): <input type="text" id="about" name="about" value=""> Sort By <select id="sortby"><option value="created_at">created_at</option><option value="proxy_weight">proxy_weight</option><option value="vote_weight">vote_weight</option><option value="active_at">active_at</option><option value="followers">Followers</option><option value="following">Following</option><option value="reputation">Reputation</option><option value="post_count">Posts</option></select><select id="direction"><option value="">Ascending</option><option value="-" selected="selected">Descending</option><input type="button" onClick="search_accounts_form_submit();" value="Search"><input type="button" onClick="document.getElementById('results').innerHTML='';document.getElementById('search-status').innerHTML='';" class="clearresults" value="Clear"></form><br /><hr><div id="search-status"></div><br ><div id="results" class="container"></div>    `;
+    <div class="center"><form onsubmit="return false;" id="searchform">Location contains: <input type="text" id="location" name="Location" value=""> Name contains: <input type="text" id="name" name="name" value=""> About (exact): <input type="text" id="about" name="about" value=""> <br />Sort By <select id="sortby"><option value="created_at">created_at</option><option value="proxy_weight">proxy_weight</option><option value="vote_weight">vote_weight</option><option value="active_at">active_at</option><option value="followers">Followers</option><option value="following">Following</option><option value="reputation">Reputation</option><option value="post_count">Posts</option></select><select id="direction"><option value="">Ascending</option><option value="-" selected="selected">Descending</option><input type="button" onClick="search_accounts_form_submit();" value="Search"><input type="button" onClick="document.getElementById('results').innerHTML='';document.getElementById('search-status').innerHTML='';" class="clearresults" value="Clear"></form></div><br /><hr><div id="search-status" class="center"></div><br ><div id="results" class="container"></div>    `;
 }
 
 function search_tags_page(tag,account){
@@ -85,20 +84,28 @@ function tower_account_recent_posts_search(author,nextapiurl){
     if (author=='' && nextapiurl==''){get_tower_data(`/api/v1/post_cache/?limit=50`,'recent_posts');}
 }
 
-function render_comment(comment) {
-    var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,20)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created_at))} <i class="fas fa-thumbs-up"></i> ${comment.up_votes} <i class="fas fa-thumbs-down"></i> ${comment.total_votes-comment.up_votes}</div><div class="comment_body">${clean(comment.body)}</div></div>`;
-    document.getElementById('results').innerHTML += rendered_comment;
+function render_comment(comment,responsetype,responseto) {
+    if (responsetype=='steemd') {
+        var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,30)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created))} <i class="fas fa-thumbs-up"></i> ${comment.net_votes} <i class="far fa-comments"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.children}</a></div><div class="comment_body">${clean(comment.body)}</div></div>`;
+        document.getElementById('comments').innerHTML += rendered_comment;
+    } else {
+        if (comment.body!=comment.preview) {viewfullcomment = `<p><a href="#!/@${comment.author}/${comment.permlink}"><i class="fas fa-comment"></i> View full comment</a></p>`} else {viewfullcomment ='';}
+        var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,30)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created_at))} <i class="fas fa-thumbs-up"></i> ${comment.up_votes} <i class="fas fa-thumbs-down"></i> ${comment.total_votes-comment.up_votes} <i class="far fa-comments"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.children}</a></div><div class="comment_body">${clean(comment.preview)} ${viewfullcomment}</div></div>`;
+        document.getElementById('results').innerHTML += rendered_comment;
+    }
+    
+    
 }
 
 function render_post_preview(post){
-    console.log(post);
+    //console.log(post);
     if (post.body!=post.preview) {viewfullpost = `<p><a href="#!/@${post.author}/${post.permlink}"><i class="fas fa-comment"></i> View full post</a></p>`} else {viewfullpost ='';}
-    var rendered_post = `<div class="card"><div class="post_meta"><i class="fas fa-user"></i> <a href="#!/@${post.author}">${post.author}</a> posted <i class="fas fa-link"></i> <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> <br /><i class="far fa-clock"></i> ${timeSince(new Date(post.created_at))} <i class="fas fa-thumbs-up"></i> ${post.up_votes} <i class="fas fa-thumbs-down"></i> ${post.total_votes-post.up_votes}</div><div class="post_preview_body">${clean(post.preview)} ${viewfullpost}</div></div>`;
+    var rendered_post = `<div class="card"><div class="post_meta"><i class="fas fa-user"></i> <a href="#!/@${post.author}">${post.author}</a> posted <i class="fas fa-link"></i> <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> <br /><i class="far fa-clock"></i> ${timeSince(new Date(post.created_at))} <i class="fas fa-thumbs-up"></i> ${post.up_votes} <i class="fas fa-thumbs-down"></i> ${post.total_votes-post.up_votes} <i class="far fa-comments"></i> <a href="#!/@${post.author}/${post.permlink}">${post.children}</a></div><div class="post_preview_body">${clean(post.preview)} ${viewfullpost}</div></div>`;
     document.getElementById('results').innerHTML += rendered_post;
 }
 
 function render_account_search_results(data){
-    console.log(data);
+    //console.log(data);
     document.getElementById('search-status').innerHTML = `Found ${data.count} results`;
     data.results.forEach(user => { prepare_profile_data(user,'multi'); });
     
@@ -108,7 +115,7 @@ function render_account_search_results(data){
 function render_post_search_results(data){
     document.getElementById('results').innerHTML+= `Found ${data.count} results <br />`;
     data.results.forEach(post => {
-        console.log(post);
+        //console.log(post);
         if (post.depth)
         document.getElementById('results').innerHTML+=`<p>${post.author} posted <a href="#!/@${post.author}/${post.permlink}">${post.permlink}</a> in category ${post.category} on ${post.created_at}</p> `;
 
@@ -165,7 +172,7 @@ function account_profile(user){
         if (key == 'apps' && value.length==0) {continue;}
         profile_text+=`<b>${key}:</b> ${value}<br />`;
     }
-    app.innerHTML=profile_text;
+    app.innerHTML='<div class="center">'+profile_text+'</div>';
     app.innerHTML+='<h1>Recent activity</h1>\n<div id="results" class="container"></div>'
     tower_account_recent_posts_search(user.name,'');
 }
@@ -183,7 +190,6 @@ function recent_posts(data){
 }
 
 function view_single_post(data){
-    //console.log(data);
     if (data.json) {
         json = JSON.parse(data.json);
         if (json.tags) {
@@ -200,20 +206,19 @@ function view_single_post(data){
             link_root_article = `<b>View the root post:</b> <i class="fas fa-link"></i> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
         }
     }
-    console.log(data);
+    //console.log(data);
     app.innerHTML=`
     ${link_root_article}
     <h1>${clean(data.title)}</h1>
     <div class="post_content">${clean(data.body)}</div>
     <hr>
     <div class="post_footer">
-    <div class="profile_badge"><a href="#!/@${data.author}"><img src="https://steemitimages.com/u/${data.author}/avatar" class="avatar"></a><br />
-    <i class="fas fa-user"></i> <a href="#!/@${data.author}">${data.author}</a> <i class="fas fa-star"></i> ${data.author_rep}</div>
-    <p><i class="far fa-clock"></i> ${timeSince(new Date(data.created_at))} <i class="fas fa-thumbs-up"></i> ${data.up_votes} <i class="fas fa-thumbs-down"></i> ${data.total_votes-data.up_votes}</p>
-    <p><i class="fas fa-tags"></i> ${data.tags}</p>
-
+    <p><i class="fas fa-user"></i> Posted by <a href="#!/@${data.author}">${data.author}</a> <i class="fas fa-star"></i> ${data.author_rep} <i class="far fa-clock"></i> ${timeSince(new Date(data.created_at))} <i class="fas fa-thumbs-up"></i> ${data.up_votes} <i class="fas fa-thumbs-down"></i> ${data.total_votes-data.up_votes} <i class="far fa-comments"></i> ${data.children} <i class="fas fa-tags"></i> ${data.tags} </p>
+    
     </div>
+    <div id="comments" class="container"></div>
     `;
+    get_steemd_content_replies(data.author,data.permlink);
 }
 
 function prepare_profile_data(data,returntype){
@@ -278,6 +283,7 @@ function prepare_profile_data(data,returntype){
         account_profile(profile);
     }
 }
+
 function get_tower_data(apiurl,return_to) {
     var request = new XMLHttpRequest();
     if (apiurl.startsWith('https')==true) {var fullapiurl = apiurl;document.getElementById('loadmore').remove();} else {var fullapiurl = apiserver+apiurl;}
@@ -311,24 +317,34 @@ function search_accounts_form_submit(){
     tower_account_search(document.getElementById('about').value,document.getElementById('name').value,document.getElementById('location').value,document.getElementById('direction').value,document.getElementById('sortby').value);
 }
 
-function get_steemd_data(request,return_to) {
+function get_steemd_content_replies(author,permlink,return_to) {
     var request = new XMLHttpRequest();
-
+    spinner();
+    request.open('POST',rpcserver,true);
+    request.onload = function() {
+        spinner();
+        var data = JSON.parse(this.responseText);
+        data = data.result;
+        for (comment in data) {
+            render_comment(data[comment],'steemd',data[comment].permlink);
+        }
+    }
+    request.send(`{"jsonrpc":"2.0", "method":"condenser_api.get_content_replies", "params":["${author}", "${permlink}"], "id":1}`);
 }
 
 function spinner(message){
     if (document.getElementById('spinner')){
         document.getElementById('spinner').remove();       
     } else {
-        app.innerHTML+=`<i class="fa fa-spinner fa-w-16 fa-spin fa-lg" id="spinner"> ${message}</i>`;
+        app.innerHTML+=`<i class="fa fa-spinner fa-spin fa-lg center" id="spinner"> ${message}</i>`;
     }
 }
 
 function check_steem_keychain(){
     if(window.steem_keychain) {
-        console.log('Steem Keychain extension installed...');
+        //console.log('Steem Keychain extension installed...');
     } else {
-        console.log('Steem Keychain extension not installed...');
+        //console.log('Steem Keychain extension not installed...');
     }
 
 }
@@ -381,3 +397,5 @@ pageWrap.addEventListener('scroll', debounce(onScroll, 16));
 
 // Initialize routing
 route.start(true);
+
+
