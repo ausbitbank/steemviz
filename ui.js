@@ -6,8 +6,8 @@ route('about',function() {about_page();})
 route('settings',function() {settings_page();})
 route('recent-posts',function() {recent_posts_page();})
 route('search-accounts',function() {search_accounts_page();})
-route('search/tag/*',function(tag) {search_page('tag',tag);})
-route('search/tag/*/account/*',function(tag,account) {search_page('tag',tag);})
+route('tag/*',function(tag) {search_tags_page(tag);})
+route('tag/*/@*',function(tag,account) {search_tags_page(tag,account);})
 route(function() {front_page();})
 // Sanitize input
 var nicenumber = function (number) {var temp = parseInt(number,10);return temp.toFixed(0); };
@@ -55,19 +55,28 @@ function settings_page(){
 }
 
 function recent_posts_page(){
-    app.innerHTML = '<h1>Recent Posts</h1>\n<div class="container"><div class="results"></div></div>';
+    app.innerHTML = '<h1>Recent Posts</h1>\n<div class="container"><div id="results"></div></div>';
     tower_account_recent_posts_search('','');
 }
 
 function search_accounts_page(){
     app.innerHTML = `<h1>Search Accounts</h1>\n
-    <form onsubmit="return false;" id="searchform">Location contains: <input type="text" id="location" name="Location" value=""> Name contains: <input type="text" id="name" name="name" value=""> About (exact): <input type="text" id="about" name="about" value=""> Sort By <select id="sortby"><option value="created_at">created_at</option><option value="proxy_weight">proxy_weight</option><option value="vote_weight">vote_weight</option><option value="active_at">active_at</option><option value="followers">Followers</option><option value="following">Following</option><option value="reputation" selected="selected">Reputation</option><option value="post_count">Posts</option></select><select id="direction"><option value="">Ascending</option><option value="-" selected="selected">Descending</option><input type="button" onClick="search_accounts_form_submit();" value="Search"><input type="button" class="clearresults" value="Clear"></form><br /><hr><div id="search-status"></div><br ><div id="results" class="container"></div>
-    `;
+    <form onsubmit="return false;" id="searchform">Location contains: <input type="text" id="location" name="Location" value=""> Name contains: <input type="text" id="name" name="name" value=""> About (exact): <input type="text" id="about" name="about" value=""> Sort By <select id="sortby"><option value="created_at">created_at</option><option value="proxy_weight">proxy_weight</option><option value="vote_weight">vote_weight</option><option value="active_at">active_at</option><option value="followers">Followers</option><option value="following">Following</option><option value="reputation">Reputation</option><option value="post_count">Posts</option></select><select id="direction"><option value="">Ascending</option><option value="-" selected="selected">Descending</option><input type="button" onClick="search_accounts_form_submit();" value="Search"><input type="button" onClick="document.getElementById('results').innerHTML='';document.getElementById('search-status').innerHTML='';" class="clearresults" value="Clear"></form><br /><hr><div id="search-status"></div><br ><div id="results" class="container"></div>    `;
+}
+
+function search_tags_page(tag,account){
+    app.innerHTML = `Searching Tag ${tag} , Account ${account} :<br /><div class="container"><div id="results"></div></div>`;
+    tower_search_posts(tag,account);
 }
 
 function tower_account_search(about,name,location,direction,sortby){
     const apiurl = `/api/v1/accounts/?about=${about}&name__contains=${name}&location__contains=${location}&ordering=${direction}${sortby}`;
     get_tower_data(apiurl,'account-search-results');
+}
+
+function tower_search_posts(tag,account) {
+    const apiurl = `/api/v1/posts/?category=${tag}&author=${account}`;
+    get_tower_data(apiurl,'post-search-results');
 }
 
 function tower_account_recent_posts_search(author,nextapiurl){
@@ -77,14 +86,14 @@ function tower_account_recent_posts_search(author,nextapiurl){
 }
 
 function render_comment(comment) {
-    var rendered_comment = `<div class="card"><div class="comment_meta"><a href="#!/@${comment.author}">${comment.author}</a> replied to <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink}</a> at ${comment.created_at}</div><div class="comment_body">${clean(comment.body)}</div></div>
-    `;
+    var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,20)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created_at))} <i class="fas fa-thumbs-up"></i> ${comment.up_votes} <i class="fas fa-thumbs-down"></i> ${comment.total_votes-comment.up_votes}</div><div class="comment_body">${clean(comment.body)}</div></div>`;
     document.getElementById('results').innerHTML += rendered_comment;
-
 }
 
 function render_post_preview(post){
-    var rendered_post = `<div class="card"><div class="post_meta"><a href="#!/@${post.author}">${post.author}</a> posted <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> at ${post.created_at}</div><div class="comment_body">${clean(post.body)}</div></div>`;
+    console.log(post);
+    if (post.body!=post.preview) {viewfullpost = `<p><a href="#!/@${post.author}/${post.permlink}"><i class="fas fa-comment"></i> View full post</a></p>`} else {viewfullpost ='';}
+    var rendered_post = `<div class="card"><div class="post_meta"><i class="fas fa-user"></i> <a href="#!/@${post.author}">${post.author}</a> posted <i class="fas fa-link"></i> <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> <br /><i class="far fa-clock"></i> ${timeSince(new Date(post.created_at))} <i class="fas fa-thumbs-up"></i> ${post.up_votes} <i class="fas fa-thumbs-down"></i> ${post.total_votes-post.up_votes}</div><div class="post_preview_body">${clean(post.preview)} ${viewfullpost}</div></div>`;
     document.getElementById('results').innerHTML += rendered_post;
 }
 
@@ -92,8 +101,22 @@ function render_account_search_results(data){
     console.log(data);
     document.getElementById('search-status').innerHTML = `Found ${data.count} results`;
     data.results.forEach(user => { prepare_profile_data(user,'multi'); });
+    
     if (data.next){document.getElementById('results').innerHTML+=`<div class="card" id="loadmore"><h2 onClick="get_tower_data('${data.next}','account-search-results');"> <i class="fa fa-arrow-circle-down fa-lg""></i> Load more posts : ${data.count} total</h2></div>`;}
 }
+
+function render_post_search_results(data){
+    document.getElementById('results').innerHTML+= `Found ${data.count} results <br />`;
+    data.results.forEach(post => {
+        console.log(post);
+        if (post.depth)
+        document.getElementById('results').innerHTML+=`<p>${post.author} posted <a href="#!/@${post.author}/${post.permlink}">${post.permlink}</a> in category ${post.category} on ${post.created_at}</p> `;
+
+    })
+    if (data.next){document.getElementById('results').innerHTML+=`<div class="card" id="loadmore"><h2 onClick="get_tower_data('${data.next}','post-search-results');"> <i class="fa fa-arrow-circle-down fa-lg""></i> Load more posts : ${data.count} total</h2></div>`;}
+}
+
+
 
 function render_account_card(user){
     var profile_text = '';
@@ -143,7 +166,7 @@ function account_profile(user){
         profile_text+=`<b>${key}:</b> ${value}<br />`;
     }
     app.innerHTML=profile_text;
-    app.innerHTML+='<h2>Recent activity</h2>\n<div id="results" class="container"></div>'
+    app.innerHTML+='<h1>Recent activity</h1>\n<div id="results" class="container"></div>'
     tower_account_recent_posts_search(user.name,'');
 }
 
@@ -166,7 +189,7 @@ function view_single_post(data){
         if (json.tags) {
             data.tags='';
             for (tag in json.tags){
-                data.tags += `<span class="tag is-info">${json.tags[tag]}</span> `;
+                data.tags += `<span class="tag is-info"><a href="#!/tag/${json.tags[tag]}/@${data.author}">${json.tags[tag]}</a></span> `;
             }
         }
     }
@@ -174,9 +197,10 @@ function view_single_post(data){
         json = JSON.parse(data.raw_json);
         var link_root_article='';
         if (json.root_author && json.root_permlink && json.root_title && json.root_permlink!=data.permlink) {
-            link_root_article = `<b>View the root post:</b> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
+            link_root_article = `<b>View the root post:</b> <i class="fas fa-link"></i> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
         }
     }
+    console.log(data);
     app.innerHTML=`
     ${link_root_article}
     <h1>${clean(data.title)}</h1>
@@ -185,8 +209,8 @@ function view_single_post(data){
     <div class="post_footer">
     <div class="profile_badge"><a href="#!/@${data.author}"><img src="https://steemitimages.com/u/${data.author}/avatar" class="avatar"></a><br />
     <i class="fas fa-user"></i> <a href="#!/@${data.author}">${data.author}</a> <i class="fas fa-star"></i> ${data.author_rep}</div>
-    <p>Posted this at ${data.created_at}</p>
-    <p>Tagged : ${data.tags}</p>
+    <p><i class="far fa-clock"></i> ${timeSince(new Date(data.created_at))} <i class="fas fa-thumbs-up"></i> ${data.up_votes} <i class="fas fa-thumbs-down"></i> ${data.total_votes-data.up_votes}</p>
+    <p><i class="fas fa-tags"></i> ${data.tags}</p>
 
     </div>
     `;
@@ -268,6 +292,7 @@ function get_tower_data(apiurl,return_to) {
             case 'singlepost': view_single_post(data.results[0]);break;
             case 'recent_posts': recent_posts(data);break;
             case 'account-search-results': render_account_search_results(data);break;
+            case 'post-search-results': render_post_search_results(data);break;
             default: console.log(data);
         }
 
@@ -306,6 +331,20 @@ function check_steem_keychain(){
         console.log('Steem Keychain extension not installed...');
     }
 
+}
+
+function timeSince(timeStamp) {
+    var now = new Date(),
+        secondsPast = (now.getTime() - timeStamp.getTime() ) / 1000;
+    if(secondsPast < 60){        return parseInt(secondsPast) + 's';    }
+    if(secondsPast < 3600){        return parseInt(secondsPast/60) + 'm';    }
+    if(secondsPast <= 86400){        return parseInt(secondsPast/3600) + 'h';    }
+    if(secondsPast > 86400){
+          day = timeStamp.getDate();
+          month = timeStamp.toDateString().match(/ [a-zA-Z]*/)[0].replace(" ","");
+          year = timeStamp.getFullYear() == now.getFullYear() ? "" :  " "+timeStamp.getFullYear();
+          return day + " " + month + year;
+    }
 }
 
 // Establish canvas

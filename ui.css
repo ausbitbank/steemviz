@@ -195,3 +195,9 @@ p {
 
 #spinner{justify-content: center;text-align: center;color:blueviolet;clear:both;}
 #loadmore{justify-content: center;text-align:center;color:blueviolet;cursor: -webkit-grab; cursor: grab;}
+.comment {}
+.comment_meta {padding:1em;}
+.comment_body {padding:1em;}
+.post {}
+.post_meta {padding:1em;}
+.post_content {padding:1em;}
