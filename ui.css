@@ -24,7 +24,6 @@ body {
   display: flex;
   flex-wrap: wrap;
 }
-
 .card {
   margin: 1rem;
   background: white;
@@ -156,15 +155,12 @@ body {
 }
 
 #root {
-margin:70px 1em;
-padding:1em;
+margin:70px 1%;
 background-color:white;
 -webkit-border-bottom-right-radius: 20px;
 -moz-border-radius-bottomright: 20px;
  border-bottom-right-radius: 20px;
- border:1px inset black;
- max-width: 1200px;
- 
+ border:1px inset black; 
 }
 
 .header_logo {height:65px;}
@@ -197,5 +193,5 @@ p {
   margin: 0;
 }
 
-#spinner{justify-content: center;text-align: center;color:blueviolet;}
+#spinner{justify-content: center;text-align: center;color:blueviolet;clear:both;}
 #loadmore{justify-content: center;text-align:center;color:blueviolet;cursor: -webkit-grab; cursor: grab;}
