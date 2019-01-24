@@ -29,6 +29,7 @@ var clean = function (str) {return(md.render(filterXSS(str)))};
 
 // Config options
 var apiserver = "https://hivemind.steemviz.com";
+var rpcserver = "https://rpc.steemviz.com";
 var vests_to_sp = 0.0004980499016859; // Rate on 20-01-2019 , saving extra api call
 
 function profile_page(account) {
@@ -45,12 +46,15 @@ function about_page(){
 }
 
 function front_page(){
+    check_steem_keychain();
     app.innerHTML = `<h1>Front Page</h1>\n
-    <a href="#!/recent-posts">Recent Posts from all users</a><br />
-    <a href="#!/search-accounts">Search Accounts</a><br />
-    <p>test linking <a href="#!/@ausbitbank">@ausbitbank</a><br />
-    <a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a><br />
-    <a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></p>`;
+    <ul>
+    <li><a href="#!/recent-posts">Recent Posts from all users</a></li>
+    <li><a href="#!/search-accounts">Search Accounts</a></li>
+    <li><a href="#!/@ausbitbank">@ausbitbank</a></li>
+    <li><a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a></li>
+    <li><a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></li>
+    </ul>`;
 }
 
 function settings_page(){
@@ -165,7 +169,7 @@ function recent_posts(data){
         }
     }
     if (data.next){
-        app.innerHTML+=`<div class="card" id="loadmore"><h2 onClick="tower_account_recent_posts_search('','${data.next}');">Load more</h2></div>`;
+        app.innerHTML+=`<div class="card" id="loadmore"><h2 onClick="tower_account_recent_posts_search('','${data.next}');"> <i class="fa fa-arrow-circle-down fa-lg""></i> Load more posts : ${data.count} total</h2></div>`;
         //
     }
 }
@@ -268,11 +272,12 @@ function prepare_profile_data(data,returntype){
 function get_tower_data(apiurl,return_to) {
     var request = new XMLHttpRequest();
     if (apiurl.startsWith('https')==true) {var fullapiurl = apiurl;document.getElementById('loadmore').remove();} else {var fullapiurl = apiserver+apiurl;}
-    
+    spinner('Loading '+fullapiurl);    
     request.open('GET', fullapiurl, true);
     request.onload = function () { 
       var data = JSON.parse(this.response);
       if (request.status >= 200 && request.status < 400) {
+        spinner();
         switch(return_to){
             case 'account': prepare_profile_data(data,'single');break;
             case 'singlepost': view_single_post(data.results[0]);break;
@@ -282,8 +287,9 @@ function get_tower_data(apiurl,return_to) {
         }
 
       } else {
+        spinner();
         const errorMessage = document.createElement('marquee');
-        errorMessage.textContent = `Api server isn't responding !`;
+        errorMessage.textContent = `Tower Api server isn't responding !`;
         app.appendChild(errorMessage);
         return false;
       }
@@ -295,7 +301,29 @@ function search_accounts_form_submit(){
     tower_account_search(document.getElementById('about').value,document.getElementById('name').value,document.getElementById('location').value,document.getElementById('direction').value,document.getElementById('sortby').value);
 }
 
-// Establish canvas, logo, loader
+function get_steemd_data(request,return_to) {
+    var request = new XMLHttpRequest();
+
+}
+
+function spinner(message){
+    if (document.getElementById('spinner')){
+        document.getElementById('spinner').remove();       
+    } else {
+        app.innerHTML+=`<i class="fa fa-spinner fa-w-16 fa-spin fa-lg" id="spinner"> ${message}</i>`;
+    }
+}
+
+function check_steem_keychain(){
+    if(window.steem_keychain) {
+        console.log('Steem Keychain extension installed...');
+    } else {
+        console.log('Steem Keychain extension not installed...');
+    }
+
+}
+
+// Establish canvas
 const app = document.getElementById('root');
 const container = document.createElement('div');
 container.setAttribute('class', 'container');
