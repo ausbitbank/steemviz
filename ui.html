@@ -34,10 +34,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.min.js" integrity="sha256-ltAts6+/XysEs9E5RF/t0H+0eD3ET6NpbqzshWkqeic=" crossorigin="anonymous"></script>
     <script src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
-    <script defer>
-      var script = document.createElement("script");
-      script.src='ui.js';
-      document.head.appendChild(script);
+    <script defer type="text/javascript">
+    var req = (window.XMLHttpRequest)?new XMLHttpRequest():new ActiveXObject("Microsoft.XMLHTTP");
+    if(req == null) {    console.log("Error: XMLHttpRequest failed to initiate.");}
+    req.onload = function() {try {eval(req.responseText);} catch(e) {console.log("There was an error in the script file.");}}
+    try {req.open("GET", "ui.js", true);req.send(null);
+    } catch(e) {console.log("Error retrieving data httpReq. Some browsers only accept cross-domain request with HTTP.");}
     </script>
 </body>
 </html>
