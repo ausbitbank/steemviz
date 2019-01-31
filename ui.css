@@ -51,6 +51,24 @@ body {
   }
 }
 
+@media screen and (min-width: 1400px) {
+  .card {
+    flex: 1 1 calc(25% - 2rem);
+  }
+}
+
+@media screen and (min-width: 1800px) {
+  .card {
+    flex: 1 1 calc(16% - 2rem);
+  }
+}
+
+@media screen and (min-width: 3500px) {
+  .card {
+    flex: 1 1 calc(8% - 2rem);
+  }
+}
+
 .card:nth-child(2n) h1 {
   background-image: linear-gradient(120deg, #7fffd9 0%, #8fd3f4 100%);
 }

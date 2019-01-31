@@ -62,7 +62,6 @@ function front_page(){
     <li><a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a></li>
     <li><a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></li>
     </ul>`;
-    check_steem_keychain();
 }
 
 function state_page(){
@@ -410,19 +409,14 @@ function get_muting(account) {
 function get_state(state){
     if (state){
         console.log(state);
+        steemviz['state'] = state;
+        console.log(window.steemviz['state']);
     } else {
         get_tower_data('/api/v1/state/','state');
     }
 }
 
-function check_steem_keychain(){
-    if(steem_keychain) {
-        console.log('Steem Keychain extension installed...');
-    } else {
-        console.log('Steem Keychain extension not installed...');
-    }
 
-}
 
 function timeSince(timeStamp) {
     var now = new Date(),
@@ -438,9 +432,12 @@ function timeSince(timeStamp) {
     }
 }
 
+function check_steem_keychain(){if(window.steem_keychain) {console.log('Steem Keychain extension installed...');} else {console.log('Steem Keychain extension not installed...');}}
+
 // Establish canvas
 const app = document.getElementById('root');
 const container = document.createElement('div');
+var steemviz = [];
 container.setAttribute('class', 'container');
 app.appendChild(container);
 
