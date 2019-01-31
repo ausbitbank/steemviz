@@ -61,7 +61,10 @@ function front_page(){
     <li><a href="#!/@ausbitbank/followers">@ausbitbank followers</a></li>
     <li><a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a></li>
     <li><a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></li>
+    <li><a href="#" onClick="check_steem_keychain();">Check steem keychain</a></li>
     </ul>`;
+    //check_steem_keychain();
+    //get_state();
 }
 
 function state_page(){
@@ -405,6 +408,8 @@ function get_muters(account) {
 function get_muting(account) {
     get_tower_data(`/api/v1/accounts/${account}/muting/`,'muting');
 }
+
+
 
 function get_state(state){
     if (state){
