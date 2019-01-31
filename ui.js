@@ -416,8 +416,6 @@ function get_state(state){
 }
 
 function check_steem_keychain(){
-    //console.log(steem_keychain);
-    steem.keychain.
     if(steem_keychain) {
         console.log('Steem Keychain extension installed...');
     } else {
