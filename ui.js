@@ -11,6 +11,7 @@ route('search-accounts',function() {search_accounts_page();})
 route('tag/*',function(tag) {search_tags_page(tag);})
 route('tag/*/@*',function(tag,account) {search_tags_page(tag,account);})
 route('state', function(){state_page();})
+route('login', function(){login_page();})
 route(function() {front_page();})
 
 var nicenumber = function (number) {var temp = parseInt(number,10);return temp.toFixed(0); };
@@ -72,6 +73,11 @@ function state_page(){
     get_state();
 }
 
+function login_page(){
+    app.innerHTML = `<p>This site requires <a href="https://github.com/MattyIce/steem-keychain">Steem-Keychain</a> to broadcast to the Steem blockchain</p>
+    <form>Login as : <input type="text" onsubmit="return false;" id="loginuser"><input type="button" onClick="verify_login();" value="Login"></form>`;
+}
+
 function settings_page(){
     app.innerHTML = '<h1>Settings</h1>\n';
 }
@@ -118,6 +124,30 @@ function render_comment(comment,responsetype,responseto) {
     }
     
     
+}
+
+function render_transfer_form(to,memo){
+    var memo = memo || '';
+    document.getElementById('transfer_form').innerHTML=`<div class="popup">
+    To : <input type="text" placeholder="to" id="transfer_to" value="${to}"> 
+    Memo : <input type="text" placeholder="memo" id="transfer_memo" value="${memo}">
+    Amount <input type="number" placeholder="0.000" id="transfer_amount" value="0.001">
+    <select id="transfer_currency"><option>STEEM</option><option>SBD</option></select>
+    <button onClick="send_transfer_form();">Send</button><button onClick="document.getElementById('transfer_form').innerHTML='';"><i class="fas fa-window-close"></i> Close</button></div> 
+     `;
+}
+
+function send_transfer_form() {
+    steem_keychain.requestTransfer(
+        '', 
+        document.getElementById('transfer_to').value, 
+        document.getElementById('transfer_amount').value, 
+        document.getElementById('transfer_memo').value, 
+        document.getElementById('transfer_currency').value
+        , function(response) {
+        console.log(response);
+        document.getElementById('transfer_form').innerHTML='';
+    });
 }
 
 function render_post_preview(post){
@@ -211,7 +241,7 @@ function tower_account_lookup(account){
 }
 
 function account_profile(user){
-    profile_text=`<div class="profile_badge center"><a href="#!/@${user.name}"><img src="https://steemitimages.com/u/${user.name}/avatar" class="avatar grow"><br /><h2>@${user.name}</h2></a></div>`;
+    profile_text=`<div class="container"><div class="card"><div class="profile_badge center"><a href="#!/@${user.name}"><img src="https://steemitimages.com/u/${user.name}/avatar" class="avatar grow"><br /><h2>@${user.name}</h2></a></div>`;
     for (var key in user) {
         var value = user[key];
         if (key == 'name') {continue;}
@@ -221,7 +251,7 @@ function account_profile(user){
         if (key == 'followers') {profile_text+=`<b>${key}</b>: <a href="#!/@${user.name}/followers">${value}</a><br />`;continue;}
         profile_text+=`<b>${key}:</b> ${value}<br />`;
     }
-    app.innerHTML='<div class="center profile_badge">'+profile_text+'</div>';
+    app.innerHTML=`<div class="profile_badge center">${profile_text} <button class="btn btn-default"><a onClick="render_transfer_form('${user.name}');"><i class="fas fa-hand-holding-usd"></i> Send me a tip</a></button><div id="transfer_form"></div></div></div></div>`;
     app.innerHTML+='<h1>Recent activity</h1>\n<div id="results" class="container"></div>'
     tower_account_recent_posts_search(user.name,'');
 }
@@ -410,8 +440,6 @@ function get_muting(account) {
     get_tower_data(`/api/v1/accounts/${account}/muting/`,'muting');
 }
 
-
-
 function get_state(state){
     if (state){
         console.log(state);
@@ -439,11 +467,29 @@ function timeSince(timeStamp) {
 }
 
 function check_steem_keychain(){if(window.steem_keychain) {console.log('Steem Keychain extension installed...');return true;} else {console.log('Steem Keychain extension not installed...');return false;}}
-function handshake_steem_keychain(){
-    if (check_steem_keychain){
-        steem_keychain.requestHandshake(function() {console.log('Handshake received!'); });
-    }
+function handshake_steem_keychain(){steem_keychain.requestHandshake(function() {console.log('Handshake received!'); })};
+function verify_login(){
+    var account_name = document.getElementById('loginuser').value;
+    var encrypted_message = '#message';
+    var key_type = 'Posting';
+    steem_keychain.requestVerifyKey(account_name, encrypted_message, key_type, function(response) {
+        console.log(response);
+    });
+}
 
+function post_comment(author,title,permlink,body,json_metadata,parent_author,parent_permlink,comment_options){
+    // json example {"app":"steemviz\/0.1","format":"markdown"}
+    // Could also contain tags, users, images, links
+    // comment options 
+    steem_keychain.requestPost(author, title, body, parent_permlink, parent_author, json_metadata, permlink, comment_options, function(response) {
+        console.log(response);
+    });
+}
+
+function vote(voter,author,permlink,weight){
+    steem_keychain.requestVote(voter, permlink, author, weight, function(response) {
+        console.log(response);
+    });
 }
 
 // Establish canvas
