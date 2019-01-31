@@ -1,6 +1,8 @@
 var route=function(){"use strict";var e=function(u){u=u||{};var o={},l=Array.prototype.slice;Object.defineProperties(u,{on:{value:function(e,t){if(typeof t=="function"){(o[e]=o[e]||[]).push(t)}return u},enumerable:false,writable:false,configurable:false},off:{value:function(e,t){if(e=="*"&&!t){o={}}else{if(t){var n=o[e];for(var r=0,i;i=n&&n[r];++r){if(i==t){n.splice(r--,1)}}}else{delete o[e]}}return u},enumerable:false,writable:false,configurable:false},one:{value:function(e,t){function n(){u.off(e,n);t.apply(u,arguments)}return u.on(e,n)},enumerable:false,writable:false,configurable:false},trigger:{value:function(e){var t=arguments;var n=arguments.length-1,r=new Array(n),i,a,f;for(f=0;f<n;f++){r[f]=t[f+1]}i=l.call(o[e]||[],0);for(f=0;a=i[f];++f){a.apply(u,r)}if(o["*"]&&e!="*"){u.trigger.apply(u,["*",e].concat(r))}return u},enumerable:false,writable:false,configurable:false}});return u};var r=/^.+?\/\/+[^/]+/,t="EventListener",n="remove"+t,i="add"+t,a="hasAttribute",f="popstate",u="hashchange",o="trigger",l=3,s=typeof window!="undefined"&&window,c=typeof document!="undefined"&&document,h=s&&history,p=s&&(h.location||s.location),d=P.prototype,v=c&&c.ontouchstart?"touchstart":"click",m=e();var b=false,g=false,y,w,$,_,A=[],S=0;function x(e){return e.split(/[/?#]/)}function K(e,t){var n=t.replace(/\?/g,"\\?").replace(/\*/g,"([^/?#]+?)").replace(/\.\./,".*");var r=new RegExp("^"+n+"$");var i=e.match(r);if(i){return i.slice(1)}}function N(e,t){var n;return function(){clearTimeout(n);n=setTimeout(e,t)}}function O(e){y=N(q,1);s[i](f,y);s[i](u,y);c[i](v,B);if(e){q(true)}}function P(){this.$=[];e(this);m.on("stop",this.s.bind(this));m.on("emit",this.e.bind(this))}function T(e){return e.replace(/^\/|\/$/,"")}function E(e){return typeof e=="string"}function j(e){return(e||p.href).replace(r,"")}function k(e){var t=L._.base;return t[0]==="#"?(e||p.href||"").split(t)[1]||"":(p?j(e):e||"").replace(t,"")}function q(t){var e=S===0;if(l<=S){return}S++;A.push(function(){var e=k();if(t||e!==w){m[o]("emit",e);w=e}});if(e){var n;while(n=A.shift()){n()}S=0}}function B(e){if(e.which!==1||e.metaKey||e.ctrlKey||e.shiftKey||e.defaultPrevented){return}var t=e.target;while(t&&t.nodeName!=="A"){t=t.parentNode}if(!t||t.nodeName!=="A"||t[a]("download")||!t[a]("href")||t.target&&t.target!=="_self"||t.href.indexOf(p.href.match(r)[0])===-1){return}var n=L._.base;if(t.href!==p.href&&(t.href.split("#")[0]===p.href.split("#")[0]||n[0]!=="#"&&j(t.href).indexOf(n)!==0||n[0]==="#"&&t.href.split(n)[0]!==p.href.split(n)[0]||!D(k(t.href),t.title||c.title))){return}e.preventDefault()}function D(e,t,n){if(!h){return m[o]("emit",k(e))}e=L._.base+T(e);t=t||c.title;n?h.replaceState(null,t,e):h.pushState(null,t,e);c.title=t;g=false;q();return g}d.m=function(e,t,n){if(E(e)&&(!t||E(t))){D(e,t,n||false)}else if(t){this.r(e,t)}else{this.r("@",e)}};d.s=function(){this.off("*");this.$=[]};d.e=function(n){this.$.concat("@").some(function(e){var t=(e==="@"?$:_)(T(n),T(e));if(typeof t!="undefined"){this[o].apply(null,[e].concat(t));return g=true}},this)};d.r=function(e,t){if(e!=="@"){e="/"+T(e);this.$.push(e)}this.on(e,t)};var F=new P;var L=F.m.bind(F);L._={base:null,getPathFromBase:k};L.create=function(){var e=new P;var t=e.m.bind(e);t.stop=e.s.bind(e);return t};L.base=function(e){L._.base=e||"#";w=k()};L.exec=function(){q(true)};L.parser=function(e,t){if(!e&&!t){$=x;_=K}if(e){$=e}if(t){_=t}};L.query=function(){var r={};var e=p.href||w;e.replace(/[?&](.+?)=([^&]*)/g,function(e,t,n){r[t]=n});return r};L.stop=function(){if(b){if(s){s[n](f,y);s[n](u,y);c[n](v,B)}m[o]("stop");b=false}};L.start=function(e){if(!b){if(s){if(document.readyState==="interactive"||document.readyState==="complete"){O(e)}else{document.onreadystatechange=function(){if(document.readyState==="interactive"){setTimeout(function(){O(e)},1)}}}}b=true}};L.base();L.parser();return L}();
 route.base('#!');
 route('@*',function(account) {profile_page(account);})
+route('@*/followers',function(account) {profile_page_followers(account);})
+route('@*/following',function(account) {profile_page_following(account);})
 route('@*/*',function(account, permlink) {post_page(account,permlink);})
 route('about',function() {about_page();})
 route('settings',function() {settings_page();})
@@ -8,6 +10,7 @@ route('recent-posts',function() {recent_posts_page();})
 route('search-accounts',function() {search_accounts_page();})
 route('tag/*',function(tag) {search_tags_page(tag);})
 route('tag/*/@*',function(tag,account) {search_tags_page(tag,account);})
+route('state', function(){state_page();})
 route(function() {front_page();})
 
 var nicenumber = function (number) {var temp = parseInt(number,10);return temp.toFixed(0); };
@@ -29,6 +32,16 @@ function profile_page(account) {
     tower_account_lookup(account);
 }
 
+function profile_page_followers(account){
+    app.innerHTML='<div id="results" class="container"></div>';
+    get_followers(account);
+}
+
+function profile_page_following(account){
+    app.innerHTML='<div id="results" class="container"></div>';
+    get_following(account);
+}
+
 function post_page(account,permlink){
     app.innerHTML = 'loading post : @'+account+'/'+permlink;
     tower_post_lookup(account,permlink);
@@ -44,9 +57,15 @@ function front_page(){
     <li><a href="#!/recent-posts">Recent Posts from all users</a></li>
     <li><a href="#!/search-accounts">Search Accounts</a></li>
     <li><a href="#!/@ausbitbank">@ausbitbank</a></li>
+    <li><a href="#!/@ausbitbank/following">@ausbitbank following</a></li>
+    <li><a href="#!/@ausbitbank/followers">@ausbitbank followers</a></li>
     <li><a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a></li>
     <li><a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></li>
     </ul>`;
+}
+
+function state_page(){
+    get_state();
 }
 
 function settings_page(){
@@ -132,6 +151,8 @@ function render_account_card(user){
       if (key == 'website') {profile_text+=`<b>${key}:</b> <a href="${value}">${value}</a><br />`; continue;}
       if (key == 'name') {continue;}
       if (key == 'raw_json') {continue;}
+      if (key == 'following') {profile_text+=`<b>${key}</b>: <a href="#!/@${user.name}/following">${value}</a><br />`;continue;}
+      if (key == 'followers') {profile_text+=`<b>${key}</b>: <a href="#!/@${user.name}/followers">${value}</a><br />`;continue;}
       if (key == 'apps' && value.length==0) {continue;}
       profile_text+=`<b>${key}:</b> ${value}<br />`;
     }
@@ -143,6 +164,27 @@ function render_account_card(user){
     </div>`;
     
     document.getElementById('results').innerHTML+=card;
+}
+
+function render_followers(followers){
+    var results='';
+    document.getElementById('results').innerHTML = `<h1>${followers.length} Followers :</h1><br />`;
+    for (var i=0, len=followers.length;i<len;i++){
+        results+=`<div class="card profile_badge"><a href="#!/@${followers[i]}"><h1>${followers[i]}</h1><img class="lozad" data-src="https://steemitimages.com/u/${followers[i]}/avatar" class="avatar"></a></div>`;
+    }
+    document.getElementById('results').innerHTML+=results;
+    observer.observe();
+}
+
+function render_following(follows){
+    var results='';
+    document.getElementById('results').innerHTML = `<h1>${follows.length} Follows :</h1><br />`;
+    console.log('test');
+    for (var i=0, len=follows.length;i<len;i++){
+        results+=`<div class="card profile_badge"><a href="#!/@${follows[i]}"><h1>${follows[i]}</h1><img class="lozad" data-src="https://steemitimages.com/u/${follows[i]}/avatar" class="avatar"></a></div>`;
+    }
+    document.getElementById('results').innerHTML+=results;
+    observer.observe();
 }
 
 function tower_post_lookup(author,permlink){
@@ -165,14 +207,17 @@ function tower_account_lookup(account){
 }
 
 function account_profile(user){
-    profile_text=`<div class="profile_badge center"><a href="#!/@${user.name}"><img src="https://steemitimages.com/u/${user.name}/avatar" class="avatar"><br /><h2>@${user.name}</h2></a></div>`;
+    profile_text=`<div class="profile_badge center"><a href="#!/@${user.name}"><img src="https://steemitimages.com/u/${user.name}/avatar" class="avatar grow"><br /><h2>@${user.name}</h2></a></div>`;
     for (var key in user) {
         var value = user[key];
         if (key == 'name') {continue;}
+        if (key == 'website') {profile_text+=`<b>${key}:</b> <a href="${value}">${value}</a><br />`; continue;}
         if (key == 'apps' && value.length==0) {continue;}
+        if (key == 'following') {profile_text+=`<b>${key}</b>: <a href="#!/@${user.name}/following">${value}</a><br />`;continue;}
+        if (key == 'followers') {profile_text+=`<b>${key}</b>: <a href="#!/@${user.name}/followers">${value}</a><br />`;continue;}
         profile_text+=`<b>${key}:</b> ${value}<br />`;
     }
-    app.innerHTML='<div class="center">'+profile_text+'</div>';
+    app.innerHTML='<div class="center profile_badge">'+profile_text+'</div>';
     app.innerHTML+='<h1>Recent activity</h1>\n<div id="results" class="container"></div>'
     tower_account_recent_posts_search(user.name,'');
 }
@@ -299,6 +344,11 @@ function get_tower_data(apiurl,return_to) {
             case 'recent_posts': recent_posts(data);break;
             case 'account-search-results': render_account_search_results(data);break;
             case 'post-search-results': render_post_search_results(data);break;
+            case 'followers': render_followers(data['followers']);break;
+            case 'following': render_following(data['following']);break;
+            case 'muting': render_muting(data);break;
+            case 'muted': render_muted(data);break;
+            case 'state': get_state(data);break;
             default: console.log(data);
         }
 
@@ -336,15 +386,39 @@ function spinner(message){
     if (document.getElementById('spinner')){
         document.getElementById('spinner').remove();       
     } else {
-        app.innerHTML+=`<i class="fa fa-spinner fa-spin fa-lg center" id="spinner"> ${message}</i>`;
+        app.innerHTML+=`<div id="spinner"><i class="fas fa-refresh fa-spin fa-9x fa-w-16 center"> ${message}</i></div>`;
+    }
+}
+
+function get_followers(account) {
+    get_tower_data(`/api/v1/accounts/${account}/followers/`,'followers');
+}
+
+function get_following(account) {
+    get_tower_data(`/api/v1/accounts/${account}/following/`,'following');  
+}
+
+function get_muters(account) {
+    get_tower_data(`/api/v1/accounts/${account}/muters/`,'muters'); 
+}
+
+function get_muting(account) {
+    get_tower_data(`/api/v1/accounts/${account}/muting/`,'muting');
+}
+
+function get_state(state){
+    if (state){
+        console.log(state);
+    } else {
+        get_tower_data('/api/v1/state/','state');
     }
 }
 
 function check_steem_keychain(){
     if(window.steem_keychain) {
-        //console.log('Steem Keychain extension installed...');
+        console.log('Steem Keychain extension installed...');
     } else {
-        //console.log('Steem Keychain extension not installed...');
+        console.log('Steem Keychain extension not installed...');
     }
 
 }
@@ -397,5 +471,6 @@ pageWrap.addEventListener('scroll', debounce(onScroll, 16));
 
 // Initialize routing
 route.start(true);
-
+const observer = lozad();
+observer.observe();
 
