@@ -62,6 +62,7 @@ function front_page(){
     <li><a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a></li>
     <li><a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></li>
     <li><a href="#" onClick="check_steem_keychain();">Check steem keychain</a></li>
+    <li><a href="#" onClick="handshake_steem_keychain();">Handshake steem keychain</a></li>
     </ul>`;
     //check_steem_keychain();
     //get_state();
@@ -437,7 +438,13 @@ function timeSince(timeStamp) {
     }
 }
 
-function check_steem_keychain(){if(window.steem_keychain) {console.log('Steem Keychain extension installed...');} else {console.log('Steem Keychain extension not installed...');}}
+function check_steem_keychain(){if(window.steem_keychain) {console.log('Steem Keychain extension installed...');return true;} else {console.log('Steem Keychain extension not installed...');return false;}}
+function handshake_steem_keychain(){
+    if (check_steem_keychain){
+        steem_keychain.requestHandshake(function() {console.log('Handshake received!'); });
+    }
+
+}
 
 // Establish canvas
 const app = document.getElementById('root');
