@@ -218,8 +218,10 @@ p {
 .comment {}
 .comment_meta {padding:1em;}
 .comment_body {padding:1em;}
+#comment_entry {}
+.comment_entry_form{text-align:center;justify-content: center;}
 .post {}
-.post_footer {padding:1em;font-weight:bold;}
+.post_footer {padding:1em;font-weight:bold;text-align: center;}
 .post_content {padding:1em;}
 a,a:active,a:visited {text-decoration: none;font-weight: bold;}
 a:hover {text-decoration: underline;}
@@ -229,3 +231,4 @@ a:hover {text-decoration: underline;}
 .fa-star {color:gold;}
 .grow { transition: all .2s ease-in-out; }
 .grow:hover { transform: scale(1.5); }
+#vote_popup {}

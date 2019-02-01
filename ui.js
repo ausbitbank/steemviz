@@ -62,11 +62,7 @@ function front_page(){
     <li><a href="#!/@ausbitbank/followers">@ausbitbank followers</a></li>
     <li><a href="#!/@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain">@jesta/the-recent-controversy-between-steemit-inc-and-the-community-the-premine-control-and-where-it-leads-this-blockchain</a></li>
     <li><a href="#!/@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache">@thedarkoverlord/9-11-papers-megaleak-layer-2-checkpoint-08-cyber-cash-for-cyber-cache</a></li>
-    <li><a href="#" onClick="check_steem_keychain();">Check steem keychain</a></li>
-    <li><a href="#" onClick="handshake_steem_keychain();">Handshake steem keychain</a></li>
     </ul>`;
-    //check_steem_keychain();
-    //get_state();
 }
 
 function state_page(){
@@ -113,13 +109,54 @@ function tower_account_recent_posts_search(author,nextapiurl){
     if (author=='' && nextapiurl==''){get_tower_data(`/api/v1/post_cache/?limit=50`,'recent_posts');}
 }
 
+function render_tower_votes(data){
+    var votearray = data.votes.split("\n"); var votes_up = ''; var votes_down = '';
+    for (vote in votearray) { voteweight = votearray[vote].split(',')[2]; if (voteweight){if (voteweight.startsWith('-')) {votes_down+=votearray[vote].split(',')[0]+'\n';} else {votes_up+=votearray[vote].split(',')[0]+'\n';}}}
+    return `<a id="vote_up_${data.author}_${data.permlink}" onClick="render_vote_popup('${data.author}','${data.permlink}','up',this.id);"><i class="fas fa-thumbs-up grow"></i></a> <a title="${votes_up}">${data.up_votes}</a> <a id="vote_down_${data.author}_${data.permlink}" onClick="render_vote_popup('${data.author}','${data.permlink}','down',this.id);"><i class="fas fa-thumbs-down grow"></i></a> <a title="${votes_down}">${data.total_votes-data.up_votes}</a>`;
+}
+
+function render_vote_popup(author,permlink,direction,id){
+    if (document.getElementById(`vote_popup_${author}_${permlink}`)) {
+        console.log('vote popup already open');
+
+    } else {
+        document.getElementById(id).innerHTML+=`<div id="vote_popup_${author}_${permlink}"><a onClick="document.getElementById('vote_popup_${author}_${permlink}').remove();"><i class="fas fa-times-circle grow"></i></a> <input type="range" min="1" max="100" value="50" class="slider" id="vote_popup_${author}_${permlink}_weight"><i class="fas fa-thumbs-${direction} grow"></i></div>`;
+    }
+    
+}
+
+function send_vote(author,permlink,weight){
+    var account_name='';
+    steem_keychain.requestVote(account_name, permlink, author, weight, function(response) {
+        console.log(response);
+    });
+}
+
+function render_comment_form(author,permlink){
+    return `<div class="comment_entry_form"><textarea id="comment_entry">Say something..</textarea><br /><button onClick="send_comment_form('${author}','${permlink}');">Send</button></div>`;
+}
+
+function send_comment_form(parent_author,parent_permlink){
+    var json_metadata =`{"app":"steemviz\/0.1","format":"markdown"}`;
+    var permlink=new Date().toISOString().replace(/[^a-zA-Z0-9]+/g, '').toLowerCase();
+    console.log(permlink);
+    console.log(parent_author);
+    console.log(parent_permlink);
+
+    // Could also contain tags, users, images, links
+    // comment options 
+    //post_comment(author,title,permlink,body,json_metadata,parent_author,parent_permlink,comment_options);
+    post_comment('ausbitbank',' ',permlink,document.getElementById('comment_entry').value,json_metadata,parent_author,parent_permlink,'');
+}
+
 function render_comment(comment,responsetype,responseto) {
+    //console.log(comment);
     if (responsetype=='steemd') {
         var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,30)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created))} <i class="fas fa-thumbs-up"></i> ${comment.net_votes} <i class="far fa-comments"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.children}</a></div><div class="comment_body">${clean(comment.body)}</div></div>`;
         document.getElementById('comments').innerHTML += rendered_comment;
     } else {
         if (comment.body!=comment.preview) {viewfullcomment = `<p><a href="#!/@${comment.author}/${comment.permlink}"><i class="fas fa-comment"></i> View full comment</a></p>`} else {viewfullcomment ='';}
-        var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,30)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created_at))} <i class="fas fa-thumbs-up"></i> ${comment.up_votes} <i class="fas fa-thumbs-down"></i> ${comment.total_votes-comment.up_votes} <i class="far fa-comments"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.children}</a></div><div class="comment_body">${clean(comment.preview)} ${viewfullcomment}</div></div>`;
+        var rendered_comment = `<div class="card comment"><div class="comment_meta"><i class="fas fa-user"></i> <a href="#!/@${comment.author}">${comment.author}</a> replied to <i class="far fa-comment-dots"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.permlink.substring(0,30)}</a><br /><i class="far fa-clock"></i> ${timeSince(new Date(comment.created_at))} ${render_tower_votes(comment)} <i class="far fa-comments"></i> <a href="#!/@${comment.author}/${comment.permlink}">${comment.children}</a></div><div class="comment_body">${clean(comment.preview)} ${viewfullcomment}</div></div>`;
         document.getElementById('results').innerHTML += rendered_comment;
     }
     
@@ -153,7 +190,7 @@ function send_transfer_form() {
 function render_post_preview(post){
     //console.log(post);
     if (post.body!=post.preview) {viewfullpost = `<p><a href="#!/@${post.author}/${post.permlink}"><i class="fas fa-comment"></i> View full post</a></p>`} else {viewfullpost ='';}
-    var rendered_post = `<div class="card"><div class="post_meta"><i class="fas fa-user"></i> <a href="#!/@${post.author}">${post.author}</a> posted <i class="fas fa-link"></i> <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> <br /><i class="far fa-clock"></i> ${timeSince(new Date(post.created_at))} <i class="fas fa-thumbs-up"></i> ${post.up_votes} <i class="fas fa-thumbs-down"></i> ${post.total_votes-post.up_votes} <i class="far fa-comments"></i> <a href="#!/@${post.author}/${post.permlink}">${post.children}</a></div><div class="post_preview_body">${clean(post.preview)} ${viewfullpost}</div></div>`;
+    var rendered_post = `<div class="card"><div class="post_meta"><i class="fas fa-user"></i> <a href="#!/@${post.author}">${post.author}</a> posted <i class="fas fa-link"></i> <a href="#!/@${post.author}/${post.permlink}">${post.title}</a> <br /><i class="far fa-clock"></i> ${timeSince(new Date(post.created_at))} ${render_tower_votes(post)} <i class="far fa-comments"></i> <a href="#!/@${post.author}/${post.permlink}">${post.children}</a></div><div class="post_preview_body">${clean(post.preview)} ${viewfullpost}</div></div>`;
     document.getElementById('results').innerHTML += rendered_post;
 }
 
@@ -161,7 +198,6 @@ function render_account_search_results(data){
     //console.log(data);
     document.getElementById('search-status').innerHTML = `Found ${data.count} results`;
     data.results.forEach(user => { prepare_profile_data(user,'multi'); });
-    
     if (data.next){document.getElementById('results').innerHTML+=`<div class="card" id="loadmore"><h2 onClick="get_tower_data('${data.next}','account-search-results');"> <i class="fa fa-arrow-circle-down fa-lg""></i> Load more posts : ${data.count} total</h2></div>`;}
 }
 
@@ -257,27 +293,50 @@ function account_profile(user){
 }
 
 function recent_posts(data){
-    for (key in data.results){
-        if (data.results[key].post.parent!==null){
-            render_comment(data.results[key]);
-        } else {render_post_preview(data.results[key]);
+    for (key in data.results){ if (data.results[key].post.parent!==null){ render_comment(data.results[key]); } else {render_post_preview(data.results[key]); } }
+    if (data.next){ app.innerHTML+=`<div class="card" id="loadmore"><h2 onClick="tower_account_recent_posts_search('','${data.next}');"> <i class="fa fa-arrow-circle-down fa-lg""></i> Load more posts : ${data.count} total</h2></div>`; }
+}
+
+function render_app_link(data){
+    //console.log(data);
+    var json = JSON.parse(data.json);
+    var app_link ='<i class="fas fa-external-link-alt"></i> ';
+    var app_array = json.app.split('/');
+    if (json.app) {
+        console.log(app_array[0]);
+        if (app_array.length>=1) {
+            var app_name=app_array[0];
+            var app_version='v'+app_array[1];
+        } else {
+            var app_name=app_array[0];
+            var app_version='';
+        }
+        switch (app_array[0]){
+            case 'busy' : app_link += `<a href="https://busy.org/@${data.author}/${data.permlink}">${app_name} ${app_version}</a>`;break; 
+            case 'steemviz' : app_link += `<a href="https://steemviz.com/ui#!/@${data.author}/${data.permlink}">${app_name} ${app_version}</a>`;break;
+            default: app_link += `<a href="https://steemit.com/@${data.author}/${data.permlink}">Steemit</a>`;break;
         }
     }
-    if (data.next){
-        app.innerHTML+=`<div class="card" id="loadmore"><h2 onClick="tower_account_recent_posts_search('','${data.next}');"> <i class="fa fa-arrow-circle-down fa-lg""></i> Load more posts : ${data.count} total</h2></div>`;
-    }
+    return app_link;
 }
 
 function view_single_post(data){
+    //console.log(data);
     if (data.json) {
         json = JSON.parse(data.json);
+
+        data.tags = '';
         if (json.tags) {
-            data.tags='';
+            data.tags='<i class="fas fa-tags"></i> ';
             for (tag in json.tags){
                 data.tags += `<span class="tag is-info"><a href="#!/tag/${json.tags[tag]}/@${data.author}">${json.tags[tag]}</a></span> `;
             }
         }
     }
+    
+
+
+
     if (data.raw_json){
         json = JSON.parse(data.raw_json);
         var link_root_article='';
@@ -285,6 +344,7 @@ function view_single_post(data){
             link_root_article = `<b>View the root post:</b> <i class="fas fa-link"></i> <a href="#!/@${json.root_author}/${json.root_permlink}">${json.root_title}</a><br />`;
         }
     }
+
     //console.log(data);
     app.innerHTML=`
     ${link_root_article}
@@ -292,9 +352,10 @@ function view_single_post(data){
     <div class="post_content">${clean(data.body)}</div>
     <hr>
     <div class="post_footer">
-    <p><i class="fas fa-user"></i> Posted by <a href="#!/@${data.author}">${data.author}</a> <i class="fas fa-star"></i> ${data.author_rep} <i class="far fa-clock"></i> ${timeSince(new Date(data.created_at))} <i class="fas fa-thumbs-up"></i> ${data.up_votes} <i class="fas fa-thumbs-down"></i> ${data.total_votes-data.up_votes} <i class="far fa-comments"></i> ${data.children} <i class="fas fa-tags"></i> ${data.tags} </p>
+    <p><i class="fas fa-user"></i> Posted by <a href="#!/@${data.author}">${data.author}</a> <i class="fas fa-star"></i> ${data.author_rep} <i class="far fa-clock"></i> ${timeSince(new Date(data.created_at))} ${render_tower_votes(data)} <i class="far fa-comments"></i> ${data.children} ${data.tags} ${render_app_link(data)}</p>
     
     </div>
+    ${render_comment_form(data.author,data.permlink)}
     <div id="comments" class="container"></div>
     `;
     get_steemd_content_replies(data.author,data.permlink);
@@ -478,9 +539,6 @@ function verify_login(){
 }
 
 function post_comment(author,title,permlink,body,json_metadata,parent_author,parent_permlink,comment_options){
-    // json example {"app":"steemviz\/0.1","format":"markdown"}
-    // Could also contain tags, users, images, links
-    // comment options 
     steem_keychain.requestPost(author, title, body, parent_permlink, parent_author, json_metadata, permlink, comment_options, function(response) {
         console.log(response);
     });
