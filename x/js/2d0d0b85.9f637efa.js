@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["2d0d0b85"],{"68d1":function(n,t,e){"use strict";e.r(t);var a=function(){var n=this,t=n.$createElement,e=n._self._c||t;return e("q-page",{attrs:{padding:""}},[e("h3",[n._v("ScotBOT API for PAL")])])},r=[],c={},l=c,o=e("2877"),s=Object(o["a"])(l,a,r,!1,null,null,null);t["default"]=s.exports}}]);
