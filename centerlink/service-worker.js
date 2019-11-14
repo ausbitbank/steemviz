@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.37928910403bb82a70c40e835dee9d8e.js"
+  "precache-manifest.d4f5cdf4d12830e95c53e2e359a5fb6d.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "centerlink"});
