@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.a3c11f6450b1c84413bb227b053f125a.js"
+  "precache-manifest.424c8aed0894181d581ade67416314d8.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "witnesses"});
